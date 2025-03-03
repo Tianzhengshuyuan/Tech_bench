@@ -111,7 +111,7 @@ def extract_text_or_formula(run, dotx_path, relationships):
                     #     print(f"Could not find image for rId: {rId}")
     return ""
 
-def extract_questions_from_docx(docx_path, output_json_path):
+def extract_questions_and_answer_from_docx(docx_path, output_json_path):
     # 打开 Word 文档
     doc = Document(docx_path)
     
@@ -139,7 +139,6 @@ def extract_questions_from_docx(docx_path, output_json_path):
 
     # 提取文档中的文本
     full_text = "\n".join([p.text for p in doc.paragraphs])
-
 
     # 提取选择题内容
     questions = []
@@ -331,6 +330,15 @@ def extract_questions_from_docx(docx_path, output_json_path):
         # 添加识别到的问题
         questions.append(question_data)
 
+    # 提取答案内容
+    matches = re.findall(r'(\d+)[.\s]+([A-D])', full_text)
+    for match in matches:
+        number, answer = match
+        for question_data in questions:
+            if question_data.get("index") == number:
+                question_data["answer"] = answer
+                break
+            
     # 保存为 JSON 文件
     with open(output_json_path, "w", encoding="utf-8") as f:
         json.dump(questions, f, ensure_ascii=False, indent=4)
@@ -344,6 +352,7 @@ if __name__ == "__main__":
     parser.add_argument("--docx_name", type=str, help="Word文档名")
     parser.add_argument("--output", type=str, default="questions.json", help="输出 JSON 文件路径 (默认: questions.json)")
     args = parser.parse_args()
+    
     docx_path = f"/root/tech_bench/docx/{args.docx_name}.docx"  
     output_json_path = f"/root/tech_bench/json/{args.docx_name}.json"     
-    extract_questions_from_docx(docx_path, output_json_path)
+    extract_questions_and_answer_from_docx(docx_path, output_json_path)
