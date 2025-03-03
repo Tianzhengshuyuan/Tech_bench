@@ -4,6 +4,8 @@ import pytesseract
 import zipfile
 import subprocess
 import requests
+import os
+import argparse
 from docx import Document
 from wand.image import Image
 from PIL import Image as PILImage
@@ -26,19 +28,6 @@ def parse_relationships(docx_zip):
             if rId and target:
                 relationships[rId] = target
     return relationships
-
-def convert_wmf_to_png(wmf_data, resolution=300):
-    """
-    将 WMF 图像数据转换为 PNG 格式。
-    """
-    with Image(blob=wmf_data, resolution=resolution) as img:
-        img.format = 'png'  # 转换为 PNG 格式
-        img.antialias = True
-        png_data = img.make_blob('png')  # 获取 PNG 格式的二进制数据
-
-    # 使用 Pillow 加载 PNG 图像
-    png_image = PILImage.open(BytesIO(png_data))
-    return png_image
 
 def extract_high_res_image_from_docx(docx_path, rId, relationships):
     """
@@ -108,18 +97,18 @@ def extract_text_or_formula(run, dotx_path, relationships):
                     # 使用 rId 提取高分辨率图像
                     img = extract_high_res_image_from_docx(docx_path, rId, relationships)
                     file_path = f"./png_images/{rId}.png"
-                    if img:
-                        # 使用 SimpleTex 的 API 识别公式
-                        SIMPLETEX_UAT="x97YHMaxT4hl1kbcvKkAHbQqZGR0HDL0rBAZfmqScLusUcO74sXCCOIsNfqO3PgM"
-                        api_url="https://server.simpletex.cn/api/latex_ocr"  # 接口地址
-                        data = { } # 请求参数数据（非文件型参数），视情况填入，可以参考各个接口的参数说明
-                        header={ "token": SIMPLETEX_UAT } # 鉴权信息，此处使用UAT方式
-                        file=[("file",(file_path,open(file_path, 'rb')))] # 请求文件,字段名一般为file
-                        res = requests.post(api_url, files=file, data=data, headers=header) # 使用requests库上传文件
-                        content = json.loads(res.text)['res']['latex']
-                        return content
-                    else:
-                        print(f"Could not find image for rId: {rId}")
+                    # if img:
+                    #     # 使用 SimpleTex 的 API 识别公式
+                    #     SIMPLETEX_UAT="x97YHMaxT4hl1kbcvKkAHbQqZGR0HDL0rBAZfmqScLusUcO74sXCCOIsNfqO3PgM"
+                    #     api_url="https://server.simpletex.cn/api/latex_ocr"  # 接口地址
+                    #     data = { } # 请求参数数据（非文件型参数），视情况填入，可以参考各个接口的参数说明
+                    #     header={ "token": SIMPLETEX_UAT } # 鉴权信息，此处使用UAT方式
+                    #     file=[("file",(file_path,open(file_path, 'rb')))] # 请求文件,字段名一般为file
+                    #     res = requests.post(api_url, files=file, data=data, headers=header) # 使用requests库上传文件
+                    #     content = json.loads(res.text)['res']['latex']
+                    #     return content
+                    # else:
+                    #     print(f"Could not find image for rId: {rId}")
     return ""
 
 def extract_questions_from_docx(docx_path, output_json_path):
@@ -157,6 +146,7 @@ def extract_questions_from_docx(docx_path, output_json_path):
     for match in question_pattern.finditer(full_text):
         print(match.group(0))
         question_data = match.groupdict()
+        question_data['index'] = (re.match(r'^(\d+)[．.]', question_data["question"][:10])).group(1)
         for i,paragraph in enumerate(doc.paragraphs):
             if paragraph.text.startswith(question_data["question"][:10].strip()):
                 #找到option_paragraph的真正起点
@@ -347,7 +337,13 @@ def extract_questions_from_docx(docx_path, output_json_path):
 
     print(f"提取完成！选择题已保存到 {output_json_path}")
 
-# 使用示例
-docx_path = "/root/tech_bench/2001年陕西高考理综真题及答案.docx"  # 替换为你的 Word 文档路径
-output_json_path = "questions.json"       # 输出 JSON 文件路径
-extract_questions_from_docx(docx_path, output_json_path)
+# 命令行入口
+if __name__ == "__main__":
+    # 定义命令行参数
+    parser = argparse.ArgumentParser(description="从 Word 文档中提取选择题和答案并保存为 JSON 格式")
+    parser.add_argument("--docx_name", type=str, help="Word文档名")
+    parser.add_argument("--output", type=str, default="questions.json", help="输出 JSON 文件路径 (默认: questions.json)")
+    args = parser.parse_args()
+    docx_path = f"/root/tech_bench/docx/{args.docx_name}.docx"  
+    output_json_path = f"/root/tech_bench/json/{args.docx_name}.json"     
+    extract_questions_from_docx(docx_path, output_json_path)
