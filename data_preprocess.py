@@ -167,19 +167,27 @@ def extract_questions_and_answer_from_docx(docx_path, output_json_path):
         # print(match.group(2))
         question_data = match.groupdict()
         print(repr(match.group(0)))
+        print("question is: "+question_data["question"])
+        print("A is: "+question_data["A"])
+        print("B is: "+question_data["B"])
+        print("C is: "+question_data["C"])
+        print("D is: "+question_data["D"])
         question_data['index'] = (re.match(r'^(\d+)[．.]', question_data["question"][:10])).group(1)
         for i,paragraph in enumerate(doc.paragraphs):
             if paragraph.text.startswith(question_data["question"][:10].strip()):
                 #找到option_paragraph的真正起点
                 start = 1
                 for j in range(1,10):
-                    if doc.paragraphs[i+j].text.startswith("A"):
+                    # print("paragraph is: "+doc.paragraphs[i+j].text)
+                    if doc.paragraphs[i+j].text.replace(" ", "").replace("\t", "").startswith("A"):
                         start = i+j
                         break
+                    
                 option_paragraph1 = doc.paragraphs[start]
                 option_paragraph2 = doc.paragraphs[start+1]
                 option_paragraph3 = doc.paragraphs[start+2]
                 option_paragraph4 = doc.paragraphs[start+3]
+                
                 results_A = ""
                 results_B = ""
                 results_C = ""
@@ -187,7 +195,7 @@ def extract_questions_and_answer_from_docx(docx_path, output_json_path):
 
                 #四个选项各占一行
                 if option_paragraph1.text.startswith("A") and option_paragraph2.text.startswith("B"): 
-                    print("[Situation1]")
+                    print("[[[Situation1]]]")
                     option_count=0
                     minus = 0
                     for i,run in enumerate(option_paragraph1.runs):
@@ -310,7 +318,7 @@ def extract_questions_and_answer_from_docx(docx_path, output_json_path):
                             results_D += result
                 #四个选项占两行
                 elif option_paragraph1.text.startswith("A") and option_paragraph2.text.startswith("C"):
-                    print("[Situation2]") 
+                    print("[[[Situation2]]]") 
                     option_count=0
                     minus = 0
                     for i,run in enumerate(option_paragraph1.runs):
@@ -411,7 +419,7 @@ def extract_questions_and_answer_from_docx(docx_path, output_json_path):
                                 elif option_count==4:
                                     results_D += result                        
                 else: #四个选项在同一行
-                    print("[Situation3]")
+                    print("[[[Situation3]]]")
                     option_count=0
                     minus = 0
                     for i,run in enumerate(option_paragraph1.runs):
@@ -433,11 +441,12 @@ def extract_questions_and_answer_from_docx(docx_path, output_json_path):
                                 if run.text == "﹣":
                                     minus = 1
                             else:
-                                result = run.text.lstrip("．.。") # 普通文本直接添加
+                                result = run.text.lstrip("．.。\t") # 普通文本直接添加
                         else: #不是文本就需要处理图像
                             result = extract_formula_from_picture(run, docx_path, relationships).lstrip("．.。")
-                        print(result)
+                        print("result is: "+result)
                         if re.search(r"(^|[^a-zA-Z])A([^a-zA-Z]|$)", result) or re.search(r"(^|[^a-zA-Z])B([^a-zA-Z]|$)", result) or re.search(r"(^|[^a-zA-Z])C([^a-zA-Z]|$)", result) or re.search(r"(^|[^a-zA-Z])D([^a-zA-Z]|$)", result):
+                            print("has abcd")
                             #全是文本，一整行被解析成一个run
                             if re.search(r"A", result) and re.search(r"B", result) and re.search(r"C", result) and re.search(r"D", result):
                                 # 定义正则表达式匹配整个模式
