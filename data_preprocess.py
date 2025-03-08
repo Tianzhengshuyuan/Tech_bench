@@ -35,7 +35,6 @@ def extract_high_res_image_from_docx(docx_path, rId, relationships):
     """
     # 获取 rId 对应的 Target 路径
     target_path = relationships.get(rId)
-    print(target_path)
     if not target_path:
         print(f"No target found for rId: {rId}")
         return None
@@ -71,7 +70,7 @@ def extract_formula_from_picture(run, dotx_path, relationships):
     提取段落中的文本或公式图片并识别为 LaTeX。
     """
     run_xml = run.element  # 获取当前运行对象的 XML 元素
-    print(run_xml.xml)
+    # print(run_xml.xml)
 
     if "<w:object" in run_xml.xml:
         # 解析 OLE 对象
@@ -101,6 +100,7 @@ def extract_formula_from_picture(run, dotx_path, relationships):
                         file=[("file",(file_path,open(file_path, 'rb')))] # 请求文件,字段名一般为file
                         res = requests.post(api_url, files=file, data=data, headers=header) # 使用requests库上传文件
                         content = json.loads(res.text)['res']['latex']
+                        # print(json.loads(res.text))
                         return content
                     else:
                         print(f"Could not find image for rId: {rId}")
@@ -124,10 +124,10 @@ def extract_questions_and_answer_from_docx(docx_path, output_json_path):
 
     question_pattern = re.compile(
         r"(?P<question>\d+[．.。].*?)"           # 匹配题目开头，如 "17. 一定质量的..."
-        r"(?:A[．.。]\s*(?P<A>.*?))"             # 匹配 A 选项
-        r"(?:B[．.。]\s*(?P<B>.*?))"             # 匹配 B 选项
-        r"(?:C[．.。]\s*(?P<C>.*?))"             # 匹配 C 选项
-        r"(?:D[．.。]\s*?(?P<D>.*?))"             # 匹配 D 选项
+        r"(?:A[．.。\s]\s*(?P<A>.*?))"             # 匹配 A 选项
+        r"(?:B[．.。\s]\s*(?P<B>.*?))"             # 匹配 B 选项
+        r"(?:C[．.。\s]\s*(?P<C>.*?))"             # 匹配 C 选项
+        r"(?:D[．.。\s]\s*?(?P<D>.*?))"             # 匹配 D 选项
         r"(?=\n|\f|\d+[．.。][\u4e00-\u9fa5])",     # 断言 D 选项后面是换行符、换页符、题号或中文汉字，但不包含这些内容
         re.DOTALL                           # 允许匹配跨行内容
     )
