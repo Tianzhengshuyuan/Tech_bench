@@ -67,12 +67,12 @@ def extract_high_res_image_from_docx(docx_path, rId, relationships):
 
 def extract_formula_from_picture(run, dotx_path, relationships):
     """
-    提取段落中的文本或公式图片并识别为 LaTeX。
+    提取段落中的公式图片并识别为 LaTeX。
     """
     run_xml = run.element  # 获取当前运行对象的 XML 元素
     # print(run_xml.xml)
 
-    if "<w:object" in run_xml.xml:
+    if "<w:object" in run_xml.xml and args.latex == "on":
         # 解析 OLE 对象
         for ole_object in run_xml.findall(".//{urn:schemas-microsoft-com:office:office}OLEObject"):
             prog_id = ole_object.attrib.get("ProgID", "")
@@ -184,11 +184,10 @@ def extract_questions_and_answer_from_docx(docx_path, output_json_path):
                 results_B = ""
                 results_C = ""
                 results_D = ""
-                # print(option_paragraph1.text)
+
                 #四个选项各占一行
-                
                 if option_paragraph1.text.startswith("A") and option_paragraph2.text.startswith("B"): 
-                    print("situation1")
+                    print("[Situation1]")
                     option_count=0
                     minus = 0
                     for i,run in enumerate(option_paragraph1.runs):
@@ -311,7 +310,7 @@ def extract_questions_and_answer_from_docx(docx_path, output_json_path):
                             results_D += result
                 #四个选项占两行
                 elif option_paragraph1.text.startswith("A") and option_paragraph2.text.startswith("C"):
-                    print("situation2") 
+                    print("[Situation2]") 
                     option_count=0
                     minus = 0
                     for i,run in enumerate(option_paragraph1.runs):
@@ -412,7 +411,7 @@ def extract_questions_and_answer_from_docx(docx_path, output_json_path):
                                 elif option_count==4:
                                     results_D += result                        
                 else: #四个选项在同一行
-                    print("situation3")
+                    print("[Situation3]")
                     option_count=0
                     minus = 0
                     for i,run in enumerate(option_paragraph1.runs):
@@ -437,7 +436,7 @@ def extract_questions_and_answer_from_docx(docx_path, output_json_path):
                                 result = run.text.lstrip("．.。") # 普通文本直接添加
                         else: #不是文本就需要处理图像
                             result = extract_formula_from_picture(run, docx_path, relationships).lstrip("．.。")
-
+                        print(result)
                         if re.search(r"(^|[^a-zA-Z])A([^a-zA-Z]|$)", result) or re.search(r"(^|[^a-zA-Z])B([^a-zA-Z]|$)", result) or re.search(r"(^|[^a-zA-Z])C([^a-zA-Z]|$)", result) or re.search(r"(^|[^a-zA-Z])D([^a-zA-Z]|$)", result):
                             #全是文本，一整行被解析成一个run
                             if re.search(r"A", result) and re.search(r"B", result) and re.search(r"C", result) and re.search(r"D", result):
@@ -538,6 +537,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="从 Word 文档中提取选择题和答案并保存为 JSON 格式")
     parser.add_argument("--docx_name", type=str, help="Word文档名")
     parser.add_argument("--output", type=str, default="questions.json", help="输出 JSON 文件路径 (默认: questions.json)")
+    parser.add_argument("--latex", type=str, default="on", help="是否开启simpletex图片识别")
     args = parser.parse_args()
     
     docx_path = f"/root/tech_bench/docx/{args.docx_name}.docx"  
