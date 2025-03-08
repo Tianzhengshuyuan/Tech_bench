@@ -1,17 +1,17 @@
 import re
-import json
-import pytesseract
-import zipfile
-import subprocess
-import requests
 import os
+import json
+import zipfile
+import requests
 import argparse
+import subprocess
+import pytesseract
+from io import BytesIO
 from docx import Document
 from wand.image import Image
 from PIL import Image as PILImage
-from io import BytesIO
-from xml.etree.ElementTree import Element
 from xml.etree import ElementTree as ET
+from xml.etree.ElementTree import Element
 
 def parse_relationships(docx_zip):
     """
@@ -61,7 +61,6 @@ def extract_high_res_image_from_docx(docx_path, rId, relationships):
                 
                 # 执行命令
                 result = subprocess.run(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
-                
                 return PILImage.open(output_path)
         else:
             print(f"Target path {target_path} not found in ZIP.")
@@ -81,7 +80,6 @@ def extract_text_or_formula(run, dotx_path, relationships):
         # 解析 OLE 对象
         for ole_object in run_xml.findall(".//{urn:schemas-microsoft-com:office:office}OLEObject"):
             prog_id = ole_object.attrib.get("ProgID", "")
-
             # 检查是否是公式
             if prog_id in ["Equation.3", "MathType"]:
                 rId = ole_object.attrib.get("{http://schemas.openxmlformats.org/officeDocument/2006/relationships}id")
@@ -132,7 +130,7 @@ def extract_questions_and_answer_from_docx(docx_path, output_json_path):
         r"(?:A[．.。]\s*(?P<A>.*?))"             # 匹配 A 选项
         r"(?:B[．.。]\s*(?P<B>.*?))"             # 匹配 B 选项
         r"(?:C[．.。]\s*(?P<C>.*?))"             # 匹配 C 选项
-        r"(?:D[．.。]\s*(?P<D>.*?))"             # 匹配 D 选项
+        r"(?:D[．.。]\s*?(?P<D>.*?))"             # 匹配 D 选项
         r"(?=\n|\f|\d+[．.。][\u4e00-\u9fa5])",     # 断言 D 选项后面是换行符、换页符、题号或中文汉字，但不包含这些内容
         re.DOTALL                           # 允许匹配跨行内容
     )
@@ -143,8 +141,9 @@ def extract_questions_and_answer_from_docx(docx_path, output_json_path):
     # 提取选择题内容
     questions = []
     for match in question_pattern.finditer(full_text):
-        print(match.group(0))
+        # print(match.group(2))
         question_data = match.groupdict()
+        print(repr(match.group(0)))
         question_data['index'] = (re.match(r'^(\d+)[．.]', question_data["question"][:10])).group(1)
         for i,paragraph in enumerate(doc.paragraphs):
             if paragraph.text.startswith(question_data["question"][:10].strip()):
@@ -162,7 +161,7 @@ def extract_questions_and_answer_from_docx(docx_path, output_json_path):
                 results_B = ""
                 results_C = ""
                 results_D = ""
-                print(option_paragraph1.text)
+                # print(option_paragraph1.text)
                 #四个选项各占一行
                 if option_paragraph1.text.startswith("A") and option_paragraph2.text.startswith("B"): 
                     print("situation1")
@@ -338,6 +337,17 @@ def extract_questions_and_answer_from_docx(docx_path, output_json_path):
             if question_data.get("index") == number:
                 question_data["answer"] = answer
                 break
+    
+    # 匹配形如 "1-10 ABCDBCAADB" 的紧凑答案格式
+    compact_matches = re.findall(r'(\d+)[\-—](\d+)\s+([A-D]+)', full_text)
+    for compact_match in compact_matches:
+        start, end, answers = compact_match
+        print("start is "+start+", end is "+end+"answers is "+ answers)
+        for i, answer in enumerate(answers):
+            for question_data in questions:
+                if question_data.get("index") == str(int(start)+i):
+                    question_data["answer"] = answer
+                    break
             
     # 保存为 JSON 文件
     with open(output_json_path, "w", encoding="utf-8") as f:
