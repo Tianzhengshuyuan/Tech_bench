@@ -66,17 +66,14 @@ def extract_high_res_image_from_docx(docx_path, rId, relationships):
             print(f"Target path {target_path} not found in ZIP.")
     return None
 
-def extract_text_or_formula(run, dotx_path, relationships):
+def extract_formula_from_picture(run, dotx_path, relationships):
     """
     提取段落中的文本或公式图片并识别为 LaTeX。
     """
     run_xml = run.element  # 获取当前运行对象的 XML 元素
     print(run_xml.xml)
-    if run.text.strip():
-        # 如果是纯文本，直接返回
-        return run.text.strip()
 
-    elif "<w:object" in run_xml.xml:
+    if "<w:object" in run_xml.xml:
         # 解析 OLE 对象
         for ole_object in run_xml.findall(".//{urn:schemas-microsoft-com:office:office}OLEObject"):
             prog_id = ole_object.attrib.get("ProgID", "")
@@ -95,18 +92,18 @@ def extract_text_or_formula(run, dotx_path, relationships):
                     # 使用 rId 提取高分辨率图像
                     img = extract_high_res_image_from_docx(docx_path, rId, relationships)
                     file_path = f"./png_images/{rId}.png"
-                    # if img:
-                    #     # 使用 SimpleTex 的 API 识别公式
-                    #     SIMPLETEX_UAT="x97YHMaxT4hl1kbcvKkAHbQqZGR0HDL0rBAZfmqScLusUcO74sXCCOIsNfqO3PgM"
-                    #     api_url="https://server.simpletex.cn/api/latex_ocr"  # 接口地址
-                    #     data = { } # 请求参数数据（非文件型参数），视情况填入，可以参考各个接口的参数说明
-                    #     header={ "token": SIMPLETEX_UAT } # 鉴权信息，此处使用UAT方式
-                    #     file=[("file",(file_path,open(file_path, 'rb')))] # 请求文件,字段名一般为file
-                    #     res = requests.post(api_url, files=file, data=data, headers=header) # 使用requests库上传文件
-                    #     content = json.loads(res.text)['res']['latex']
-                    #     return content
-                    # else:
-                    #     print(f"Could not find image for rId: {rId}")
+                    if img:
+                        # 使用 SimpleTex 的 API 识别公式
+                        SIMPLETEX_UAT="x97YHMaxT4hl1kbcvKkAHbQqZGR0HDL0rBAZfmqScLusUcO74sXCCOIsNfqO3PgM"
+                        api_url="https://server.simpletex.cn/api/latex_ocr"  # 接口地址
+                        data = { } # 请求参数数据（非文件型参数），视情况填入，可以参考各个接口的参数说明
+                        header={ "token": SIMPLETEX_UAT } # 鉴权信息，此处使用UAT方式
+                        file=[("file",(file_path,open(file_path, 'rb')))] # 请求文件,字段名一般为file
+                        res = requests.post(api_url, files=file, data=data, headers=header) # 使用requests库上传文件
+                        content = json.loads(res.text)['res']['latex']
+                        return content
+                    else:
+                        print(f"Could not find image for rId: {rId}")
     return ""
 
 def extract_questions_and_answer_from_docx(docx_path, output_json_path):
@@ -134,9 +131,35 @@ def extract_questions_and_answer_from_docx(docx_path, output_json_path):
         r"(?=\n|\f|\d+[．.。][\u4e00-\u9fa5])",     # 断言 D 选项后面是换行符、换页符、题号或中文汉字，但不包含这些内容
         re.DOTALL                           # 允许匹配跨行内容
     )
+    
+    # 转换文档中的上标和下标，并提取文本
+    full_text = ""
 
-    # 提取文档中的文本
-    full_text = "\n".join([p.text for p in doc.paragraphs])
+    # 遍历段落
+    for paragraph in doc.paragraphs:
+        paragraph_text = ""
+        # 遍历段落中的每个 run
+        minus = 0
+        for run in paragraph.runs:
+            if run.font.superscript:  # 如果是上标
+                if minus == 0:
+                    paragraph_text += f"^{run.text}" 
+                else:
+                    paragraph_text += run.text
+                    minus = 0
+                if run.text == "﹣":
+                    minus = 1
+            elif run.font.subscript:  # 如果是下标
+                if minus == 0:
+                    paragraph_text += f"_{run.text}" 
+                else:
+                    paragraph_text += run.text
+                    minus = 0
+                if run.text == "﹣":
+                    minus = 1
+            else:
+                paragraph_text += run.text  # 普通文本直接添加
+        full_text += paragraph_text + "\n"  # 添加段落并换行
 
     # 提取选择题内容
     questions = []
@@ -163,35 +186,123 @@ def extract_questions_and_answer_from_docx(docx_path, output_json_path):
                 results_D = ""
                 # print(option_paragraph1.text)
                 #四个选项各占一行
+                
                 if option_paragraph1.text.startswith("A") and option_paragraph2.text.startswith("B"): 
                     print("situation1")
                     option_count=0
+                    minus = 0
                     for i,run in enumerate(option_paragraph1.runs):
-                        result = extract_text_or_formula(run, docx_path, relationships).lstrip("．.。")
+                        if run.text.strip(): # 如果是纯文本，考虑是否存在上下标需要处理
+                            if run.font.superscript:  # 如果是上标
+                                if minus == 0:
+                                    result = f"^{run.text}" 
+                                else:
+                                    result = run.text
+                                    minus = 0
+                                if run.text == "﹣":
+                                    minus = 1
+                            elif run.font.subscript:  # 如果是下标
+                                if minus == 0:
+                                    result = f"_{run.text}" 
+                                else:
+                                    result = run.text
+                                    minus = 0
+                                if run.text == "﹣":
+                                    minus = 1
+                            else:
+                                result = run.text.lstrip("．.。")  # 普通文本直接添加
+                        else: #不是文本就需要处理图像
+                            result = extract_formula_from_picture(run, docx_path, relationships).lstrip("．.。")
                         if re.search(r"A", result): 
                             option_count+=1
                             if len(result) > 2: #考虑到有时 “C．甲、丁的种群数量下降，丙的种群数量增加”会被解析为一个完整的run
                                 results_A += result[2:]
                         elif option_count==1:
                             results_A += result
+                    minus = 0
                     for i,run in enumerate(option_paragraph2.runs):
-                        result = extract_text_or_formula(run, docx_path, relationships).lstrip("．.。")
+                        if run.text.strip(): # 如果是纯文本，考虑是否存在上下标需要处理
+                            if run.font.superscript:  # 如果是上标
+                                if minus == 0:
+                                    result = f"^{run.text}" 
+                                else:
+                                    result = run.text
+                                    minus = 0
+                                if run.text == "﹣":
+                                    minus = 1
+                            elif run.font.subscript:  # 如果是下标
+                                if minus == 0:
+                                    result = f"_{run.text}" 
+                                else:
+                                    result = run.text
+                                    minus = 0
+                                if run.text == "﹣":
+                                    minus = 1
+                            else:
+                                result = run.text.lstrip("．.。")  # 普通文本直接添加
+                        else: #不是文本就需要处理图像
+                            result = extract_formula_from_picture(run, docx_path, relationships).lstrip("．.。")
+
                         if re.search(r"B", result):
                             option_count+=1
                             if len(result) > 2:
                                 results_B += result[2:]
                         elif option_count==2:
                             results_B += result
+                    minus = 0
                     for i,run in enumerate(option_paragraph3.runs):
-                        result = extract_text_or_formula(run, docx_path, relationships).lstrip("．.。")
+                        if run.text.strip(): # 如果是纯文本，考虑是否存在上下标需要处理
+                            if run.font.superscript:  # 如果是上标
+                                if minus == 0:
+                                    result = f"^{run.text}" 
+                                else:
+                                    result = run.text
+                                    minus = 0
+                                if run.text == "﹣":
+                                    minus = 1
+                            elif run.font.subscript:  # 如果是下标
+                                if minus == 0:
+                                    result = f"_{run.text}" 
+                                else:
+                                    result = run.text
+                                    minus = 0
+                                if run.text == "﹣":
+                                    minus = 1
+                            else:
+                                result = run.text.lstrip("．.。")  # 普通文本直接添加
+                        else: #不是文本就需要处理图像
+                            result = extract_formula_from_picture(run, docx_path, relationships).lstrip("．.。")
+
                         if re.search(r"C", result):
                             option_count+=1
                             if len(result) > 2:
                                 results_C += result[2:]
                         elif option_count==3:
                             results_C += result
+                    minus = 0
                     for i,run in enumerate(option_paragraph4.runs):
-                        result = extract_text_or_formula(run, docx_path, relationships).lstrip("．.。")
+                        if run.text.strip(): # 如果是纯文本，考虑是否存在上下标需要处理
+                            if run.font.superscript:  # 如果是上标
+                                if minus == 0:
+                                    result = f"^{run.text}" 
+                                else:
+                                    result = run.text
+                                    minus = 0
+                                if run.text == "﹣":
+                                    minus = 1
+                            elif run.font.subscript:  # 如果是下标
+                                if minus == 0:
+                                    result = f"_{run.text}" 
+                                else:
+                                    result = run.text
+                                    minus = 0
+                                if run.text == "﹣":
+                                    minus = 1
+                            else:
+                                result = run.text.lstrip("．.。")  # 普通文本直接添加
+                        else: #不是文本就需要处理图像
+                            result = extract_formula_from_picture(run, docx_path, relationships).lstrip("．.。")
+
                         if re.search(r"D", result):
                             option_count+=1
                             if len(result) > 2:
@@ -202,8 +313,30 @@ def extract_questions_and_answer_from_docx(docx_path, output_json_path):
                 elif option_paragraph1.text.startswith("A") and option_paragraph2.text.startswith("C"):
                     print("situation2") 
                     option_count=0
+                    minus = 0
                     for i,run in enumerate(option_paragraph1.runs):
-                        result = extract_text_or_formula(run, docx_path, relationships).lstrip("．.。")
+                        if run.text.strip(): # 如果是纯文本，考虑是否存在上下标需要处理
+                            if run.font.superscript:  # 如果是上标
+                                if minus == 0:
+                                    result = f"^{run.text}" 
+                                else:
+                                    result = run.text
+                                    minus = 0
+                                if run.text == "﹣":
+                                    minus = 1
+                            elif run.font.subscript:  # 如果是下标
+                                if minus == 0:
+                                    result = f"_{run.text}" 
+                                else:
+                                    result = run.text
+                                    minus = 0
+                                if run.text == "﹣":
+                                    minus = 1
+                            else:
+                                result = run.text.lstrip("．.。")  # 普通文本直接添加
+                        else: #不是文本就需要处理图像
+                            result = extract_formula_from_picture(run, docx_path, relationships).lstrip("．.。")
+
                         if result.startswith("A") or result.startswith("B"):
                             option_count+=1
                             if len(result) > 2:
@@ -229,8 +362,30 @@ def extract_questions_and_answer_from_docx(docx_path, output_json_path):
                                     results_A += result
                                 elif option_count==2:
                                     results_B += result
+                    minus = 0
                     for i,run in enumerate(option_paragraph2.runs):
-                        result = extract_text_or_formula(run, docx_path, relationships).lstrip("．.。")
+                        if run.text.strip(): # 如果是纯文本，考虑是否存在上下标需要处理
+                            if run.font.superscript:  # 如果是上标
+                                if minus == 0:
+                                    result = f"^{run.text}" 
+                                else:
+                                    result = run.text
+                                    minus = 0
+                                if run.text == "﹣":
+                                    minus = 1
+                            elif run.font.subscript:  # 如果是下标
+                                if minus == 0:
+                                    result = f"_{run.text}" 
+                                else:
+                                    result = run.text
+                                    minus = 0
+                                if run.text == "﹣":
+                                    minus = 1
+                            else:
+                                result = run.text.lstrip("．.。")  # 普通文本直接添加
+                        else: #不是文本就需要处理图像
+                            result = extract_formula_from_picture(run, docx_path, relationships).lstrip("．.。")
+
                         if result.startswith("C") or result.startswith("D"):
                             option_count+=1
                             if len(result) > 2:
@@ -259,8 +414,30 @@ def extract_questions_and_answer_from_docx(docx_path, output_json_path):
                 else: #四个选项在同一行
                     print("situation3")
                     option_count=0
+                    minus = 0
                     for i,run in enumerate(option_paragraph1.runs):
-                        result = extract_text_or_formula(run, docx_path, relationships).lstrip("．.。")
+                        if run.text.strip(): # 如果是纯文本，考虑是否存在上下标需要处理
+                            if run.font.superscript:  # 如果是上标
+                                if minus == 0:
+                                    result = f"^{run.text}" 
+                                else:
+                                    result = run.text
+                                    minus = 0
+                                if run.text == "﹣":
+                                    minus = 1
+                            elif run.font.subscript:  # 如果是下标
+                                if minus == 0:
+                                    result = f"_{run.text}" 
+                                else:
+                                    result = run.text
+                                    minus = 0
+                                if run.text == "﹣":
+                                    minus = 1
+                            else:
+                                result = run.text.lstrip("．.。") # 普通文本直接添加
+                        else: #不是文本就需要处理图像
+                            result = extract_formula_from_picture(run, docx_path, relationships).lstrip("．.。")
+
                         if re.search(r"(^|[^a-zA-Z])A([^a-zA-Z]|$)", result) or re.search(r"(^|[^a-zA-Z])B([^a-zA-Z]|$)", result) or re.search(r"(^|[^a-zA-Z])C([^a-zA-Z]|$)", result) or re.search(r"(^|[^a-zA-Z])D([^a-zA-Z]|$)", result):
                             #全是文本，一整行被解析成一个run
                             if re.search(r"A", result) and re.search(r"B", result) and re.search(r"C", result) and re.search(r"D", result):
