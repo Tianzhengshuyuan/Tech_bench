@@ -124,11 +124,11 @@ def extract_questions_and_answer_from_docx(docx_path, output_json_path):
 
     question_pattern = re.compile(
         r"(?P<question>\d+[．.。].*?)"           # 匹配题目开头，如 "17. 一定质量的..."
-        r"(?:A[．.。\s]\s*(?P<A>.*?))"             # 匹配 A 选项
-        r"(?:B[．.。\s]\s*(?P<B>.*?))"             # 匹配 B 选项
-        r"(?:C[．.。\s]\s*(?P<C>.*?))"             # 匹配 C 选项
-        r"(?:D[．.。\s]\s*?(?P<D>.*?))"             # 匹配 D 选项
-        r"(?=\n|\f|\d+[．.。][\u4e00-\u9fa5])",     # 断言 D 选项后面是换行符、换页符、题号或中文汉字，但不包含这些内容
+        r"(?:A[．.、\s]\s*(?P<A>.*?))"             # 匹配 A 选项
+        r"(?:B[．.、\s]\s*(?P<B>.*?))"             # 匹配 B 选项
+        r"(?:C[．.、\s]\s*(?P<C>.*?))"             # 匹配 C 选项
+        r"(?:D[．.、\s]\s*?(?P<D>.*?))"             # 匹配 D 选项
+        r"(?=\n|\f|\d+[．.、][\u4e00-\u9fa5])",     # 断言 D 选项后面是换行符、换页符、题号或中文汉字，但不包含这些内容
         re.DOTALL                           # 允许匹配跨行内容
     )
     
@@ -161,6 +161,9 @@ def extract_questions_and_answer_from_docx(docx_path, output_json_path):
                 paragraph_text += run.text  # 普通文本直接添加
         full_text += paragraph_text + "\n"  # 添加段落并换行
 
+    # 删除内容：“原子量：H1   O16   Mg24    Al27    Cl 35.5    Ca40  Fe56    Zn 65”
+    full_text = re.sub(r"原子量.*?1[.、．]", "1.", full_text, flags=re.DOTALL)
+    
     # 提取选择题内容
     questions = []
     for match in question_pattern.finditer(full_text):
