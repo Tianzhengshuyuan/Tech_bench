@@ -166,7 +166,7 @@ def extract_questions_and_answer_from_docx(docx_path, output_json_path):
     for match in question_pattern.finditer(full_text):
         # print(match.group(2))
         question_data = match.groupdict()
-        print(repr(match.group(0)))
+        print(match.group(0))
         print("question is: "+question_data["question"])
         print("A is: "+question_data["A"])
         print("B is: "+question_data["B"])
@@ -194,8 +194,8 @@ def extract_questions_and_answer_from_docx(docx_path, output_json_path):
                 results_D = ""
 
                 #四个选项各占一行
-                if option_paragraph1.text.startswith("A") and option_paragraph2.text.startswith("B"): 
-                    print("[[[Situation1]]]")
+                if option_paragraph1.text.lstrip(" \t").startswith("A") and option_paragraph2.text.lstrip(" \t").startswith("B"): 
+                    print("[[[Situation 1]]]")
                     option_count=0
                     minus = 0
                     for i,run in enumerate(option_paragraph1.runs):
@@ -217,7 +217,7 @@ def extract_questions_and_answer_from_docx(docx_path, output_json_path):
                                 if run.text == "﹣":
                                     minus = 1
                             else:
-                                result = run.text.lstrip("．.。")  # 普通文本直接添加
+                                result = run.text.lstrip("．.。\t")  # 普通文本直接添加
                         else: #不是文本就需要处理图像
                             result = extract_formula_from_picture(run, docx_path, relationships).lstrip("．.。")
                         if re.search(r"A", result): 
@@ -246,7 +246,7 @@ def extract_questions_and_answer_from_docx(docx_path, output_json_path):
                                 if run.text == "﹣":
                                     minus = 1
                             else:
-                                result = run.text.lstrip("．.。")  # 普通文本直接添加
+                                result = run.text.lstrip("．.。\t")  # 普通文本直接添加
                         else: #不是文本就需要处理图像
                             result = extract_formula_from_picture(run, docx_path, relationships).lstrip("．.。")
 
@@ -276,7 +276,7 @@ def extract_questions_and_answer_from_docx(docx_path, output_json_path):
                                 if run.text == "﹣":
                                     minus = 1
                             else:
-                                result = run.text.lstrip("．.。")  # 普通文本直接添加
+                                result = run.text.lstrip("．.。\t")  # 普通文本直接添加
                         else: #不是文本就需要处理图像
                             result = extract_formula_from_picture(run, docx_path, relationships).lstrip("．.。")
 
@@ -306,7 +306,7 @@ def extract_questions_and_answer_from_docx(docx_path, output_json_path):
                                 if run.text == "﹣":
                                     minus = 1
                             else:
-                                result = run.text.lstrip("．.。")  # 普通文本直接添加
+                                result = run.text.lstrip("．.。\t")  # 普通文本直接添加
                         else: #不是文本就需要处理图像
                             result = extract_formula_from_picture(run, docx_path, relationships).lstrip("．.。")
 
@@ -317,8 +317,8 @@ def extract_questions_and_answer_from_docx(docx_path, output_json_path):
                         elif option_count==4:
                             results_D += result
                 #四个选项占两行
-                elif option_paragraph1.text.startswith("A") and option_paragraph2.text.startswith("C"):
-                    print("[[[Situation2]]]") 
+                elif option_paragraph1.text.lstrip(" \t").startswith("A") and option_paragraph2.text.lstrip(" \t").startswith("C"):
+                    print("[[[Situation 2]]]") 
                     option_count=0
                     minus = 0
                     for i,run in enumerate(option_paragraph1.runs):
@@ -340,7 +340,7 @@ def extract_questions_and_answer_from_docx(docx_path, output_json_path):
                                 if run.text == "﹣":
                                     minus = 1
                             else:
-                                result = run.text.lstrip("．.。")  # 普通文本直接添加
+                                result = run.text.lstrip("．.。\t")  # 普通文本直接添加
                         else: #不是文本就需要处理图像
                             result = extract_formula_from_picture(run, docx_path, relationships).lstrip("．.。")
 
@@ -389,7 +389,7 @@ def extract_questions_and_answer_from_docx(docx_path, output_json_path):
                                 if run.text == "﹣":
                                     minus = 1
                             else:
-                                result = run.text.lstrip("．.。")  # 普通文本直接添加
+                                result = run.text.lstrip("．.。\t")  # 普通文本直接添加
                         else: #不是文本就需要处理图像
                             result = extract_formula_from_picture(run, docx_path, relationships).lstrip("．.。")
 
@@ -419,7 +419,7 @@ def extract_questions_and_answer_from_docx(docx_path, output_json_path):
                                 elif option_count==4:
                                     results_D += result                        
                 else: #四个选项在同一行
-                    print("[[[Situation3]]]")
+                    print("[[[Situation 3]]]")
                     option_count=0
                     minus = 0
                     for i,run in enumerate(option_paragraph1.runs):
@@ -538,17 +538,17 @@ def extract_questions_and_answer_from_docx(docx_path, output_json_path):
     with open(output_json_path, "w", encoding="utf-8") as f:
         json.dump(questions, f, ensure_ascii=False, indent=4)
 
-    print(f"提取完成！选择题已保存到 {output_json_path}")
 
 # 命令行入口
 if __name__ == "__main__":
     # 定义命令行参数
     parser = argparse.ArgumentParser(description="从 Word 文档中提取选择题和答案并保存为 JSON 格式")
     parser.add_argument("--docx_name", type=str, help="Word文档名")
-    parser.add_argument("--output", type=str, default="questions.json", help="输出 JSON 文件路径 (默认: questions.json)")
     parser.add_argument("--latex", type=str, default="on", help="是否开启simpletex图片识别")
     args = parser.parse_args()
     
     docx_path = f"/root/tech_bench/docx/{args.docx_name}.docx"  
     output_json_path = f"/root/tech_bench/json/{args.docx_name}.json"     
     extract_questions_and_answer_from_docx(docx_path, output_json_path)
+    print(f"完成.json生成，文件已保存到 {args.docx_name}.json")
+    
