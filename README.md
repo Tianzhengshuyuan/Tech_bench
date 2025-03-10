@@ -17,3 +17,9 @@ python remove_smartTag.py  --docx_name=2004年云南高考理科综合真题及�
 ```bash
 ./run.sh 2004年云南高考理科综合真题及答案 off > log.txt
 ```
+
+无法解决的问题：
+1. Simpletex无法正确识别λ，尝试裁剪图片只保留公式部分，但并没有用
+![word文档内容](./images/lamda.png)
+会被识别为
+![识别结果](./images/wrong_lamda.png)

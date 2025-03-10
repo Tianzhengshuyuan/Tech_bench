@@ -30,7 +30,6 @@ def parse_relationships(docx_zip):
                 relationships[rId] = target
     return relationships
 
-
 def crop_image(image):
     """
     裁剪图像，去除空白区域，只保留公式部分。
@@ -391,12 +390,25 @@ def extract_questions_and_answer_from_docx(docx_path, output_json_path):
                             result = extract_formula_from_picture(run, docx_path, relationships).lstrip("．.。")
 
                         if result.startswith("A") or result.startswith("B"):
-                            option_count+=1
-                            if len(result) > 2:
-                                if option_count==1:
-                                    results_A += result[2:]
-                                else:
-                                    results_B += result[2:]
+                            if re.search(r"A", result) and re.search(r"B", result): #考虑：“A. 一直变小 B. 一直变大”
+                                print("A and B")
+                                # 定义正则表达式匹配整个模式
+                                pattern = r"A[．.](.*?)B[．.](.*)"
+
+                                # 使用 re.search 寻找第一次匹配
+                                match_option = re.search(pattern, result)
+
+                                # 提取各部分内容并去掉多余空白
+                                if match_option:
+                                    results_A = match_option.group(1).strip()  # A. 和 B. 之间的内容
+                                    results_B = match_option.group(2).strip()  # B. 后面的内容
+                            else:
+                                option_count+=1
+                                if len(result) > 2:
+                                    if option_count==1:
+                                        results_A += result[2:]
+                                    else:
+                                        results_B += result[2:]
                         else:
                             if result.endswith(("A", "B")): #可能遇到 <w:t>＝25cm/s，向左传播         B．</w:t>
                                 if option_count==1:
@@ -440,12 +452,25 @@ def extract_questions_and_answer_from_docx(docx_path, output_json_path):
                             result = extract_formula_from_picture(run, docx_path, relationships).lstrip("．.。")
 
                         if result.startswith("C") or result.startswith("D"):
-                            option_count+=1
-                            if len(result) > 2:
-                                if option_count==3:
-                                    results_C += result[2:]
-                                else:
-                                    results_D += result[2:]
+                            if re.search(r"C", result) and re.search(r"D", result): #考虑：“C. 先变小后变大 D. 先变大后变小”
+                                # print("C and D")
+                                # 定义正则表达式匹配整个模式
+                                pattern = r"C[．.](.*?)D[．.](.*)"
+
+                                # 使用 re.search 寻找第一次匹配
+                                match_option = re.search(pattern, result)
+
+                                # 提取各部分内容并去掉多余空白
+                                if match_option:
+                                    results_C = match_option.group(1).strip()  # C. 和 D. 之间的内容
+                                    results_D = match_option.group(2).strip()  # D. 后面的内容
+                            else:
+                                option_count+=1
+                                if len(result) > 2:
+                                    if option_count==3:
+                                        results_C += result[2:]
+                                    else:
+                                        results_D += result[2:]
                         else:
                             if result.endswith(("C", "D")): 
                                 if option_count==3:
@@ -492,7 +517,7 @@ def extract_questions_and_answer_from_docx(docx_path, output_json_path):
                             result = extract_formula_from_picture(run, docx_path, relationships).lstrip("．.。")
                         print("result is: "+result)
                         if re.search(r"(^|[^a-zA-Z])A([^a-zA-Z]|$)", result) or re.search(r"(^|[^a-zA-Z])B([^a-zA-Z]|$)", result) or re.search(r"(^|[^a-zA-Z])C([^a-zA-Z]|$)", result) or re.search(r"(^|[^a-zA-Z])D([^a-zA-Z]|$)", result):
-                            print("has abcd")
+                            # print("has abcd")
                             #全是文本，一整行被解析成一个run
                             if re.search(r"A", result) and re.search(r"B", result) and re.search(r"C", result) and re.search(r"D", result):
                                 # 定义正则表达式匹配整个模式
@@ -512,7 +537,7 @@ def extract_questions_and_answer_from_docx(docx_path, output_json_path):
                                 # print(result)
                                 # print("result len is: "+str(len(result)))
                                 if len(result) > 2 and result.startswith(("A", "B", "C", "D")):
-                                    print("hello")
+                                    # print("hello")
                                     if result.endswith(("B", "C", "D")): #考虑到可能出现 <w:t xml:space="preserve">    B．0        C．</w:t>
                                         if option_count==1:
                                             results_A += result[2:-1]

@@ -9,16 +9,12 @@ C is: 组织液增加
 D is: 淋巴减少
 [[[Situation 3]]]
 result is: A
-has abcd
 result is: 血浆量增加     
 result is: B
-has abcd
 result is: 组织液减少     
 result is: C
-has abcd
 result is: 组织液增加     
 result is: D
-has abcd
 result is: 淋巴减少
 >>>>>>>>>>
 2．运动员在进行不同项目运动时，机体供能方式不同。对三种运动项目的机体总需氧量、实际摄入氧量和血液中乳酸增加量进行测定，结果如下：
@@ -49,16 +45,12 @@ C is: 相等
 D is: 无规律
 [[[Situation 3]]]
 result is: A
-has abcd
 result is: 少    
 result is: B
-has abcd
 result is: 多    
 result is: C
-has abcd
 result is: 相等    
 result is: D
-has abcd
 result is: 无规律
 >>>>>>>>>>
 4．下面叙述的变异现象，可遗传的是
@@ -105,16 +97,12 @@ C is: 只有①②③
 D is: 是①②③④⑤
 [[[Situation 3]]]
 result is: A
-has abcd
 result is: 只有①②    
 result is: B
-has abcd
 result is: 只有④⑤    
 result is: C
-has abcd
 result is: 只有①②③    
 result is: D
-has abcd
 result is: 是①②③④⑤
 >>>>>>>>>>
 7．下列盛放试剂的方法正确的是
@@ -159,22 +147,18 @@ C is: 等于20 mL
 D is: 等于5 mL
 [[[Situation 3]]]
 result is: A
-has abcd
 result is: 大于
 result is: 20 mL
 result is: 
 result is: B
-has abcd
 result is: 小于
 result is: 20 mL
 result is: 
 result is: C
-has abcd
 result is: 等于
 result is: 20 mL
 result is: 
 result is: D
-has abcd
 result is: 等于
 result is: 5 mL
 >>>>>>>>>>
@@ -188,16 +172,12 @@ C is: 是①和②
 D is: 只有③
 [[[Situation 3]]]
 result is: A
-has abcd
 result is: 是①、②、③      
 result is: B
-has abcd
 result is: 只有①      
 result is: C
-has abcd
 result is: 是①和②      
 result is: D
-has abcd
 result is: 只有③
 >>>>>>>>>>
 11．具有单双键交替长链（如：…）的高分子有可能成为导电塑料。2000年诺贝尔（Nobel）化学奖即授予开辟此领域的3位科学家。下列高分子中可能成为导电塑料的是
@@ -210,16 +190,12 @@ C is: 聚苯乙烯
 D is: 聚乙炔
 [[[Situation 3]]]
 result is: A 
-has abcd
 result is: 聚乙烯        
 result is: B
-has abcd
 result is: 聚丁二烯        
 result is: C
-has abcd
 result is: 聚苯乙烯        
 result is: D
-has abcd
 result is: 聚乙炔
 >>>>>>>>>>
 12. 有一种磷的结构式是，有关它的下列叙述不正确的是
@@ -287,7 +263,6 @@ A．①③          B. ①④        C. ②③
 D is:  ③④
 [[[Situation 3]]]
 result is: A．①③          B. ①④        C. ②③        D. ③④
-has abcd
 >>>>>>>>>>
 16. 市场上有种灯具俗称“冷光灯”，用它照射物品时能使被照物品处产生热效应大大降低，从而广泛地应用于博物馆、商店等处。这种灯降低热效应的原因之一是在灯泡后面放置的反光镜玻璃表面上镀一层薄膜（例如氟化镁），这种膜能消除不镀膜时玻璃表面反射回来的热效应最显著的红外线。以λ表示此红外线的波长，则所镀薄膜的厚度最小应为
 A.         B.         C.         D. 
@@ -300,18 +275,13 @@ D is:
 [[[Situation 3]]]
 result is: 
 result is: A. 
-has abcd
-hello
-result is: \frac18\lambda 
+result is: 
 result is:         B. 
-has abcd
-result is: \frac14\lambda 
+result is: 
 result is:         C. 
-has abcd
-result is: \frac12\lambda 
+result is: 
 result is:         D. 
-has abcd
-result is: \text{a}
+result is: 
 >>>>>>>>>>
 17. 一定质量的理想气体由状态A经过图中所示过程变到状态B。在此过程中气体的密度
 A. 一直变小           B. 一直变大
@@ -324,6 +294,7 @@ B is: 一直变大
 C is: 先变小后变大       
 D is:  先变大后变小
 [[[Situation 2]]]
+A and B
 >>>>>>>>>>
 18．如图所示，在一粗糙水平面上有两个质量分别为m_1和m_2的木块1和2，中间用一原长为l、劲度系数为K的轻弹簧连接起来，木块与地面间的滑动摩擦因数为μ。现用一水平力向右拉木块2，当两木块一起匀速运动时两木块之间的距离是
 A.        B. 
@@ -346,14 +317,11 @@ C is:
 D is: 
 [[[Situation 3]]]
 result is: A．
-has abcd
-result is: \frac{dv_2}{\sqrt{v_2^2-v_1^2}}
+result is: 
 result is:         B．0        C．
-has abcd
-result is: \frac{dv_1}{\nu_2}
+result is: 
 result is:         D．
-has abcd
-result is: \frac{dv_2}{v_1}
+result is: 
 >>>>>>>>>>
 20．图1所示为一列简谐横波在t＝20秒时的波形图，图2是这列波中P点的振动图线，那么该波的传播速度和传播方向是
 A．v＝25cm/s，向左传播                  B．v＝50cm/s，向左传播
@@ -377,17 +345,13 @@ C is:
 D is: 
 [[[Situation 3]]]
 result is: A．
-has abcd
-result is: \frac{qCs}{Qd}
+result is: 
 result is:        B．
-has abcd
-result is: \frac{qQs}{Cd}
+result is: 
 result is:      C．
-has abcd
-result is: \frac{qQs}{2Cd}
+result is: 
 result is:        D．
-has abcd
-result is: \frac{qCs}{2Qd}
+result is: 
 >>>>>>>>>>
 22．如图所示，两块同样的玻璃直角三棱镜ABC，两者的AC面是平行放置的，在它们之间是均匀的未知透明介质。一单色细光束O垂直于AB面入射，在图示的出射光线中
 A．1、2、3（彼此平行）中的任一条都有可能
@@ -423,7 +387,6 @@ C is: ②③
 D is: ②④
 [[[Situation 3]]]
 result is: A．①②        B．①③        C．②③        D．②④
-has abcd
 >>>>>>>>>>
 24．电磁流量计广泛应用于测量可导电流体（如污水）在管中的流量（在单位时间内通过管内横截面的流体的体积）。为了简化，假设流量计是如图所示的横截面为长方形的一段管道，其中空部分的长、宽、高分别为图中的a、b、c，流量计的两端与输送液体的管道相连接（图中虚线）。图中流量计的上下两面是金属材料，前后两面是绝缘材料，现于流量计所在处加磁感强度为B的匀强磁场，磁场方向垂直于前后两面。当导电液体稳定地流经流量计时，在管外将流量计上、下两表面分别与一串接了电阻R的电流表的两端连接，I表示测得的电流值。已知流体的电阻率为ρ，不计电流表的内阻，则可求得流量为
 A．    B．    
