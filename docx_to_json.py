@@ -135,8 +135,8 @@ def extract_formula_from_picture(run, dotx_path, relationships):
                     if img:
                         # 使用 SimpleTex 的 API 识别公式
                         SIMPLETEX_UAT="x97YHMaxT4hl1kbcvKkAHbQqZGR0HDL0rBAZfmqScLusUcO74sXCCOIsNfqO3PgM"
-                        api_url="https://server.simpletex.cn/api/latex_ocr"  # 标准模型接口地址
-                        # api_url="https://server.simpletex.cn/api/latex_ocr_turbo"  # 轻量级模型接口地址
+                        # api_url="https://server.simpletex.cn/api/latex_ocr"  # 标准模型接口地址
+                        api_url="https://server.simpletex.cn/api/latex_ocr_turbo"  # 轻量级模型接口地址
                         data = { } # 请求参数数据（非文件型参数），视情况填入，可以参考各个接口的参数说明
                         header={ "token": SIMPLETEX_UAT } # 鉴权信息，此处使用UAT方式
                         file=[("file",(file_path,open(file_path, 'rb')))] # 请求文件,字段名一般为file
@@ -389,7 +389,7 @@ def extract_questions_and_answer_from_docx(docx_path, output_json_path):
                         else: #不是文本就需要处理图像
                             result = extract_formula_from_picture(run, docx_path, relationships).lstrip("．.。")
 
-                        if result.startswith("A") or result.startswith("B"):
+                        if result.strip().startswith("A") or result.strip().startswith("B"):
                             if re.search(r"A", result) and re.search(r"B", result): #考虑：“A. 一直变小 B. 一直变大”
                                 print("A and B")
                                 # 定义正则表达式匹配整个模式
@@ -404,7 +404,9 @@ def extract_questions_and_answer_from_docx(docx_path, output_json_path):
                                     results_B = match_option.group(2).strip()  # B. 后面的内容
                             else:
                                 option_count+=1
-                                if len(result) > 2:
+                                print("op_count++")
+                                if len(result.strip()) > 2:
+                                    print("len > 2")
                                     if option_count==1:
                                         results_A += result[2:]
                                     else:
@@ -451,7 +453,7 @@ def extract_questions_and_answer_from_docx(docx_path, output_json_path):
                         else: #不是文本就需要处理图像
                             result = extract_formula_from_picture(run, docx_path, relationships).lstrip("．.。")
 
-                        if result.startswith("C") or result.startswith("D"):
+                        if result.strip().startswith("C") or result.strip().startswith("D"):
                             if re.search(r"C", result) and re.search(r"D", result): #考虑：“C. 先变小后变大 D. 先变大后变小”
                                 # print("C and D")
                                 # 定义正则表达式匹配整个模式
@@ -466,7 +468,8 @@ def extract_questions_and_answer_from_docx(docx_path, output_json_path):
                                     results_D = match_option.group(2).strip()  # D. 后面的内容
                             else:
                                 option_count+=1
-                                if len(result) > 2:
+                                print("op_count++")
+                                if len(result.strip()) > 2:
                                     if option_count==3:
                                         results_C += result[2:]
                                     else:

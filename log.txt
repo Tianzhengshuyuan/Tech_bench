@@ -209,6 +209,10 @@ B is: 它不溶于水
 C is: 它在常温下呈固态              
 D is: 它与白磷互为同分异构体
 [[[Situation 2]]]
+op_count++
+op_count++
+op_count++
+op_count++
 >>>>>>>>>>
 13．将 a g 含NaOH样品溶解在 b mL 0.l mol·L^-1 的硫酸中，再加入 c mL 0.1 mol·L^－1 的氢氧化钡溶液，反应后所得溶液恰好呈中性，则样品中 NaOH 的纯度是（NaOH 式量为 40）  
 A. [(b－c)／125a]×100％ 
@@ -275,13 +279,13 @@ D is:
 [[[Situation 3]]]
 result is: 
 result is: A. 
-result is: 
+result is: \frac18\lambda 
 result is:         B. 
-result is: 
+result is: \frac14\lambda 
 result is:         C. 
-result is: 
+result is: \frac12\lambda 
 result is:         D. 
-result is: 
+result is: \text{a}
 >>>>>>>>>>
 17. 一定质量的理想气体由状态A经过图中所示过程变到状态B。在此过程中气体的密度
 A. 一直变小           B. 一直变大
@@ -306,6 +310,10 @@ B is:
 C is: 
 D is:  
 [[[Situation 2]]]
+op_count++
+op_count++
+op_count++
+op_count++
 >>>>>>>>>>
 19．在抗洪抢险中，战士驾驶摩托艇救人。假设江岸是平直的，洪水沿江向下游流去，水流速度为v_1，摩托艇在静水中的航速为v_2，战士救人的地点A离岸边最近处O的距离为d。如战士想在最短时间内将人送上岸，则摩托艇登陆的地点离O点的距离为
 A．        B．0        C．        D．
@@ -317,11 +325,11 @@ C is:
 D is: 
 [[[Situation 3]]]
 result is: A．
-result is: 
+result is: \frac{dv_2}{\sqrt{v_2^2-v_1^2}}
 result is:         B．0        C．
-result is: 
+result is: \frac{dv_1}{\nu_2}
 result is:         D．
-result is: 
+result is: \frac{dv_2}{v_1}
 >>>>>>>>>>
 20．图1所示为一列简谐横波在t＝20秒时的波形图，图2是这列波中P点的振动图线，那么该波的传播速度和传播方向是
 A．v＝25cm/s，向左传播                  B．v＝50cm/s，向左传播
@@ -334,6 +342,8 @@ B is: v＝50cm/s，向左传播
 C is: v＝25cm/s，向右传播                  
 D is: v＝50cm/s，向右传播
 [[[Situation 2]]]
+op_count++
+op_count++
 >>>>>>>>>>
 21．图中所示是一个平行板电容器，其电容为C，带电量为Q，上极板带正电。现将一个试探电荷q由两极板间的A点移动到B点，如图所示。A、B两点间的距离为s，连线AB与极板间的夹角为30°，则电场力对试探电荷q所做的功等于
 A．       B．     C．       D．
@@ -345,13 +355,13 @@ C is:
 D is: 
 [[[Situation 3]]]
 result is: A．
-result is: 
+result is: \frac{qCs}{Qd}
 result is:        B．
-result is: 
+result is: \frac{qQs}{Cd}
 result is:      C．
-result is: 
+result is: \frac{qQs}{2Cd}
 result is:        D．
-result is: 
+result is: \frac{qCs}{2Qd}
 >>>>>>>>>>
 22．如图所示，两块同样的玻璃直角三棱镜ABC，两者的AC面是平行放置的，在它们之间是均匀的未知透明介质。一单色细光束O垂直于AB面入射，在图示的出射光线中
 A．1、2、3（彼此平行）中的任一条都有可能
@@ -398,6 +408,10 @@ B is:
 C is: 
 D is: 
 [[[Situation 2]]]
+op_count++
+op_count++
+op_count++
+op_count++
 >>>>>>>>>>
 1.5％则是用于         。
 （4）请写出由麦芽糖→葡萄糖→酒精的反应方程式
