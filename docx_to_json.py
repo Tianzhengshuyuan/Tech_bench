@@ -6,12 +6,13 @@ import requests
 import argparse
 import subprocess
 import pytesseract
+import numpy as np
 from io import BytesIO
 from docx import Document
 from wand.image import Image
-from PIL import Image as PILImage
 from xml.etree import ElementTree as ET
 from xml.etree.ElementTree import Element
+from PIL import Image as PILImage, ImageOps
 
 def parse_relationships(docx_zip):
     """
@@ -29,6 +30,40 @@ def parse_relationships(docx_zip):
                 relationships[rId] = target
     return relationships
 
+
+def crop_image(image):
+    """
+    裁剪图像，去除空白区域，只保留公式部分。
+    """
+    # 转为灰度图像
+    gray_image = ImageOps.grayscale(image)
+
+    # 将灰度图像转换为 NumPy 数组
+    image_array = np.array(gray_image)
+
+    # 设置阈值，低于此值的像素被视为内容（非白色区域）
+    threshold = 200
+    content_mask = image_array < threshold  # 生成内容掩码（True 表示内容区域）
+
+    # 找到内容区域的边界
+    coords = np.argwhere(content_mask)  # 获取非白色像素的坐标
+    if coords.size == 0:
+        # 如果没有找到内容区域，则返回原图像
+        print("No content detected, returning original image.")
+        return image
+
+    # 获取内容区域的边界
+    y_min, x_min = coords.min(axis=0)
+    y_max, x_max = coords.max(axis=0)
+
+    # 裁剪图像
+    cropped_image = image.crop((x_min, y_min, x_max, y_max))
+
+    # 增加一定的边距，避免公式贴边过紧
+    border = 10  # 边距大小
+    cropped_image = ImageOps.expand(cropped_image, border=border, fill="white")
+
+    return cropped_image
 def extract_high_res_image_from_docx(docx_path, rId, relationships):
     """
     从解压后的 Word 文件中提取高分辨率 WMF 图像，并转换为 PNG。
@@ -61,6 +96,13 @@ def extract_high_res_image_from_docx(docx_path, rId, relationships):
                 # 执行命令
                 result = subprocess.run(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
                 return PILImage.open(output_path)
+            
+                # image = PILImage.open(output_path)
+                # # 裁剪图像（去除空白区域）
+                # cropped_image = crop_image(image)
+                # # 保存裁剪后的图像
+                # cropped_image.save(f"./png_new_images/{rId}.png")
+                # return cropped_image                
         else:
             print(f"Target path {target_path} not found in ZIP.")
     return None
@@ -94,7 +136,8 @@ def extract_formula_from_picture(run, dotx_path, relationships):
                     if img:
                         # 使用 SimpleTex 的 API 识别公式
                         SIMPLETEX_UAT="x97YHMaxT4hl1kbcvKkAHbQqZGR0HDL0rBAZfmqScLusUcO74sXCCOIsNfqO3PgM"
-                        api_url="https://server.simpletex.cn/api/latex_ocr"  # 接口地址
+                        api_url="https://server.simpletex.cn/api/latex_ocr"  # 标准模型接口地址
+                        # api_url="https://server.simpletex.cn/api/latex_ocr_turbo"  # 轻量级模型接口地址
                         data = { } # 请求参数数据（非文件型参数），视情况填入，可以参考各个接口的参数说明
                         header={ "token": SIMPLETEX_UAT } # 鉴权信息，此处使用UAT方式
                         file=[("file",(file_path,open(file_path, 'rb')))] # 请求文件,字段名一般为file
