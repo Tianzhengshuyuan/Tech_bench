@@ -539,37 +539,37 @@ def extract_questions_and_answer_from_docx(docx_path, output_json_path):
                                 option_count += 1
                                 # print(result)
                                 # print("result len is: "+str(len(result)))
-                                if len(result) > 2 and result.startswith(("A", "B", "C", "D")):
+                                if len(result) > 2 and result.strip().startswith(("A", "B", "C", "D")):
                                     # print("hello")
                                     if result.endswith(("B", "C", "D")): #考虑到可能出现 <w:t xml:space="preserve">    B．0        C．</w:t>
                                         if option_count==1:
-                                            results_A += result[2:-1]
+                                            results_A += result.strip()[2:-1]
                                         elif option_count==2:
-                                            results_B += result[2:-1]
+                                            results_B += result.strip()[2:-1]
                                         elif option_count==3:
-                                            results_C += result[2:-1]
+                                            results_C += result.strip()[2:-1]
                                         else:
-                                            results_D += result[2:-1]  
+                                            results_D += result.strip()[2:-1]  
                                         option_count += 1 
                                     elif result.endswith(("B.", "C.", "D.", "B．", "C．", "D．")):  
                                         if option_count==1:
-                                            results_A += result[2:-2]
+                                            results_A += result.strip()[2:-2]
                                         elif option_count==2:
-                                            results_B += result[2:-2]
+                                            results_B += result.strip()[2:-2]
                                         elif option_count==3:
-                                            results_C += result[2:-2]
+                                            results_C += result.strip()[2:-2]
                                         else:
-                                            results_D += result[2:-2]  
+                                            results_D += result.strip()[2:-2]  
                                         option_count += 1                                    
                                     else:
                                         if option_count==1:
-                                            results_A += result[2:]
+                                            results_A += result.strip()[2:]
                                         elif option_count==2:
-                                            results_B += result[2:]
+                                            results_B += result.strip()[2:]
                                         elif option_count==3:
-                                            results_C += result[2:]
+                                            results_C += result.strip()[2:]
                                         else:
-                                            results_D += result[2:]
+                                            results_D += result.strip()[2:]
                         elif option_count==1:
                             results_A += result
                         elif option_count==2:
