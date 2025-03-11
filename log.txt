@@ -327,7 +327,7 @@ D is:
 result is: A．
 result is: \frac{dv_2}{\sqrt{v_2^2-v_1^2}}
 result is:         B．0        C．
-result is: \frac{dv_1}{\nu_2}
+result is: \frac{dv_1}{v_2}
 result is:         D．
 result is: \frac{dv_2}{v_1}
 >>>>>>>>>>

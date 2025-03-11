@@ -7,6 +7,7 @@ import argparse
 import subprocess
 import pytesseract
 import numpy as np
+from lxml import etree
 from io import BytesIO
 from docx import Document
 from wand.image import Image
@@ -114,19 +115,21 @@ def extract_formula_from_picture(run, dotx_path, relationships):
     # print(run_xml.xml)
 
     if "<w:object" in run_xml.xml and args.latex == "on":
-        # 解析 OLE 对象
-        for ole_object in run_xml.findall(".//{urn:schemas-microsoft-com:office:office}OLEObject"):
-            prog_id = ole_object.attrib.get("ProgID", "")
-            # 检查是否是公式
-            if prog_id in ["Equation.3", "MathType"]:
-                rId = ole_object.attrib.get("{http://schemas.openxmlformats.org/officeDocument/2006/relationships}id")
-                # 使用正则表达式匹配 "rId" 后的数字部分
-                match = re.match(r"(rId)(\d+)", rId)
-                if match:
-                    prefix = match.group(1)  # 匹配 "rId"
-                    number = int(match.group(2))  # 提取数字部分并转换为整数
-                    number -= 1  # 修改数字
-                    rId = f"{prefix}{number}"  # 拼接新的字符串
+
+        # 解析 XML 内容
+        root = etree.fromstring(run_xml.xml)
+        
+        # 找到 <w:object> 元素
+        w_object = root.find('.//{http://schemas.openxmlformats.org/wordprocessingml/2006/main}object')
+        if w_object is not None:
+            # 找到 <v:shape> 元素
+            v_shape = w_object.find('.//{urn:schemas-microsoft-com:vml}shape')
+            if v_shape is not None:
+                # 找到 <v:imagedata> 元素
+                v_imagedata = v_shape.find('.//{urn:schemas-microsoft-com:vml}imagedata')
+                if v_imagedata is not None:
+                    # 获取 r:id 属性值
+                    rId = v_imagedata.get('{http://schemas.openxmlformats.org/officeDocument/2006/relationships}id')
                     
                 if rId:
                     # 使用 rId 提取高分辨率图像
@@ -135,8 +138,8 @@ def extract_formula_from_picture(run, dotx_path, relationships):
                     if img:
                         # 使用 SimpleTex 的 API 识别公式
                         SIMPLETEX_UAT="x97YHMaxT4hl1kbcvKkAHbQqZGR0HDL0rBAZfmqScLusUcO74sXCCOIsNfqO3PgM"
-                        # api_url="https://server.simpletex.cn/api/latex_ocr"  # 标准模型接口地址
-                        api_url="https://server.simpletex.cn/api/latex_ocr_turbo"  # 轻量级模型接口地址
+                        api_url="https://server.simpletex.cn/api/latex_ocr"  # 标准模型接口地址
+                        # api_url="https://server.simpletex.cn/api/latex_ocr_turbo"  # 轻量级模型接口地址
                         data = { } # 请求参数数据（非文件型参数），视情况填入，可以参考各个接口的参数说明
                         header={ "token": SIMPLETEX_UAT } # 鉴权信息，此处使用UAT方式
                         file=[("file",(file_path,open(file_path, 'rb')))] # 请求文件,字段名一般为file
@@ -588,6 +591,18 @@ def extract_questions_and_answer_from_docx(docx_path, output_json_path):
         # 添加识别到的问题
         questions.append(question_data)
 
+        # 查找紧跟题目后面的段落
+    
+    answer_count = 0
+    for paragraph in doc.paragraphs:
+        if paragraph.text.strip().startswith(f'【答案】'):
+            # 提取答案内容
+            answer_match = re.match(r'【答案】\s*([A-D]+)', paragraph.text.strip())
+            if answer_match:
+                answer = answer_match.group(1)
+                questions[answer_count]['answer'] = answer
+                answer_count += 1
+            
     # 提取答案内容
     matches = re.findall(r'(\d+)[.\s]+([A-D])', full_text)
     for match in matches:
