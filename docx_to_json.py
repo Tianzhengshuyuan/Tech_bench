@@ -417,9 +417,9 @@ def extract_questions_and_answer_from_docx(docx_path, output_json_path):
                                 if len(result.strip()) > 2:
                                     print("len > 2")
                                     if option_count==1:
-                                        results_A += result[2:]
+                                        results_A += result.strip()[2:]
                                     else:
-                                        results_B += result[2:]
+                                        results_B += result.strip()[2:]
                         else:
                             if result.endswith(("A", "B")): #可能遇到 <w:t>＝25cm/s，向左传播         B．</w:t>
                                 if option_count==1:
@@ -480,9 +480,9 @@ def extract_questions_and_answer_from_docx(docx_path, output_json_path):
                                 print("op_count++")
                                 if len(result.strip()) > 2:
                                     if option_count==3:
-                                        results_C += result[2:]
+                                        results_C += result.strip()[2:]
                                     else:
-                                        results_D += result[2:]
+                                        results_D += result.strip()[2:]
                         else:
                             if result.endswith(("C", "D")): 
                                 if option_count==3:
@@ -660,6 +660,26 @@ def extract_questions_and_answer_from_docx(docx_path, output_json_path):
                     if question_data.get("index") == str(int(start)+i):
                         question_data["answer"] = answer
                         break
+
+    # 检查每个 question 条目，删除从某数字到下一个数字的内容
+    for question_data in questions:
+        question_text = question_data.get("question", "")
+        
+        # 匹配类似 "数字." 的模式
+        number_matches = re.findall(r'(\d+)[．.]', question_text)
+        if len(number_matches) >= 2:
+            for i in range(len(number_matches) - 1):
+                current_num = int(number_matches[i])
+                next_num = int(number_matches[i + 1])
+                
+                # 如果后一个数字是前一个数字 + 1
+                if next_num == current_num + 1:
+                    # 删除从当前数字到下一个数字之间的内容
+                    pattern = rf"{current_num}[．.].*?{next_num}[．.]"
+                    question_text = re.sub(pattern, f"{next_num}.", question_text, flags=re.DOTALL)
+        
+        # 更新清理后的 question
+        question_data["question"] = question_text
             
     # 保存为 JSON 文件
     with open(output_json_path, "w", encoding="utf-8") as f:
