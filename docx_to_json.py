@@ -138,8 +138,8 @@ def extract_formula_from_picture(run, dotx_path, relationships):
                     if img:
                         # 使用 SimpleTex 的 API 识别公式
                         SIMPLETEX_UAT="x97YHMaxT4hl1kbcvKkAHbQqZGR0HDL0rBAZfmqScLusUcO74sXCCOIsNfqO3PgM"
-                        api_url="https://server.simpletex.cn/api/latex_ocr"  # 标准模型接口地址
-                        # api_url="https://server.simpletex.cn/api/latex_ocr_turbo"  # 轻量级模型接口地址
+                        # api_url="https://server.simpletex.cn/api/latex_ocr"  # 标准模型接口地址
+                        api_url="https://server.simpletex.cn/api/latex_ocr_turbo"  # 轻量级模型接口地址
                         data = { } # 请求参数数据（非文件型参数），视情况填入，可以参考各个接口的参数说明
                         header={ "token": SIMPLETEX_UAT } # 鉴权信息，此处使用UAT方式
                         file=[("file",(file_path,open(file_path, 'rb')))] # 请求文件,字段名一般为file
@@ -221,6 +221,12 @@ def extract_questions_and_answer_from_docx(docx_path, output_json_path):
         print("C is: "+question_data["C"])
         print("D is: "+question_data["D"])
         question_data['index'] = (re.match(r'^(\d+)[．.]', question_data["question"][:10])).group(1)
+        
+        # 针对前半部分是试卷，后半部分是试卷+答案的情况
+        if any(q['index'] == question_data['index'] for q in questions):
+            print(f"Question with index {question_data['index']} already exists. Skipping...")
+            break
+        
         for i,paragraph in enumerate(doc.paragraphs):
             if paragraph.text.startswith(question_data["question"][:10].strip()):
                 #找到option_paragraph的真正起点
@@ -593,35 +599,49 @@ def extract_questions_and_answer_from_docx(docx_path, output_json_path):
 
         # 查找紧跟题目后面的段落
     
+    #匹配一道题紧跟着一道的答案
+    answer_found = 0
     answer_count = 0
     for paragraph in doc.paragraphs:
         if paragraph.text.strip().startswith(f'【答案】'):
             # 提取答案内容
             answer_match = re.match(r'【答案】\s*([A-D]+)', paragraph.text.strip())
             if answer_match:
+                print(answer_match)
                 answer = answer_match.group(1)
+                print(answer_count)
                 questions[answer_count]['answer'] = answer
+                print("index is: "+questions[answer_count]['index'])
+                print("answer is: "+questions[answer_count]['answer'])
                 answer_count += 1
-            
-    # 提取答案内容
-    matches = re.findall(r'(\d+)[.\s]+([A-D])', full_text)
-    for match in matches:
-        number, answer = match
-        for question_data in questions:
-            if question_data.get("index") == number:
-                question_data["answer"] = answer
-                break
-    
-    # 匹配形如 "1-10 ABCDBCAADB" 的紧凑答案格式
-    compact_matches = re.findall(r'(\d+)[\-—](\d+)\s+([A-D]+)', full_text)
-    for compact_match in compact_matches:
-        start, end, answers = compact_match
-        print("start is "+start+", end is "+end+"answers is "+ answers)
-        for i, answer in enumerate(answers):
+        answer_found = 1
+                
+    if answer_found == 0:  #只可能有一种形式的答案，如果已经找到前一种形式的答案，就不再进行这个匹配       
+    # 匹配形如1.A 2.B的答案
+        matches = re.findall(r'(\d+)[.\s]+([A-D])', full_text)
+        for match in matches:
+            number, answer = match
             for question_data in questions:
-                if question_data.get("index") == str(int(start)+i):
+                if question_data.get("index") == number:
+                    print("change")
                     question_data["answer"] = answer
+                    print(question_data["index"])
+                    print("to")
+                    print(question_data["answer"])
                     break
+        answer_found = 1
+    
+    if answer_found == 0:
+        # 匹配形如 "1-10 ABCDBCAADB" 的紧凑答案格式
+        compact_matches = re.findall(r'(\d+)[\-—](\d+)\s+([A-D]+)', full_text)
+        for compact_match in compact_matches:
+            start, end, answers = compact_match
+            print("start is "+start+", end is "+end+"answers is "+ answers)
+            for i, answer in enumerate(answers):
+                for question_data in questions:
+                    if question_data.get("index") == str(int(start)+i):
+                        question_data["answer"] = answer
+                        break
             
     # 保存为 JSON 文件
     with open(output_json_path, "w", encoding="utf-8") as f:
