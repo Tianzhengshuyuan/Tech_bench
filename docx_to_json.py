@@ -617,25 +617,35 @@ def extract_questions_and_answer_from_docx(docx_path, output_json_path):
         if index in table_answers:
             question_data["answer"] = table_answers[index]
     
-    # 匹配一道题紧跟着一道的答案
     answer_found = 0
+    
+    # 匹配题目后紧跟着“故选：A”
     answer_count = 0
     for paragraph in doc.paragraphs:
-        if paragraph.text.strip().startswith(f'【答案】'):
+        if paragraph.text.strip().startswith(f'故选'):
             # 提取答案内容
-            answer_match = re.match(r'【答案】\s*([A-D]+)', paragraph.text.strip())
+            answer_match = re.match(r'故选[:：]\s*([A-D]+)', paragraph.text.strip())
             if answer_match:
-                print(answer_match)
                 answer = answer_match.group(1)
-                print(answer_count)
                 questions[answer_count]['answer'] = answer
-                print("index is: "+questions[answer_count]['index'])
-                print("answer is: "+questions[answer_count]['answer'])
                 answer_count += 1
-        answer_found = 1
+        answer_found = 1    
+    
+    # 匹配题目后紧跟着【答案】
+    if answer_found == 0:
+        answer_count = 0
+        for paragraph in doc.paragraphs:
+            if paragraph.text.strip().startswith(f'【答案】'):
+                # 提取答案内容
+                answer_match = re.match(r'【答案】\s*([A-D]+)', paragraph.text.strip())
+                if answer_match:
+                    answer = answer_match.group(1)
+                    questions[answer_count]['answer'] = answer
+                    answer_count += 1
+            answer_found = 1
                 
     if answer_found == 0:  #只可能有一种形式的答案，如果已经找到前一种形式的答案，就不再进行这个匹配       
-    # 匹配形如1.A 2.B的答案
+        # 匹配形如1.A 2.B的答案
         matches = re.findall(r'(\d+)[.\s]+([A-D])', full_text)
         for match in matches:
             number, answer = match
