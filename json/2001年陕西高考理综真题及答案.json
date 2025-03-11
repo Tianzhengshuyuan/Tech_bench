@@ -182,9 +182,9 @@
     {
         "question": "21．图中所示是一个平行板电容器，其电容为C，带电量为Q，上极板带正电。现将一个试探电荷q由两极板间的A点移动到B点，如图所示。",
         "A": "\\frac{qCs}{Qd}",
-        "B": "",
-        "C": "\\frac{qQs}{Cd}",
-        "D": "\\frac{qQs}{2Cd}\\frac{qCs}{2Qd}",
+        "B": "\\frac{qQs}{Cd}",
+        "C": "\\frac{qQs}{2Cd}",
+        "D": "\\frac{qCs}{2Qd}",
         "index": "21",
         "answer": "C"
     },

@@ -539,7 +539,7 @@ def extract_questions_and_answer_from_docx(docx_path, output_json_path):
                                 option_count += 1
                                 # print(result)
                                 # print("result len is: "+str(len(result)))
-                                if len(result) > 2 and result.strip().startswith(("A", "B", "C", "D")):
+                                if len(result.strip()) > 2 and result.strip().startswith(("A", "B", "C", "D")):
                                     # print("hello")
                                     if result.endswith(("B", "C", "D")): #考虑到可能出现 <w:t xml:space="preserve">    B．0        C．</w:t>
                                         if option_count==1:
