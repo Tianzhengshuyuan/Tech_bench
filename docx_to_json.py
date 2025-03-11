@@ -168,7 +168,7 @@ def extract_questions_and_answer_from_docx(docx_path, output_json_path):
     # \s*：匹配零个或多个空白字符（如空格、制表符等），允许在 A. 和选项内容之间有任意数量的空白字符。
 
     question_pattern = re.compile(
-        r"(?P<question>\d+[．.。].*?)"           # 匹配题目开头，如 "17. 一定质量的..."
+        r"(?P<question>\d+[．.、].*?)"           # 匹配题目开头，如 "17. 一定质量的..."
         r"(?:A[．.、\s]\s*(?P<A>.*?))"             # 匹配 A 选项
         r"(?:B[．.、\s]\s*(?P<B>.*?))"             # 匹配 B 选项
         r"(?:C[．.、\s]\s*(?P<C>.*?))"             # 匹配 C 选项
@@ -220,7 +220,7 @@ def extract_questions_and_answer_from_docx(docx_path, output_json_path):
         print("B is: "+question_data["B"])
         print("C is: "+question_data["C"])
         print("D is: "+question_data["D"])
-        question_data['index'] = (re.match(r'^(\d+)[．.]', question_data["question"][:10])).group(1)
+        question_data['index'] = (re.match(r'^(\d+)[．.、]', question_data["question"][:10])).group(1)
         
         # 针对前半部分是试卷，后半部分是试卷+答案的情况
         if any(q['index'] == question_data['index'] for q in questions):
@@ -271,9 +271,9 @@ def extract_questions_and_answer_from_docx(docx_path, output_json_path):
                                 if run.text == "﹣":
                                     minus = 1
                             else:
-                                result = run.text.lstrip("．.。\t")  # 普通文本直接添加
+                                result = run.text.lstrip("．.、\t")  # 普通文本直接添加
                         else: #不是文本就需要处理图像
-                            result = extract_formula_from_picture(run, docx_path, relationships).lstrip("．.。")
+                            result = extract_formula_from_picture(run, docx_path, relationships).lstrip("．.、")
                         if re.search(r"A", result): 
                             option_count+=1
                             if len(result) > 2: #考虑到有时 “C．甲、丁的种群数量下降，丙的种群数量增加”会被解析为一个完整的run
@@ -300,9 +300,9 @@ def extract_questions_and_answer_from_docx(docx_path, output_json_path):
                                 if run.text == "﹣":
                                     minus = 1
                             else:
-                                result = run.text.lstrip("．.。\t")  # 普通文本直接添加
+                                result = run.text.lstrip("．.、\t")  # 普通文本直接添加
                         else: #不是文本就需要处理图像
-                            result = extract_formula_from_picture(run, docx_path, relationships).lstrip("．.。")
+                            result = extract_formula_from_picture(run, docx_path, relationships).lstrip("．.、")
 
                         if re.search(r"B", result):
                             option_count+=1
@@ -330,9 +330,9 @@ def extract_questions_and_answer_from_docx(docx_path, output_json_path):
                                 if run.text == "﹣":
                                     minus = 1
                             else:
-                                result = run.text.lstrip("．.。\t")  # 普通文本直接添加
+                                result = run.text.lstrip("．.、\t")  # 普通文本直接添加
                         else: #不是文本就需要处理图像
-                            result = extract_formula_from_picture(run, docx_path, relationships).lstrip("．.。")
+                            result = extract_formula_from_picture(run, docx_path, relationships).lstrip("．.、")
 
                         if re.search(r"C", result):
                             option_count+=1
@@ -360,9 +360,9 @@ def extract_questions_and_answer_from_docx(docx_path, output_json_path):
                                 if run.text == "﹣":
                                     minus = 1
                             else:
-                                result = run.text.lstrip("．.。\t")  # 普通文本直接添加
+                                result = run.text.lstrip("．.、\t")  # 普通文本直接添加
                         else: #不是文本就需要处理图像
-                            result = extract_formula_from_picture(run, docx_path, relationships).lstrip("．.。")
+                            result = extract_formula_from_picture(run, docx_path, relationships).lstrip("．.、")
 
                         if re.search(r"D", result):
                             option_count+=1
@@ -394,9 +394,9 @@ def extract_questions_and_answer_from_docx(docx_path, output_json_path):
                                 if run.text == "﹣":
                                     minus = 1
                             else:
-                                result = run.text.lstrip("．.。\t")  # 普通文本直接添加
+                                result = run.text.lstrip("．.、\t")  # 普通文本直接添加
                         else: #不是文本就需要处理图像
-                            result = extract_formula_from_picture(run, docx_path, relationships).lstrip("．.。")
+                            result = extract_formula_from_picture(run, docx_path, relationships).lstrip("．.、")
 
                         if result.strip().startswith("A") or result.strip().startswith("B"):
                             if re.search(r"A", result) and re.search(r"B", result): #考虑：“A. 一直变小 B. 一直变大”
@@ -458,9 +458,9 @@ def extract_questions_and_answer_from_docx(docx_path, output_json_path):
                                 if run.text == "﹣":
                                     minus = 1
                             else:
-                                result = run.text.lstrip("．.。\t")  # 普通文本直接添加
+                                result = run.text.lstrip("．.、\t")  # 普通文本直接添加
                         else: #不是文本就需要处理图像
-                            result = extract_formula_from_picture(run, docx_path, relationships).lstrip("．.。")
+                            result = extract_formula_from_picture(run, docx_path, relationships).lstrip("．.、")
 
                         if result.strip().startswith("C") or result.strip().startswith("D"):
                             if re.search(r"C", result) and re.search(r"D", result): #考虑：“C. 先变小后变大 D. 先变大后变小”
@@ -524,9 +524,9 @@ def extract_questions_and_answer_from_docx(docx_path, output_json_path):
                                 if run.text == "﹣":
                                     minus = 1
                             else:
-                                result = run.text.lstrip("．.。\t") # 普通文本直接添加
+                                result = run.text.lstrip("．.、\t") # 普通文本直接添加
                         else: #不是文本就需要处理图像
-                            result = extract_formula_from_picture(run, docx_path, relationships).lstrip("．.。")
+                            result = extract_formula_from_picture(run, docx_path, relationships).lstrip("．.、")
                         print("result is: "+result)
                         if re.search(r"(^|[^a-zA-Z])A([^a-zA-Z]|$)", result) or re.search(r"(^|[^a-zA-Z])B([^a-zA-Z]|$)", result) or re.search(r"(^|[^a-zA-Z])C([^a-zA-Z]|$)", result) or re.search(r"(^|[^a-zA-Z])D([^a-zA-Z]|$)", result):
                             # print("has abcd")
@@ -629,7 +629,7 @@ def extract_questions_and_answer_from_docx(docx_path, output_json_path):
                 answer = answer_match.group(1)
                 questions[answer_count]['answer'] = answer
                 answer_count += 1
-        answer_found = 1    
+            answer_found = 1    
     
     # 匹配题目后紧跟着【答案】
     if answer_found == 0:
@@ -642,11 +642,11 @@ def extract_questions_and_answer_from_docx(docx_path, output_json_path):
                     answer = answer_match.group(1)
                     questions[answer_count]['answer'] = answer
                     answer_count += 1
-            answer_found = 1
+                answer_found = 1
                 
     if answer_found == 0:  #只可能有一种形式的答案，如果已经找到前一种形式的答案，就不再进行这个匹配       
         # 匹配形如1.A 2.B的答案
-        matches = re.findall(r'(\d+)[.\s]+([A-D])', full_text)
+        matches = re.findall(r'(\d+)[.、\s]+([A-D]+)', full_text)
         for match in matches:
             number, answer = match
             for question_data in questions:
@@ -657,7 +657,7 @@ def extract_questions_and_answer_from_docx(docx_path, output_json_path):
                     print("to")
                     print(question_data["answer"])
                     break
-        answer_found = 1
+            answer_found = 1
     
     if answer_found == 0:
         # 匹配形如 "1-10 ABCDBCAADB" 的紧凑答案格式
