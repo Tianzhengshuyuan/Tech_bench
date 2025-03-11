@@ -599,7 +599,25 @@ def extract_questions_and_answer_from_docx(docx_path, output_json_path):
 
         # 查找紧跟题目后面的段落
     
-    #匹配一道题紧跟着一道的答案
+    # 匹配表格中的答案
+    table_answers = {}
+    for table in doc.tables:
+        # 表格至少有两行：第一行为题号，第二行为答案
+        if len(table.rows) >= 2:
+            question_numbers = [cell.text.strip() for cell in table.rows[0].cells]  # 第一行是题号
+            answers = [cell.text.strip() for cell in table.rows[1].cells]          # 第二行是答案
+            
+            # 将题号与答案对应起来
+            for question, answer in zip(question_numbers, answers):
+                if question.isdigit():  # 确保题号是数字
+                    table_answers[question] = answer
+                    
+    for question_data in questions:
+        index = question_data.get("index")
+        if index in table_answers:
+            question_data["answer"] = table_answers[index]
+    
+    # 匹配一道题紧跟着一道的答案
     answer_found = 0
     answer_count = 0
     for paragraph in doc.paragraphs:
