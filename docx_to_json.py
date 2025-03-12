@@ -177,10 +177,10 @@ def extract_questions_and_answer_from_docx(docx_path, output_json_path):
         re.DOTALL                           # 允许匹配跨行内容
     )
     
-    # 转换文档中的上标和下标，并提取文本
+    # 遍历段落，提取full_text
     full_text = ""
 
-    # 遍历段落
+    # 转换文档中的上标和下标，并提取文本
     for paragraph in doc.paragraphs:
         paragraph_text = ""
         # 遍历段落中的每个 run
@@ -206,13 +206,13 @@ def extract_questions_and_answer_from_docx(docx_path, output_json_path):
                 paragraph_text += run.text  # 普通文本直接添加
         full_text += paragraph_text + "\n"  # 添加段落并换行
 
-    # 删除内容：“原子量：H1   O16   Mg24    Al27    Cl 35.5    Ca40  Fe56    Zn 65”
+    # 删除内容：“原子量：H1   O16   Mg24    Al27    Cl 35.5    Ca40  Fe56    Zn 65”，从而防止干扰
     full_text = re.sub(r"原子量.*?1[.、．]", "1.", full_text, flags=re.DOTALL)
     
+    print("full text: "+full_text)
     # 提取选择题内容
     questions = []
     for match in question_pattern.finditer(full_text):
-        # print(match.group(2))
         question_data = match.groupdict()
         print(match.group(0))
         print("question is: "+question_data["question"])
@@ -599,6 +599,7 @@ def extract_questions_and_answer_from_docx(docx_path, output_json_path):
 
         # 查找紧跟题目后面的段落
     
+    print("answer?>?>?>?>?")
     # 匹配表格中的答案
     table_answers = {}
     for table in doc.tables:
@@ -619,6 +620,7 @@ def extract_questions_and_answer_from_docx(docx_path, output_json_path):
     
     answer_found = 0
     
+    print("answer_found is:"+str(answer_found))
     # 匹配题目后紧跟着“故选：A”
     answer_count = 0
     for paragraph in doc.paragraphs:
@@ -630,20 +632,38 @@ def extract_questions_and_answer_from_docx(docx_path, output_json_path):
                 questions[answer_count]['answer'] = answer
                 answer_count += 1
             answer_found = 1    
+            print("find 故选")
     
+    print("answer_found is:"+str(answer_found))
     # 匹配题目后紧跟着【答案】
     if answer_found == 0:
         answer_count = 0
         for paragraph in doc.paragraphs:
-            if paragraph.text.strip().startswith(f'【答案】'):
+            if re.match(r'【答案】\s*([A-D]+)', paragraph.text.strip()):
                 # 提取答案内容
                 answer_match = re.match(r'【答案】\s*([A-D]+)', paragraph.text.strip())
                 if answer_match:
                     answer = answer_match.group(1)
                     questions[answer_count]['answer'] = answer
                     answer_count += 1
+                print("find【答案】")
                 answer_found = 1
                 
+    print("answer_found is:"+str(answer_found))
+    if answer_found == 0:
+        answer_count = 0
+        for paragraph in doc.paragraphs:
+            if re.match(r'\d*\.\s*答案：\s*([A-D])', paragraph.text.strip()):
+                # 提取答案内容
+                print("find 答案：")
+                answer_match = re.match(r'\d*\.\s*答案：\s*([A-D])', paragraph.text.strip())
+                if answer_match:
+                    answer = answer_match.group(1)
+                    questions[answer_count]['answer'] = answer
+                    answer_count += 1
+                answer_found = 1
+                
+    print("answer_found is:"+str(answer_found))
     if answer_found == 0:  #只可能有一种形式的答案，如果已经找到前一种形式的答案，就不再进行这个匹配       
         # 匹配形如1.A 2.B的答案
         matches = re.findall(r'(\d+)[.、\s]+([A-D]+)', full_text)
@@ -659,6 +679,7 @@ def extract_questions_and_answer_from_docx(docx_path, output_json_path):
                     break
             answer_found = 1
     
+    print("answer_found is:"+str(answer_found))    
     if answer_found == 0:
         # 匹配形如 "1-10 ABCDBCAADB" 的紧凑答案格式
         compact_matches = re.findall(r'(\d+)[\-—](\d+)\s+([A-D]+)', full_text)
