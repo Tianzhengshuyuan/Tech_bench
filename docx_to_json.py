@@ -61,11 +61,16 @@ def delete_irrelevant(full_text):
     if match:
         full_text = full_text[:match.start()]  # 截取 "第Ⅱ卷" 之前的内容
   
-    # 如果 full_text 中出现 "二、"，删除其后的内容，只保留选择题
-    match = re.search(r"(?<![\u4e00-\u9fff])二、", full_text)
+    # 如果 full_text 中出现 "二、非选择题"，删除其后的内容，只保留选择题
+    match = re.search(r"(?<![\u4e00-\u9fff])二、非选择题", full_text)
     if match:
-        full_text = full_text[:match.start()]  # 截取 "二、" 之前的内容
-
+        full_text = full_text[:match.start()]  # 截取 "二、非选择题" 之前的内容
+        
+    # 如果 full_text 中出现 "三、非选择题"，删除其后的内容，只保留选择题
+    match = re.search(r"(?<![\u4e00-\u9fff])三、非选择题", full_text)
+    if match:
+        full_text = full_text[:match.start()]  # 截取 "三、非选择题" 之前的内容
+        
     # 检查 full_text 中是否存在 "一、选择题"
     match = re.search(r"一、选择题", full_text)
     if match:
@@ -86,7 +91,7 @@ def delete_irrelevant(full_text):
     
     return full_text
 
-def find_answer(doc, questions):
+def find_answer(doc, questions, full_text):
     """
     提取选择题的答案
     """
@@ -120,11 +125,12 @@ def find_answer(doc, questions):
                 # 提取答案内容
                 answer_match = re.match(r'故选[:：]\s*([A-D]+)', paragraph.text.strip())
                 if answer_match:
-                    answer = answer_match.group(1)
-                    questions[answer_count]['answer'] = answer
-                    answer_count += 1
-                    answer_found = 1    
-                    print("答案形式：故选")
+                    if answer_count < len(questions):
+                        answer = answer_match.group(1)
+                        questions[answer_count]['answer'] = answer
+                        answer_count += 1
+                        answer_found = 1    
+                        print("答案形式：故选")
     
     # 匹配题目后紧跟着【答案】
     if answer_found == 0:
@@ -134,11 +140,12 @@ def find_answer(doc, questions):
                 # 提取答案内容
                 answer_match = re.match(r'【答案】\s*([A-D]+)', paragraph.text.strip())
                 if answer_match:
-                    answer = answer_match.group(1)
-                    questions[answer_count]['answer'] = answer
-                    answer_count += 1
-                    print("答案形式：【答案】")
-                    answer_found = 1
+                    if answer_count < len(questions):       
+                        answer = answer_match.group(1)
+                        questions[answer_count]['answer'] = answer
+                        answer_count += 1
+                        print("答案形式：【答案】")
+                        answer_found = 1
                 
     if answer_found == 0:
         answer_count = 0
@@ -147,11 +154,12 @@ def find_answer(doc, questions):
                 # 提取答案内容
                 answer_match = re.match(r'\d*\.\s*答案：\s*([A-D])', paragraph.text.strip())
                 if answer_match:
-                    answer = answer_match.group(1)
-                    questions[answer_count]['answer'] = answer
-                    answer_count += 1
-                    print("答案形式： 答案：")
-                    answer_found = 1
+                    if answer_count < len(questions):
+                        answer = answer_match.group(1)
+                        questions[answer_count]['answer'] = answer
+                        answer_count += 1
+                        print("答案形式： 答案：")
+                        answer_found = 1
                 
     if answer_found == 0:  #只可能有一种形式的答案，如果已经找到前一种形式的答案，就不再进行这个匹配       
         # 匹配形如1.A 2.B的答案
@@ -348,11 +356,12 @@ def extract_questions_and_answer_from_docx(docx_path, output_json_path):
 
     # 匹配的正则表达式
     question_pattern = re.compile(
+        r"(?<![\u4e00-\u9fa5\d])" 
         r"(?P<question>\d+[．.、].*?)"           # 匹配题目开头，如 "17. 一定质量的..."
-        r"(?:A[．.、\s]\s*(?P<A>.*?))"             # 匹配 A 选项
-        r"(?:B[．.、\s]\s*(?P<B>.*?))"             # 匹配 B 选项
-        r"(?:C[．.、\s]\s*(?P<C>.*?))"             # 匹配 C 选项
-        r"(?:D[．.、\s]\s*?(?P<D>.*?))"             # 匹配 D 选项
+        r"(?:[AＡ][．.、\s\u200b]\s*(?P<A>.*?))"             # 匹配 A 选项
+        r"(?:[BＢ][．.、\s\u200b]\s*(?P<B>.*?))"             # 匹配 B 选项
+        r"(?:[CＣ][．.、\s\u200b]\s*(?P<C>.*?))"             # 匹配 C 选项
+        r"(?:[DＤ][．.、\s\u200b]\s*?(?P<D>.*?))"             # 匹配 D 选项
         r"(?=\n|\f|\d+[．.、][\u4e00-\u9fa5])",     # 断言 D 选项后面是换行符、换页符、题号或中文汉字，但不包含这些内容
         re.DOTALL                           # 允许匹配跨行内容
     )
@@ -392,7 +401,7 @@ def extract_questions_and_answer_from_docx(docx_path, output_json_path):
     questions = []
     for match in question_pattern.finditer(full_text):
         question_data = match.groupdict()
-        print(match.group(0))
+        print(repr(match.group(0)))
         question_data['index'] = (re.match(r'^(\d+)[．.、]', question_data["question"][:10])).group(1)
         
         # 针对前半部分是试卷，后半部分是试卷+答案的情况
@@ -405,7 +414,7 @@ def extract_questions_and_answer_from_docx(docx_path, output_json_path):
                 #找到option_paragraph的真正起点
                 start = 1
                 for j in range(1,10):
-                    if doc.paragraphs[i+j].text.replace(" ", "").replace("\t", "").startswith("A"):
+                    if doc.paragraphs[i+j].text.replace(" ", "").replace("\t", "").startswith(("A","Ａ")):
                         start = i+j
                         break
                     
@@ -420,7 +429,7 @@ def extract_questions_and_answer_from_docx(docx_path, output_json_path):
                 results_D = ""
 
                 #四个选项各占一行
-                if option_paragraph1.text.lstrip(" \t").startswith("A") and option_paragraph2.text.lstrip(" \t").startswith("B"): 
+                if option_paragraph1.text.lstrip(" \t").startswith(("A","Ａ")) and option_paragraph2.text.lstrip(" \t").startswith(("B","Ｂ")): 
                     print("[[[Situation 1]]]")
                     option_count=0
                     minus = 0
@@ -446,7 +455,7 @@ def extract_questions_and_answer_from_docx(docx_path, output_json_path):
                                 result = run.text.lstrip("．.、\t")  # 普通文本直接添加
                         else: #不是文本就需要处理图像
                             result = extract_formula_from_picture(run, docx_path, relationships).lstrip("．.、")
-                        if re.search(r"A", result) and option_count == 0: 
+                        if re.search(r"[AＡ]", result) and option_count == 0: 
                             option_count+=1
                             if len(result) > 2: #考虑到有时 “C．甲、丁的种群数量下降，丙的种群数量增加”会被解析为一个完整的run
                                 results_A += result[2:]
@@ -476,7 +485,7 @@ def extract_questions_and_answer_from_docx(docx_path, output_json_path):
                         else: #不是文本就需要处理图像
                             result = extract_formula_from_picture(run, docx_path, relationships).lstrip("．.、")
 
-                        if re.search(r"B", result) and option_count == 1:
+                        if re.search(r"[BＢ]", result) and option_count == 1:
                             option_count+=1
                             if len(result) > 2:
                                 results_B += result[2:]
@@ -506,7 +515,7 @@ def extract_questions_and_answer_from_docx(docx_path, output_json_path):
                         else: #不是文本就需要处理图像
                             result = extract_formula_from_picture(run, docx_path, relationships).lstrip("．.、")
 
-                        if re.search(r"C", result) and option_count == 2:
+                        if re.search(r"[CＣ]", result) and option_count == 2:
                             option_count+=1
                             if len(result) > 2:
                                 results_C += result[2:]
@@ -536,14 +545,14 @@ def extract_questions_and_answer_from_docx(docx_path, output_json_path):
                         else: #不是文本就需要处理图像
                             result = extract_formula_from_picture(run, docx_path, relationships).lstrip("．.、")
 
-                        if re.search(r"D", result) and option_count == 3:
+                        if re.search(r"[DＤ]", result) and option_count == 3:
                             option_count+=1
                             if len(result) > 2:
                                 results_D += result[2:]
                         elif option_count==4:
                             results_D += result
                 #四个选项占两行
-                elif option_paragraph1.text.lstrip(" \t").startswith("A") and option_paragraph2.text.lstrip(" \t").startswith("C"):
+                elif option_paragraph1.text.lstrip(" \t").startswith(("A","Ａ")) and option_paragraph2.text.lstrip(" \t").startswith(("C","Ｃ")):
                     print("[[[Situation 2]]]") 
                     option_count=0
                     minus = 0
@@ -570,10 +579,10 @@ def extract_questions_and_answer_from_docx(docx_path, output_json_path):
                         else: #不是文本就需要处理图像
                             result = extract_formula_from_picture(run, docx_path, relationships).lstrip("．.、")
 
-                        if result.strip().startswith("A") or result.strip().startswith("B"):
-                            if re.search(r"A", result) and re.search(r"B", result): #考虑：“A. 一直变小 B. 一直变大”
+                        if result.strip().startswith(("A","Ａ")) or result.strip().startswith(("B","Ｂ")):
+                            if re.search(r"[AＡ]", result) and re.search(r"[BＢ]", result): #考虑：“A. 一直变小 B. 一直变大”
                                 # 定义正则表达式匹配整个模式
-                                pattern = r"A[．.](.*?)B[．.](.*)"
+                                pattern = r"[AＡ][．.](.*?)[BＢ][．.](.*)"
 
                                 # 使用 re.search 寻找第一次匹配
                                 match_option = re.search(pattern, result)
@@ -590,13 +599,13 @@ def extract_questions_and_answer_from_docx(docx_path, output_json_path):
                                     else:
                                         results_B += result.strip()[2:]
                         else:
-                            if result.endswith(("A", "B")): #可能遇到 <w:t>＝25cm/s，向左传播         B．</w:t>
+                            if result.endswith(("A","Ａ", "B","Ｂ")): #可能遇到 <w:t>＝25cm/s，向左传播         B．</w:t>
                                 if option_count==1:
                                     results_A += result[:-1]
                                 elif option_count==2:
                                     results_B += result[:-1]  
                                 option_count += 1
-                            elif result.endswith(("A.", "B.", "A．", "B．")):
+                            elif result.endswith(("A.","Ａ.", "B.", "Ｂ.", "A．","Ａ．", "B．", "Ｂ．")):
                                 if option_count==1:
                                     results_A += result[:-2]
                                 elif option_count==2:
@@ -631,11 +640,11 @@ def extract_questions_and_answer_from_docx(docx_path, output_json_path):
                         else: #不是文本就需要处理图像
                             result = extract_formula_from_picture(run, docx_path, relationships).lstrip("．.、")
 
-                        if result.strip().startswith("C") or result.strip().startswith("D"):
-                            if re.search(r"C", result) and re.search(r"D", result): #考虑：“C. 先变小后变大 D. 先变大后变小”
+                        if result.strip().startswith(("C","Ｃ")) or result.strip().startswith(("D", "Ｄ")):
+                            if re.search(r"[CＣ]", result) and re.search(r"[DＤ]", result): #考虑：“C. 先变小后变大 D. 先变大后变小”
                                 # print("C and D")
                                 # 定义正则表达式匹配整个模式
-                                pattern = r"C[．.](.*?)D[．.](.*)"
+                                pattern = r"[CＣ][．.](.*?)[DＤ][．.](.*)"
 
                                 # 使用 re.search 寻找第一次匹配
                                 match_option = re.search(pattern, result)
@@ -652,13 +661,13 @@ def extract_questions_and_answer_from_docx(docx_path, output_json_path):
                                     else:
                                         results_D += result.strip()[2:]
                         else:
-                            if result.endswith(("C", "D")): 
+                            if result.endswith(("C", "Ｃ", "D")): 
                                 if option_count==3:
                                     results_C += result[:-1]
                                 elif option_count==4:
                                     results_D += result[:-1]  
                                 option_count += 1
-                            elif result.endswith(("C.", "D.", "C．", "D．")):
+                            elif result.endswith(("C.","Ｃ.", "D.","Ｄ.", "C．","Ｃ．", "D．","Ｄ．")):
                                 if option_count==3:
                                     results_C += result[:-2]
                                 elif option_count==4:
@@ -695,11 +704,11 @@ def extract_questions_and_answer_from_docx(docx_path, output_json_path):
                                 result = run.text.lstrip("．.、\t") # 普通文本直接添加
                         else: #不是文本就需要处理图像
                             result = extract_formula_from_picture(run, docx_path, relationships).lstrip("．.、")
-                        if re.search(r"(^|[^a-zA-Z])A([^a-zA-Z]|$)", result) or re.search(r"(^|[^a-zA-Z])B([^a-zA-Z]|$)", result) or re.search(r"(^|[^a-zA-Z])C([^a-zA-Z]|$)", result) or re.search(r"(^|[^a-zA-Z])D([^a-zA-Z]|$)", result):
+                        if re.search(r"(^|[^a-zA-Z])[AＡ]([^a-zA-Z]|$)", result) or re.search(r"(^|[^a-zA-Z])[BＢ]([^a-zA-Z]|$)", result) or re.search(r"(^|[^a-zA-Z])[CＣ]([^a-zA-Z]|$)", result) or re.search(r"(^|[^a-zA-Z])[DＤ]([^a-zA-Z]|$)", result):
                             #全是文本，一整行被解析成一个run
-                            if re.search(r"A", result) and re.search(r"B", result) and re.search(r"C", result) and re.search(r"D", result):
+                            if re.search(r"[AＡ]", result) and re.search(r"[BＢ]", result) and re.search(r"[CＣ]", result) and re.search(r"[DＤ]", result):
                                 # 定义正则表达式匹配整个模式
-                                pattern = r"A[．.](.*?)B[．.](.*?)C[．.](.*?)D[．.](.*)"
+                                pattern = r"[AＡ][．.](.*?)[BＢ][．.](.*?)[CＣ][．.](.*?)[DＤ][．.](.*)"
 
                                 # 使用 re.search 寻找第一次匹配
                                 match_option = re.search(pattern, result)
@@ -713,8 +722,8 @@ def extract_questions_and_answer_from_docx(docx_path, output_json_path):
                             else:
                                 option_count += 1
 
-                                if len(result.strip()) > 2 and result.strip().startswith(("A", "B", "C", "D")):
-                                    if result.endswith(("B", "C", "D")): #考虑到可能出现 <w:t xml:space="preserve">    B．0        C．</w:t>
+                                if len(result.strip()) > 2 and result.strip().startswith(("A","Ａ", "B","Ｂ", "C","Ｃ", "D","Ｄ")):
+                                    if result.endswith(("B","Ｂ", "C","Ｃ", "D","Ｄ")): #考虑到可能出现 <w:t xml:space="preserve">    B．0        C．</w:t>
                                         if option_count==1:
                                             results_A += result.strip()[2:-1]
                                         elif option_count==2:
@@ -724,7 +733,7 @@ def extract_questions_and_answer_from_docx(docx_path, output_json_path):
                                         else:
                                             results_D += result.strip()[2:-1]  
                                         option_count += 1 
-                                    elif result.endswith(("B.", "C.", "D.", "B．", "C．", "D．")):  
+                                    elif result.endswith(("B.","Ｂ.", "C.","Ｃ.", "D.","Ｄ.", "B．","Ｂ．", "C．","Ｃ．", "D．","Ｄ．")):  
                                         if option_count==1:
                                             results_A += result.strip()[2:-2]
                                         elif option_count==2:
@@ -760,7 +769,9 @@ def extract_questions_and_answer_from_docx(docx_path, output_json_path):
         # 添加识别到的问题
         questions.append(question_data)
     
-    find_answer(doc, questions)
+    for question in questions:
+        print(question)
+    find_answer(doc, questions, full_text)
  
     clean_question(questions)
         
