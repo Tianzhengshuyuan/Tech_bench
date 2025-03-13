@@ -1,4 +1,6 @@
 #!/bin/bash
+# 删除之前的output.json
+rm output.json
 
 # 从命令行获取参数
 DIR_NAME=$1  # 第一个参数是文件夹名
@@ -27,5 +29,5 @@ find "$DIR_NAME" -type f -name '*.docx' | while read -r DOCX_FILE; do
   python remove_smartTag.py --docx_name="$FILE_NAME"
 
   # 执行 docx_to_json.py，json_name 统一设置为 "output"
-  python docx_to_json.py --docx_name="$FILE_NAME" --json_name="output" --latex="$LATEX_OPTION"
+  python docx_to_json.py --docx_name="$FILE_NAME" --json_name="output" --new="off" --latex="$LATEX_OPTION"
 done

@@ -48,27 +48,199 @@ def crop_image(image):
     cropped_image = ImageOps.expand(cropped_image, border=border, fill="white")
 
     return cropped_image
+   
+def delete_irrelevant(full_text):
+    """
+    删除文档中影响选择题识别的干扰内容
+    """
+    # 删除内容：“原子量：H1   O16   Mg24    Al27    Cl 35.5    Ca40  Fe56    Zn 65”，从而防止干扰
+    full_text = re.sub(r"原子量.*?1[.、．]", "1.", full_text, flags=re.DOTALL)
+    
+    # 如果 full_text 中出现 "第Ⅱ卷"，删除其后的内容，只保留选择题
+    match = re.search(r"(?<![\u4e00-\u9fff])第Ⅱ卷", full_text)
+    if match:
+        full_text = full_text[:match.start()]  # 截取 "第Ⅱ卷" 之前的内容
+  
+    # 如果 full_text 中出现 "二、"，删除其后的内容，只保留选择题
+    match = re.search(r"(?<![\u4e00-\u9fff])二、", full_text)
+    if match:
+        full_text = full_text[:match.start()]  # 截取 "二、" 之前的内容
 
+    # 检查 full_text 中是否存在 "一、选择题"
+    match = re.search(r"一、选择题", full_text)
+    if match:
+        # 截取 "一、选择题" 及其后面的内容
+        full_text = full_text[match.start():]
+        
+    # 检查 full_text 中是否存在 "一、单项选择题"
+    match = re.search(r"一、单项选择题", full_text)
+    if match:
+        # 截取 "一、单项选择题" 及其后面的内容
+        full_text = full_text[match.start():]
+          
+    # 检查 full_text 中是否存在 "第I卷"
+    match = re.search(r"(?<![\u4e00-\u9fff])第I卷", full_text)
+    if match:
+        # 截取 "第I卷" 及其后面的内容
+        full_text = full_text[match.start():]
+    
+    return full_text
+
+def find_answer(doc, questions):
+    """
+    提取选择题的答案
+    """
+    # answer_found代表是否按照某种模式已经提取到答案
+    answer_found = 0
+    
+    # 匹配表格中的答案
+    table_answers = {}
+    for table in doc.tables:
+        # 表格至少有两行：第一行为题号，第二行为答案
+        if len(table.rows) >= 2:
+            question_numbers = [cell.text.strip() for cell in table.rows[0].cells]  # 第一行是题号
+            answers = [cell.text.strip() for cell in table.rows[1].cells]          # 第二行是答案
+            
+            # 将题号与答案对应起来
+            for question, answer in zip(question_numbers, answers):
+                if question.isdigit():  # 确保题号是数字
+                    table_answers[question] = answer
+                    
+    for question_data in questions:
+        index = question_data.get("index")
+        if index in table_answers:
+            question_data["answer"] = table_answers[index]
+            answer_found = 1
+    
+    # 匹配题目后紧跟着“故选：A”
+    if answer_found == 0:
+        answer_count = 0
+        for paragraph in doc.paragraphs:
+            if re.match(r'故选[:：]\s*([A-D]+)', paragraph.text.strip()):
+                # 提取答案内容
+                answer_match = re.match(r'故选[:：]\s*([A-D]+)', paragraph.text.strip())
+                if answer_match:
+                    answer = answer_match.group(1)
+                    questions[answer_count]['answer'] = answer
+                    answer_count += 1
+                    answer_found = 1    
+                    print("答案形式：故选")
+    
+    # 匹配题目后紧跟着【答案】
+    if answer_found == 0:
+        answer_count = 0
+        for paragraph in doc.paragraphs:
+            if re.match(r'【答案】\s*([A-D]+)', paragraph.text.strip()):
+                # 提取答案内容
+                answer_match = re.match(r'【答案】\s*([A-D]+)', paragraph.text.strip())
+                if answer_match:
+                    answer = answer_match.group(1)
+                    questions[answer_count]['answer'] = answer
+                    answer_count += 1
+                    print("答案形式：【答案】")
+                    answer_found = 1
+                
+    if answer_found == 0:
+        answer_count = 0
+        for paragraph in doc.paragraphs:
+            if re.match(r'\d*\.\s*答案：\s*([A-D])', paragraph.text.strip()):
+                # 提取答案内容
+                answer_match = re.match(r'\d*\.\s*答案：\s*([A-D])', paragraph.text.strip())
+                if answer_match:
+                    answer = answer_match.group(1)
+                    questions[answer_count]['answer'] = answer
+                    answer_count += 1
+                    print("答案形式： 答案：")
+                    answer_found = 1
+                
+    if answer_found == 0:  #只可能有一种形式的答案，如果已经找到前一种形式的答案，就不再进行这个匹配       
+        # 匹配形如1.A 2.B的答案
+        matches = re.findall(r'(\d+)[.、\s]+([A-D]+)', full_text)
+        for match in matches:
+            number, answer = match
+            for question_data in questions:
+                if question_data.get("index") == number:
+                    question_data["answer"] = answer
+                    break
+            print("答案形式：1.A 2.B")
+            answer_found = 1
+    
+    if answer_found == 0:
+        # 匹配形如 "1-10 ABCDBCAADB" 的紧凑答案格式
+        compact_matches = re.findall(r'(\d+)[\-—](\d+)\s+([A-D]+)', full_text)
+        for compact_match in compact_matches:
+            start, end, answers = compact_match
+            for i, answer in enumerate(answers):
+                for question_data in questions:
+                    if question_data.get("index") == str(int(start)+i):
+                        question_data["answer"] = answer
+                        break
+
+def clean_question(questions):
+    """
+    删除question中的冗余内容
+    """
+    # 检查每个 question 条目，删除从某数字到下一个数字的内容
+    for question_data in questions:
+        question_text = question_data.get("question", "")
+        
+        # 匹配类似 "数字." 的模式
+        number_matches = re.findall(r'(\d+)[．.]', question_text)
+        if len(number_matches) >= 2:
+            for i in range(len(number_matches) - 1):
+                current_num = int(number_matches[i])
+                next_num = int(number_matches[i + 1])
+                
+                # 如果后一个数字是前一个数字 + 1
+                if next_num == current_num + 1:
+                    # 删除从当前数字到下一个数字之间的内容
+                    pattern = rf"{current_num}[．.].*?{next_num}[．.]"
+                    question_text = re.sub(pattern, f"{next_num}.", question_text, flags=re.DOTALL)
+        
+        # 更新清理后的 question
+        question_data["question"] = question_text
+
+def add_exam_name(questions):
+    """
+    增加试卷名
+    """
+    exam_name = args.docx_name # 提取文件名（去掉路径）
+    exam_name = os.path.basename(exam_name)
+    exam_name = re.sub(r'真题.*', '', exam_name)
+    exam_name = re.sub(r'试题.*', '', exam_name)
+    exam_name = re.sub(r'（解析版）.*', '', exam_name)
+    exam_name = re.sub(r'（含解析版）.*', '', exam_name)
+    for question_data in questions:
+        question_data['exam'] = exam_name
+        
 def save_to_json(output_json_path, questions):
-    # 如果文件已存在，读取其内容
-    if os.path.exists(output_json_path):
-        with open(output_json_path, "r", encoding="utf-8") as f:
-            try:
-                existing_data = json.load(f)  # 读取现有内容
-            except json.JSONDecodeError:  # 如果文件为空或内容无效
-                existing_data = []
-    else:
-        existing_data = []
+    """
+    将生成的条目保存到.json文件，有两种模式：追加和新建
+    """
+    if args.new == "off":
+        # 如果文件已存在，读取其内容
+        if os.path.exists(output_json_path):
+            with open(output_json_path, "r", encoding="utf-8") as f:
+                try:
+                    existing_data = json.load(f)  # 读取现有内容
+                except json.JSONDecodeError:  # 如果文件为空或内容无效
+                    existing_data = []
+        else:
+            existing_data = []
 
-    # 确保现有内容是列表类型，合并新的内容
-    if isinstance(existing_data, list):
-        existing_data.extend(questions)  # 将新内容追加到列表
-    else:
-        raise ValueError("Existing JSON content is not a list. Cannot append.")
+        # 确保现有内容是列表类型，合并新的内容
+        if isinstance(existing_data, list):
+            existing_data.extend(questions)  # 将新内容追加到列表
+        else:
+            raise ValueError("Existing JSON content is not a list. Cannot append.")
 
-    # 保存合并后的内容
-    with open(output_json_path, "w", encoding="utf-8") as f:
-        json.dump(existing_data, f, ensure_ascii=False, indent=4)
+        # 保存合并后的内容
+        with open(output_json_path, "w", encoding="utf-8") as f:
+            json.dump(existing_data, f, ensure_ascii=False, indent=4)
+    else:    
+        # 保存为 JSON 文件
+        with open(output_json_path, "w", encoding="utf-8") as f:
+            json.dump(questions, f, ensure_ascii=False, indent=4)
 
 def parse_relationships(docx_zip):
     """
@@ -137,25 +309,19 @@ def extract_formula_from_picture(run, dotx_path, relationships):
     # print(run_xml.xml)
 
     if "<w:object" in run_xml.xml and args.latex == "on":
-
         # 解析 XML 内容
         root = etree.fromstring(run_xml.xml)
         
         # 找到 <w:object> 元素
         w_object = root.find('.//{http://schemas.openxmlformats.org/wordprocessingml/2006/main}object')
         if w_object is not None:
-            # 找到 <v:shape> 元素
-            v_shape = w_object.find('.//{urn:schemas-microsoft-com:vml}shape')
+            v_shape = w_object.find('.//{urn:schemas-microsoft-com:vml}shape') # 找到 <v:shape> 元素
             if v_shape is not None:
-                # 找到 <v:imagedata> 元素
-                v_imagedata = v_shape.find('.//{urn:schemas-microsoft-com:vml}imagedata')
+                v_imagedata = v_shape.find('.//{urn:schemas-microsoft-com:vml}imagedata') # 找到 <v:imagedata> 元素
                 if v_imagedata is not None:
-                    # 获取 r:id 属性值
-                    rId = v_imagedata.get('{http://schemas.openxmlformats.org/officeDocument/2006/relationships}id')
-                    
+                    rId = v_imagedata.get('{http://schemas.openxmlformats.org/officeDocument/2006/relationships}id') # 获取 r:id 属性值
                 if rId:
-                    # 使用 rId 提取高分辨率图像
-                    img = extract_high_res_image_from_docx(docx_path, rId, relationships)
+                    img = extract_high_res_image_from_docx(docx_path, rId, relationships) # 使用 rId 提取高分辨率图像
                     file_path = f"./png_images/{rId}.png"
                     if img:
                         # 使用 SimpleTex 的 API 识别公式
@@ -167,7 +333,6 @@ def extract_formula_from_picture(run, dotx_path, relationships):
                         file=[("file",(file_path,open(file_path, 'rb')))] # 请求文件,字段名一般为file
                         res = requests.post(api_url, files=file, data=data, headers=header) # 使用requests库上传文件
                         content = json.loads(res.text)['res']['latex']
-                        # print(json.loads(res.text))
                         return content
                     else:
                         print(f"Could not find image for rId: {rId}")
@@ -181,13 +346,7 @@ def extract_questions_and_answer_from_docx(docx_path, output_json_path):
     with zipfile.ZipFile(docx_path, 'r') as docx_zip:
         relationships = parse_relationships(docx_zip)
 
-    # 定义正则表达式，用于匹配选择题的格式
-    # (?P<question>...)：定义一个命名捕获组，名为 question，用于捕获匹配的内容。
-    # \d+：匹配一个或多个数字，表示题目的编号
-    # \.：匹配一个点号（.），表示题号和题目内容之间的分隔符。
-    # \n：匹配换行符，表示题目内容结束。
-    # .*?：非贪婪匹配任意字符（除了换行符），表示题目内容。
-    # \s*：匹配零个或多个空白字符（如空格、制表符等），允许在 A. 和选项内容之间有任意数量的空白字符。
+    # 匹配的正则表达式
     question_pattern = re.compile(
         r"(?P<question>\d+[．.、].*?)"           # 匹配题目开头，如 "17. 一定质量的..."
         r"(?:A[．.、\s]\s*(?P<A>.*?))"             # 匹配 A 选项
@@ -200,7 +359,6 @@ def extract_questions_and_answer_from_docx(docx_path, output_json_path):
     
     # 遍历段落，提取full_text
     full_text = ""
-
     # 转换文档中的上标和下标，并提取文本
     for paragraph in doc.paragraphs:
         paragraph_text = ""
@@ -227,19 +385,9 @@ def extract_questions_and_answer_from_docx(docx_path, output_json_path):
                 paragraph_text += run.text  # 普通文本直接添加
         full_text += paragraph_text + "\n"  # 添加段落并换行
 
-    # 删除内容：“原子量：H1   O16   Mg24    Al27    Cl 35.5    Ca40  Fe56    Zn 65”，从而防止干扰
-    full_text = re.sub(r"原子量.*?1[.、．]", "1.", full_text, flags=re.DOTALL)
-    
-    # 如果 full_text 中出现 "第Ⅱ卷"，删除其后的内容，只保留选择题
-    match = re.search(r"(?<![\u4e00-\u9fff])第Ⅱ卷", full_text)
-    if match:
-        full_text = full_text[:match.start()]  # 截取 "第Ⅱ卷" 之前的内容
-  
-    # 如果 full_text 中出现 "二、"，删除其后的内容，只保留选择题
-    match = re.search(r"(?<![\u4e00-\u9fff])二、", full_text)
-    if match:
-        full_text = full_text[:match.start()]  # 截取 "二、" 之前的内容
-          
+    # 删除文档中影响选择题识别的干扰内容
+    full_text = delete_irrelevant(full_text)
+        
     # 提取选择题内容
     questions = []
     for match in question_pattern.finditer(full_text):
@@ -298,7 +446,7 @@ def extract_questions_and_answer_from_docx(docx_path, output_json_path):
                                 result = run.text.lstrip("．.、\t")  # 普通文本直接添加
                         else: #不是文本就需要处理图像
                             result = extract_formula_from_picture(run, docx_path, relationships).lstrip("．.、")
-                        if re.search(r"A", result): 
+                        if re.search(r"A", result) and option_count == 0: 
                             option_count+=1
                             if len(result) > 2: #考虑到有时 “C．甲、丁的种群数量下降，丙的种群数量增加”会被解析为一个完整的run
                                 results_A += result[2:]
@@ -328,7 +476,7 @@ def extract_questions_and_answer_from_docx(docx_path, output_json_path):
                         else: #不是文本就需要处理图像
                             result = extract_formula_from_picture(run, docx_path, relationships).lstrip("．.、")
 
-                        if re.search(r"B", result):
+                        if re.search(r"B", result) and option_count == 1:
                             option_count+=1
                             if len(result) > 2:
                                 results_B += result[2:]
@@ -358,7 +506,7 @@ def extract_questions_and_answer_from_docx(docx_path, output_json_path):
                         else: #不是文本就需要处理图像
                             result = extract_formula_from_picture(run, docx_path, relationships).lstrip("．.、")
 
-                        if re.search(r"C", result):
+                        if re.search(r"C", result) and option_count == 2:
                             option_count+=1
                             if len(result) > 2:
                                 results_C += result[2:]
@@ -388,7 +536,7 @@ def extract_questions_and_answer_from_docx(docx_path, output_json_path):
                         else: #不是文本就需要处理图像
                             result = extract_formula_from_picture(run, docx_path, relationships).lstrip("．.、")
 
-                        if re.search(r"D", result):
+                        if re.search(r"D", result) and option_count == 3:
                             option_count+=1
                             if len(result) > 2:
                                 results_D += result[2:]
@@ -607,131 +755,16 @@ def extract_questions_and_answer_from_docx(docx_path, output_json_path):
                 question_data["B"] = results_B
                 question_data["C"] = results_C
                 question_data["D"] = results_D
-
         print(">>>>>>>>>>")  
             
         # 添加识别到的问题
         questions.append(question_data)
-
-        # 查找紧跟题目后面的段落
     
-    # 匹配表格中的答案
-    table_answers = {}
-    for table in doc.tables:
-        # 表格至少有两行：第一行为题号，第二行为答案
-        if len(table.rows) >= 2:
-            question_numbers = [cell.text.strip() for cell in table.rows[0].cells]  # 第一行是题号
-            answers = [cell.text.strip() for cell in table.rows[1].cells]          # 第二行是答案
-            
-            # 将题号与答案对应起来
-            for question, answer in zip(question_numbers, answers):
-                if question.isdigit():  # 确保题号是数字
-                    table_answers[question] = answer
-                    
-    for question_data in questions:
-        index = question_data.get("index")
-        if index in table_answers:
-            question_data["answer"] = table_answers[index]
-    
-    answer_found = 0
-    
-    print("answer_found is:"+str(answer_found))
-    # 匹配题目后紧跟着“故选：A”
-    answer_count = 0
-    for paragraph in doc.paragraphs:
-        if paragraph.text.strip().startswith(f'故选'):
-            # 提取答案内容
-            answer_match = re.match(r'故选[:：]\s*([A-D]+)', paragraph.text.strip())
-            if answer_match:
-                answer = answer_match.group(1)
-                questions[answer_count]['answer'] = answer
-                answer_count += 1
-            answer_found = 1    
-            print("find 故选")
-    
-    print("answer_found is:"+str(answer_found))
-    # 匹配题目后紧跟着【答案】
-    if answer_found == 0:
-        answer_count = 0
-        for paragraph in doc.paragraphs:
-            if re.match(r'【答案】\s*([A-D]+)', paragraph.text.strip()):
-                # 提取答案内容
-                answer_match = re.match(r'【答案】\s*([A-D]+)', paragraph.text.strip())
-                if answer_match:
-                    answer = answer_match.group(1)
-                    questions[answer_count]['answer'] = answer
-                    answer_count += 1
-                print("find【答案】")
-                answer_found = 1
-                
-    print("answer_found is:"+str(answer_found))
-    if answer_found == 0:
-        answer_count = 0
-        for paragraph in doc.paragraphs:
-            if re.match(r'\d*\.\s*答案：\s*([A-D])', paragraph.text.strip()):
-                # 提取答案内容
-                print("find 答案：")
-                answer_match = re.match(r'\d*\.\s*答案：\s*([A-D])', paragraph.text.strip())
-                if answer_match:
-                    answer = answer_match.group(1)
-                    questions[answer_count]['answer'] = answer
-                    answer_count += 1
-                answer_found = 1
-                
-    print("answer_found is:"+str(answer_found))
-    if answer_found == 0:  #只可能有一种形式的答案，如果已经找到前一种形式的答案，就不再进行这个匹配       
-        # 匹配形如1.A 2.B的答案
-        matches = re.findall(r'(\d+)[.、\s]+([A-D]+)', full_text)
-        for match in matches:
-            number, answer = match
-            for question_data in questions:
-                if question_data.get("index") == number:
-                    question_data["answer"] = answer
-                    break
-            answer_found = 1
-    
-    print("answer_found is:"+str(answer_found))    
-    if answer_found == 0:
-        # 匹配形如 "1-10 ABCDBCAADB" 的紧凑答案格式
-        compact_matches = re.findall(r'(\d+)[\-—](\d+)\s+([A-D]+)', full_text)
-        for compact_match in compact_matches:
-            start, end, answers = compact_match
-            for i, answer in enumerate(answers):
-                for question_data in questions:
-                    if question_data.get("index") == str(int(start)+i):
-                        question_data["answer"] = answer
-                        break
-
-    # 检查每个 question 条目，删除从某数字到下一个数字的内容
-    for question_data in questions:
-        question_text = question_data.get("question", "")
+    find_answer(doc, questions)
+ 
+    clean_question(questions)
         
-        # 匹配类似 "数字." 的模式
-        number_matches = re.findall(r'(\d+)[．.]', question_text)
-        if len(number_matches) >= 2:
-            for i in range(len(number_matches) - 1):
-                current_num = int(number_matches[i])
-                next_num = int(number_matches[i + 1])
-                
-                # 如果后一个数字是前一个数字 + 1
-                if next_num == current_num + 1:
-                    # 删除从当前数字到下一个数字之间的内容
-                    pattern = rf"{current_num}[．.].*?{next_num}[．.]"
-                    question_text = re.sub(pattern, f"{next_num}.", question_text, flags=re.DOTALL)
-        
-        # 更新清理后的 question
-        question_data["question"] = question_text
-        
-    # 增加试卷名
-    # 提取文件名（去掉路径）
-    exam_name = args.docx_name
-    exam_name = os.path.basename(exam_name)
-    exam_name = re.sub(r'真题.*', '', exam_name)
-    exam_name = re.sub(r'试题.*', '', exam_name)
-    exam_name = re.sub(r'（解析版）.*', '', exam_name)
-    exam_name = re.sub(r'（含解析版）.*', '', exam_name)
-    for question_data in questions:
-        question_data['exam'] = exam_name
+    add_exam_name(questions)
             
     # 追加到 JSON 文件
     save_to_json(output_json_path, questions)
@@ -741,9 +774,10 @@ def extract_questions_and_answer_from_docx(docx_path, output_json_path):
 if __name__ == "__main__":
     # 定义命令行参数
     parser = argparse.ArgumentParser(description="从 Word 文档中提取选择题和答案并保存为 JSON 格式")
-    parser.add_argument("--docx_name", type=str, help="Word文档名")
-    parser.add_argument("--json_name", type=str, help="json文件名")
-    parser.add_argument("--latex", type=str, default="on", help="是否开启simpletex图片识别")
+    parser.add_argument("--docx_name", type=str, help="Word 文档名")
+    parser.add_argument("--json_name", type=str, help="json 文件名")
+    parser.add_argument("--new", type=str, help="控制是否追加到之前的输出上，on代表新建.json文件，off代表追加到.json文件后")
+    parser.add_argument("--latex", type=str, default="on", help="是否开启 Simpletex 图片识别")
     args = parser.parse_args()
     
     docx_path = f"./{args.docx_name}.docx"  

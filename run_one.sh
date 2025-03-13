@@ -13,4 +13,4 @@ fi
 
 # 执行命令
 python remove_smartTag.py --docx_name="docx/$DOCX_NAME"
-python docx_to_json.py --docx_name="docx/$DOCX_NAME" --json_name="json/$DOCX_NAME" --latex="$LATEX_OPTION"
+python docx_to_json.py --docx_name="docx/$DOCX_NAME" --json_name="json/$DOCX_NAME" --new="on" --latex="$LATEX_OPTION"
