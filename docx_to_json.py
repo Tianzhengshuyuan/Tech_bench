@@ -15,22 +15,6 @@ from xml.etree import ElementTree as ET
 from xml.etree.ElementTree import Element
 from PIL import Image as PILImage, ImageOps
 
-def parse_relationships(docx_zip):
-    """
-    解析 document.xml.rels 文件，建立 rId 与 Target 文件路径的映射关系。
-    """
-    relationships = {}
-    with docx_zip.open('word/_rels/document.xml.rels') as rels_file:
-        # 解析 XML
-        tree = ET.parse(rels_file)
-        root = tree.getroot()
-        for rel in root:
-            rId = rel.attrib.get("Id")
-            target = rel.attrib.get("Target")
-            if rId and target:
-                relationships[rId] = target
-    return relationships
-
 def crop_image(image):
     """
     裁剪图像，去除空白区域，只保留公式部分。
@@ -64,6 +48,44 @@ def crop_image(image):
     cropped_image = ImageOps.expand(cropped_image, border=border, fill="white")
 
     return cropped_image
+
+def save_to_json(output_json_path, questions):
+    # 如果文件已存在，读取其内容
+    if os.path.exists(output_json_path):
+        with open(output_json_path, "r", encoding="utf-8") as f:
+            try:
+                existing_data = json.load(f)  # 读取现有内容
+            except json.JSONDecodeError:  # 如果文件为空或内容无效
+                existing_data = []
+    else:
+        existing_data = []
+
+    # 确保现有内容是列表类型，合并新的内容
+    if isinstance(existing_data, list):
+        existing_data.extend(questions)  # 将新内容追加到列表
+    else:
+        raise ValueError("Existing JSON content is not a list. Cannot append.")
+
+    # 保存合并后的内容
+    with open(output_json_path, "w", encoding="utf-8") as f:
+        json.dump(existing_data, f, ensure_ascii=False, indent=4)
+
+def parse_relationships(docx_zip):
+    """
+    解析 document.xml.rels 文件，建立 rId 与 Target 文件路径的映射关系。
+    """
+    relationships = {}
+    with docx_zip.open('word/_rels/document.xml.rels') as rels_file:
+        # 解析 XML
+        tree = ET.parse(rels_file)
+        root = tree.getroot()
+        for rel in root:
+            rId = rel.attrib.get("Id")
+            target = rel.attrib.get("Target")
+            if rId and target:
+                relationships[rId] = target
+    return relationships
+
 def extract_high_res_image_from_docx(docx_path, rId, relationships):
     """
     从解压后的 Word 文件中提取高分辨率 WMF 图像，并转换为 PNG。
@@ -166,7 +188,6 @@ def extract_questions_and_answer_from_docx(docx_path, output_json_path):
     # \n：匹配换行符，表示题目内容结束。
     # .*?：非贪婪匹配任意字符（除了换行符），表示题目内容。
     # \s*：匹配零个或多个空白字符（如空格、制表符等），允许在 A. 和选项内容之间有任意数量的空白字符。
-
     question_pattern = re.compile(
         r"(?P<question>\d+[．.、].*?)"           # 匹配题目开头，如 "17. 一定质量的..."
         r"(?:A[．.、\s]\s*(?P<A>.*?))"             # 匹配 A 选项
@@ -209,17 +230,21 @@ def extract_questions_and_answer_from_docx(docx_path, output_json_path):
     # 删除内容：“原子量：H1   O16   Mg24    Al27    Cl 35.5    Ca40  Fe56    Zn 65”，从而防止干扰
     full_text = re.sub(r"原子量.*?1[.、．]", "1.", full_text, flags=re.DOTALL)
     
-    print("full text: "+full_text)
+    # 如果 full_text 中出现 "第Ⅱ卷"，删除其后的内容，只保留选择题
+    match = re.search(r"(?<![\u4e00-\u9fff])第Ⅱ卷", full_text)
+    if match:
+        full_text = full_text[:match.start()]  # 截取 "第Ⅱ卷" 之前的内容
+  
+    # 如果 full_text 中出现 "二、"，删除其后的内容，只保留选择题
+    match = re.search(r"(?<![\u4e00-\u9fff])二、", full_text)
+    if match:
+        full_text = full_text[:match.start()]  # 截取 "二、" 之前的内容
+          
     # 提取选择题内容
     questions = []
     for match in question_pattern.finditer(full_text):
         question_data = match.groupdict()
         print(match.group(0))
-        print("question is: "+question_data["question"])
-        print("A is: "+question_data["A"])
-        print("B is: "+question_data["B"])
-        print("C is: "+question_data["C"])
-        print("D is: "+question_data["D"])
         question_data['index'] = (re.match(r'^(\d+)[．.、]', question_data["question"][:10])).group(1)
         
         # 针对前半部分是试卷，后半部分是试卷+答案的情况
@@ -232,7 +257,6 @@ def extract_questions_and_answer_from_docx(docx_path, output_json_path):
                 #找到option_paragraph的真正起点
                 start = 1
                 for j in range(1,10):
-                    # print("paragraph is: "+doc.paragraphs[i+j].text)
                     if doc.paragraphs[i+j].text.replace(" ", "").replace("\t", "").startswith("A"):
                         start = i+j
                         break
@@ -400,7 +424,6 @@ def extract_questions_and_answer_from_docx(docx_path, output_json_path):
 
                         if result.strip().startswith("A") or result.strip().startswith("B"):
                             if re.search(r"A", result) and re.search(r"B", result): #考虑：“A. 一直变小 B. 一直变大”
-                                print("A and B")
                                 # 定义正则表达式匹配整个模式
                                 pattern = r"A[．.](.*?)B[．.](.*)"
 
@@ -413,9 +436,7 @@ def extract_questions_and_answer_from_docx(docx_path, output_json_path):
                                     results_B = match_option.group(2).strip()  # B. 后面的内容
                             else:
                                 option_count+=1
-                                print("op_count++")
                                 if len(result.strip()) > 2:
-                                    print("len > 2")
                                     if option_count==1:
                                         results_A += result.strip()[2:]
                                     else:
@@ -477,7 +498,6 @@ def extract_questions_and_answer_from_docx(docx_path, output_json_path):
                                     results_D = match_option.group(2).strip()  # D. 后面的内容
                             else:
                                 option_count+=1
-                                print("op_count++")
                                 if len(result.strip()) > 2:
                                     if option_count==3:
                                         results_C += result.strip()[2:]
@@ -527,9 +547,7 @@ def extract_questions_and_answer_from_docx(docx_path, output_json_path):
                                 result = run.text.lstrip("．.、\t") # 普通文本直接添加
                         else: #不是文本就需要处理图像
                             result = extract_formula_from_picture(run, docx_path, relationships).lstrip("．.、")
-                        print("result is: "+result)
                         if re.search(r"(^|[^a-zA-Z])A([^a-zA-Z]|$)", result) or re.search(r"(^|[^a-zA-Z])B([^a-zA-Z]|$)", result) or re.search(r"(^|[^a-zA-Z])C([^a-zA-Z]|$)", result) or re.search(r"(^|[^a-zA-Z])D([^a-zA-Z]|$)", result):
-                            # print("has abcd")
                             #全是文本，一整行被解析成一个run
                             if re.search(r"A", result) and re.search(r"B", result) and re.search(r"C", result) and re.search(r"D", result):
                                 # 定义正则表达式匹配整个模式
@@ -546,10 +564,8 @@ def extract_questions_and_answer_from_docx(docx_path, output_json_path):
                                     results_D = match_option.group(4).strip()  # D. 后面的内容
                             else:
                                 option_count += 1
-                                # print(result)
-                                # print("result len is: "+str(len(result)))
+
                                 if len(result.strip()) > 2 and result.strip().startswith(("A", "B", "C", "D")):
-                                    # print("hello")
                                     if result.endswith(("B", "C", "D")): #考虑到可能出现 <w:t xml:space="preserve">    B．0        C．</w:t>
                                         if option_count==1:
                                             results_A += result.strip()[2:-1]
@@ -599,7 +615,6 @@ def extract_questions_and_answer_from_docx(docx_path, output_json_path):
 
         # 查找紧跟题目后面的段落
     
-    print("answer?>?>?>?>?")
     # 匹配表格中的答案
     table_answers = {}
     for table in doc.tables:
@@ -671,11 +686,7 @@ def extract_questions_and_answer_from_docx(docx_path, output_json_path):
             number, answer = match
             for question_data in questions:
                 if question_data.get("index") == number:
-                    print("change")
                     question_data["answer"] = answer
-                    print(question_data["index"])
-                    print("to")
-                    print(question_data["answer"])
                     break
             answer_found = 1
     
@@ -685,7 +696,6 @@ def extract_questions_and_answer_from_docx(docx_path, output_json_path):
         compact_matches = re.findall(r'(\d+)[\-—](\d+)\s+([A-D]+)', full_text)
         for compact_match in compact_matches:
             start, end, answers = compact_match
-            print("start is "+start+", end is "+end+"answers is "+ answers)
             for i, answer in enumerate(answers):
                 for question_data in questions:
                     if question_data.get("index") == str(int(start)+i):
@@ -711,10 +721,20 @@ def extract_questions_and_answer_from_docx(docx_path, output_json_path):
         
         # 更新清理后的 question
         question_data["question"] = question_text
+        
+    # 增加试卷名
+    # 提取文件名（去掉路径）
+    exam_name = args.docx_name
+    exam_name = os.path.basename(exam_name)
+    exam_name = re.sub(r'真题.*', '', exam_name)
+    exam_name = re.sub(r'试题.*', '', exam_name)
+    exam_name = re.sub(r'（解析版）.*', '', exam_name)
+    exam_name = re.sub(r'（含解析版）.*', '', exam_name)
+    for question_data in questions:
+        question_data['exam'] = exam_name
             
-    # 保存为 JSON 文件
-    with open(output_json_path, "w", encoding="utf-8") as f:
-        json.dump(questions, f, ensure_ascii=False, indent=4)
+    # 追加到 JSON 文件
+    save_to_json(output_json_path, questions)
 
 
 # 命令行入口
@@ -722,11 +742,12 @@ if __name__ == "__main__":
     # 定义命令行参数
     parser = argparse.ArgumentParser(description="从 Word 文档中提取选择题和答案并保存为 JSON 格式")
     parser.add_argument("--docx_name", type=str, help="Word文档名")
+    parser.add_argument("--json_name", type=str, help="json文件名")
     parser.add_argument("--latex", type=str, default="on", help="是否开启simpletex图片识别")
     args = parser.parse_args()
     
-    docx_path = f"/root/tech_bench/docx/{args.docx_name}.docx"  
-    output_json_path = f"/root/tech_bench/json/{args.docx_name}.json"     
+    docx_path = f"./{args.docx_name}.docx"  
+    output_json_path = f"./{args.json_name}.json"     
     extract_questions_and_answer_from_docx(docx_path, output_json_path)
-    print(f"完成.json生成，文件已保存到 {args.docx_name}.json")
+    print(f"完成.json生成，文件已保存到 {args.json_name}.json")
     

@@ -38,7 +38,7 @@ if __name__ == "__main__":
     parser.add_argument("--docx_name", type=str, help="Word文档名")
     args = parser.parse_args()
     
-    docx_path = f"/root/tech_bench/docx/{args.docx_name}.docx"  
+    docx_path = f"./{args.docx_name}.docx"  
     
     # 处理文档
     process_docx(docx_path, docx_path)
