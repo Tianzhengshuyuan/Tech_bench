@@ -11,3 +11,4 @@ find "$DIR_NAME" -type d -name '*A3*' -exec rm -rf {} +
 find "$DIR_NAME" -type f -name '*原卷*' -exec rm -f {} +
 
 ./doc_to_docx.sh "$DIR_NAME" "$OUTPUT_DIR_NAME"
+

@@ -57,9 +57,14 @@ def delete_irrelevant(full_text):
     full_text = re.sub(r"原子量.*?1[.、．]", "1.", full_text, flags=re.DOTALL)
     
     # 如果 full_text 中出现 "第Ⅱ卷"，删除其后的内容，只保留选择题
-    match = re.search(r"(?<![\u4e00-\u9fff])第Ⅱ卷", full_text)
+    match = re.search(r"(?<![\u4e00-\u9fff,，。])第Ⅱ卷", full_text)
     if match:
         full_text = full_text[:match.start()]  # 截取 "第Ⅱ卷" 之前的内容
+        
+    # 如果 full_text 中出现 "第二部分"，删除其后的内容，只保留选择题
+    match = re.search(r"(?<![\u4e00-\u9fff,，。])第二部分", full_text)
+    if match:
+        full_text = full_text[:match.start()]  # 截取 "第二部分" 之前的内容
   
     # 如果 full_text 中出现 "二、非选择题"，删除其后的内容，只保留选择题
     match = re.search(r"(?<![\u4e00-\u9fff])二、非选择题", full_text)
@@ -88,10 +93,16 @@ def delete_irrelevant(full_text):
     if match:
         # 截取 "第I卷" 及其后面的内容
         full_text = full_text[match.start():]
+        
+    # 检查 full_text 中是否存在 "第一部分"
+    match = re.search(r"(?<![\u4e00-\u9fff,，。])第一部分", full_text)
+    if match:
+        # 截取 "第一部分" 及其后面的内容
+        full_text = full_text[match.start():]
     
     return full_text
 
-def find_answer(doc, questions, full_text):
+def find_answer(doc, questions, text):
     """
     提取选择题的答案
     """
@@ -161,11 +172,12 @@ def find_answer(doc, questions, full_text):
                         print("答案形式： 答案：")
                         answer_found = 1
                 
-    if answer_found == 0:  #只可能有一种形式的答案，如果已经找到前一种形式的答案，就不再进行这个匹配       
-        # 匹配形如1.A 2.B的答案
-        matches = re.findall(r'(\d+)[.、\s]+([A-D]+)', full_text)
+    if answer_found == 0:      
+        # 匹配形如 1.A 2.B的答案
+        matches = re.findall(r'(\d+)[.、\s]+([A-D]+)', text)
         for match in matches:
             number, answer = match
+            print(match)
             for question_data in questions:
                 if question_data.get("index") == number:
                     question_data["answer"] = answer
@@ -175,7 +187,7 @@ def find_answer(doc, questions, full_text):
     
     if answer_found == 0:
         # 匹配形如 "1-10 ABCDBCAADB" 的紧凑答案格式
-        compact_matches = re.findall(r'(\d+)[\-—](\d+)\s+([A-D]+)', full_text)
+        compact_matches = re.findall(r'(\d+)[\-—](\d+)\s+([A-D]+)', text)
         for compact_match in compact_matches:
             start, end, answers = compact_match
             for i, answer in enumerate(answers):
@@ -395,6 +407,7 @@ def extract_questions_and_answer_from_docx(docx_path, output_json_path):
         full_text += paragraph_text + "\n"  # 添加段落并换行
 
     # 删除文档中影响选择题识别的干扰内容
+    original_text = full_text
     full_text = delete_irrelevant(full_text)
         
     # 提取选择题内容
@@ -412,17 +425,25 @@ def extract_questions_and_answer_from_docx(docx_path, output_json_path):
         for i,paragraph in enumerate(doc.paragraphs):
             if paragraph.text.startswith(question_data["question"][:10].strip()):
                 #找到option_paragraph的真正起点
-                start = 1
+                start_1 = 1
                 for j in range(1,10):
                     if doc.paragraphs[i+j].text.replace(" ", "").replace("\t", "").startswith(("A","Ａ")):
-                        start = i+j
+                        start_1 = i+j
                         break
-                    
-                option_paragraph1 = doc.paragraphs[start]
-                option_paragraph2 = doc.paragraphs[start+1]
-                option_paragraph3 = doc.paragraphs[start+2]
-                option_paragraph4 = doc.paragraphs[start+3]
-                
+                option_paragraph1 = doc.paragraphs[start_1]
+                option_paragraph2 = None
+                for start_2 in range(start_1 + 1, len(doc.paragraphs)):
+                    if doc.paragraphs[start_2].text.strip():  # 检查段落是否不为空
+                        option_paragraph2 = doc.paragraphs[start_2]
+                        break
+                for start_3 in range(start_2 + 1, len(doc.paragraphs)):
+                    if doc.paragraphs[start_3].text.strip():  # 检查段落是否不为空
+                        option_paragraph3 = doc.paragraphs[start_3]
+                        break
+                for start_4 in range(start_3 + 1, len(doc.paragraphs)):
+                    if doc.paragraphs[start_4].text.strip():  # 检查段落是否不为空
+                        option_paragraph4 = doc.paragraphs[start_4]
+                        break
                 results_A = ""
                 results_B = ""
                 results_C = ""
@@ -771,7 +792,7 @@ def extract_questions_and_answer_from_docx(docx_path, output_json_path):
     
     for question in questions:
         print(question)
-    find_answer(doc, questions, full_text)
+    find_answer(doc, questions, original_text)
  
     clean_question(questions)
         
