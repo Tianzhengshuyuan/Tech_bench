@@ -173,16 +173,20 @@ def find_answer(doc, questions, text):
                         answer_found = 1
                 
     if answer_found == 0:      
-        # 匹配形如 1.A 2.B的答案
-        matches = re.findall(r'(\d+)[.、\s]+([A-D]+)', text)
+        # 匹配连续的答案部分，形如：
+        # 1.C 2.D 3.A 或 1. C 2. D 3. A 或 1、C 2、D 3、A 等形式
+        matches = re.findall(r'((?:\d+[.、\s]+[A-D]+\s*){2,})', text)
+
         for match in matches:
-            number, answer = match
-            print(match)
-            for question_data in questions:
-                if question_data.get("index") == number:
-                    question_data["answer"] = answer
-                    break
-            print("答案形式：1.A 2.B")
+            # 提取每个答案（数字和字母）
+            answers = re.findall(r'(\d+)[.、\s]+([A-D]+)', match)
+            for number, answer in answers:
+                # 遍历题目，找到对应的题号并更新答案
+                for question_data in questions:
+                    if question_data.get("index") == number:
+                        question_data["answer"] = answer
+                        break
+            print("答案形式匹配成功：", answers)
             answer_found = 1
     
     if answer_found == 0:
