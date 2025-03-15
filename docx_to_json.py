@@ -128,35 +128,71 @@ def find_answer(doc, questions, text):
             question_data["answer"] = table_answers[index]
             answer_found = 1
     
-    # 匹配题目后紧跟着“故选：A”
+    question_pattern = re.compile(
+        r"(?<=[\n \t])"                        # 断言题目前面必须是换行符、空格或制表符 
+        r"(?P<question>\d+[．.、].{0,300}?)"           # 匹配题目开头，如 "17. 一定质量的..."
+        r"(?:[AＡ][．.、\s\u200b]\s*(?P<A>.{0,100}?))"             # 匹配 A 选项
+        r"(?:[BＢ][．.、\s\u200b]\s*(?P<B>.{0,100}?))"             # 匹配 B 选项
+        r"(?:[CＣ][．.、\s\u200b]\s*(?P<C>.{0,100}?))"             # 匹配 C 选项
+        r"(?:[DＤ][．.、\s\u200b]\s*?(?P<D>.{0,100}?))"             # 匹配 D 选项
+        r"(?=\n|\f|\d+[．.、][\u4e00-\u9fa5])",     # 断言 D 选项后面是换行符、换页符、题号或中文汉字，但不包含这些内容
+        re.DOTALL                           # 允许匹配跨行内容
+    )
+
+    # 匹配题目后紧跟着 “故选：”
     if answer_found == 0:
         answer_count = 0
-        for paragraph in doc.paragraphs:
+        for idx, paragraph in enumerate(doc.paragraphs):
             if re.match(r'故选[:：]\s*([A-D]+)', paragraph.text.strip()):
                 # 提取答案内容
                 answer_match = re.match(r'故选[:：]\s*([A-D]+)', paragraph.text.strip())
                 if answer_match:
-                    if answer_count < len(questions):
-                        answer = answer_match.group(1)
-                        questions[answer_count]['answer'] = answer
-                        answer_count += 1
-                        answer_found = 1    
-                        print("答案形式：故选")
-    
+                    answer = answer_match.group(1)  # 提取答案
+                    answer_found = 1  # 标记找到答案
+                    
+                    # 拼接从当前段落向前的所有文本
+                    combined_text = "\n".join([p.text.strip() for p in doc.paragraphs[:idx+1]])
+                    print("combined_text is: "+combined_text)
+                    # 查找所有匹配项，从后向前寻找最近的匹配
+                    matches = list(question_pattern.finditer(combined_text))
+                    if matches:
+            
+                        # 获取最后一个匹配项（离“故选：”最近的匹配）
+                        question_match = matches[-1]
+                        print("question_match is: "+question_match.group(1))
+                        number = (re.match(r'^(\d+)[．.、]', question_match.group(1))).group(1)
+                        print("number is: "+ number)
+                        for question_data in questions:
+                            if question_data.get("index") == number:
+                                question_data["answer"] = answer
+                                break
+                            
     # 匹配题目后紧跟着【答案】
     if answer_found == 0:
         answer_count = 0
-        for paragraph in doc.paragraphs:
+        for idx, paragraph in enumerate(doc.paragraphs):
             if re.match(r'【答案】\s*([A-D]+)', paragraph.text.strip()):
                 # 提取答案内容
                 answer_match = re.match(r'【答案】\s*([A-D]+)', paragraph.text.strip())
                 if answer_match:
-                    if answer_count < len(questions):       
-                        answer = answer_match.group(1)
-                        questions[answer_count]['answer'] = answer
-                        answer_count += 1
-                        print("答案形式：【答案】")
-                        answer_found = 1
+                    answer = answer_match.group(1)  # 提取答案
+                    answer_found = 1  # 标记找到答案
+                    
+                    # 拼接从当前段落向前的所有文本
+                    combined_text = "\n".join([p.text.strip() for p in doc.paragraphs[:idx+1]])
+                    
+                    # 查找所有匹配项，从后向前寻找最近的匹配
+                    matches = list(question_pattern.finditer(combined_text))
+                    if matches:
+                        # 获取最后一个匹配项（离【答案】最近的匹配）
+                        question_match = matches[-1]
+                        print("question_match is: "+question_match.group(1))
+                        number = (re.match(r'^(\d+)[．.、]', question_match.group(1))).group(1)
+                        print("number is: "+ number)
+                        for question_data in questions:
+                            if question_data.get("index") == number:
+                                question_data["answer"] = answer
+                                break
                 
     if answer_found == 0:
         answer_count = 0
@@ -200,29 +236,28 @@ def find_answer(doc, questions, text):
                         question_data["answer"] = answer
                         break
 
-def clean_question(questions):
+def clean_question(question_data):
     """
     删除question中的冗余内容
     """
     # 检查每个 question 条目，删除从某数字到下一个数字的内容
-    for question_data in questions:
-        question_text = question_data.get("question", "")
-        
-        # 匹配类似 "数字." 的模式
-        number_matches = re.findall(r'(\d+)[．.]', question_text)
-        if len(number_matches) >= 2:
-            for i in range(len(number_matches) - 1):
-                current_num = int(number_matches[i])
-                next_num = int(number_matches[i + 1])
-                
-                # 如果后一个数字是前一个数字 + 1
-                if next_num == current_num + 1:
-                    # 删除从当前数字到下一个数字之间的内容
-                    pattern = rf"{current_num}[．.].*?{next_num}[．.]"
-                    question_text = re.sub(pattern, f"{next_num}.", question_text, flags=re.DOTALL)
-        
-        # 更新清理后的 question
-        question_data["question"] = question_text
+    question_text = question_data.get("question", "")
+    
+    # 匹配类似 "数字." 的模式
+    number_matches = re.findall(r'(\d+)[．.]', question_text)
+    if len(number_matches) >= 2:
+        for i in range(len(number_matches) - 1):
+            current_num = int(number_matches[i])
+            next_num = int(number_matches[i + 1])
+            
+            # 如果后一个数字是前一个数字 + 1
+            if next_num == current_num + 1:
+                # 删除从当前数字到下一个数字之间的内容
+                pattern = rf"{current_num}[．.].*?{next_num}[．.]"
+                question_text = re.sub(pattern, f"{next_num}.", question_text, flags=re.DOTALL)
+    
+    # 更新清理后的 question
+    question_data["question"] = question_text
 
 def add_exam_name(questions):
     """
@@ -372,12 +407,12 @@ def extract_questions_and_answer_from_docx(docx_path, output_json_path):
 
     # 匹配的正则表达式
     question_pattern = re.compile(
-        r"(?<![\u4e00-\u9fa5\d])" 
-        r"(?P<question>\d+[．.、].*?)"           # 匹配题目开头，如 "17. 一定质量的..."
-        r"(?:[AＡ][．.、\s\u200b]\s*(?P<A>.*?))"             # 匹配 A 选项
-        r"(?:[BＢ][．.、\s\u200b]\s*(?P<B>.*?))"             # 匹配 B 选项
-        r"(?:[CＣ][．.、\s\u200b]\s*(?P<C>.*?))"             # 匹配 C 选项
-        r"(?:[DＤ][．.、\s\u200b]\s*?(?P<D>.*?))"             # 匹配 D 选项
+         r"(?<=[\n \t])"                        # 断言题目前面必须是换行符、空格或制表符
+        r"(?P<question>\d+[．.、].{0,300}?)"           # 匹配题目开头，如 "17. 一定质量的..."
+        r"(?:[AＡ][．.、\s\u200b]\s*(?P<A>.{0,100}?))"             # 匹配 A 选项
+        r"(?:[BＢ][．.、\s\u200b]\s*(?P<B>.{0,100}?))"             # 匹配 B 选项
+        r"(?:[CＣ][．.、\s\u200b]\s*(?P<C>.{0,100}?))"             # 匹配 C 选项
+        r"(?:[DＤ][．.、\s\u200b]\s*?(?P<D>.{0,100}?))"             # 匹配 D 选项
         r"(?=\n|\f|\d+[．.、][\u4e00-\u9fa5])",     # 断言 D 选项后面是换行符、换页符、题号或中文汉字，但不包含这些内容
         re.DOTALL                           # 允许匹配跨行内容
     )
@@ -413,11 +448,14 @@ def extract_questions_and_answer_from_docx(docx_path, output_json_path):
     # 删除文档中影响选择题识别的干扰内容
     original_text = full_text
     full_text = delete_irrelevant(full_text)
-        
+    
     # 提取选择题内容
     questions = []
     for match in question_pattern.finditer(full_text):
         question_data = match.groupdict()
+        
+        clean_question(question_data)
+        
         print(repr(match.group(0)))
         question_data['index'] = (re.match(r'^(\d+)[．.、]', question_data["question"][:10])).group(1)
         
@@ -798,8 +836,6 @@ def extract_questions_and_answer_from_docx(docx_path, output_json_path):
         print(question)
     find_answer(doc, questions, original_text)
  
-    clean_question(questions)
-        
     add_exam_name(questions)
             
     # 追加到 JSON 文件
