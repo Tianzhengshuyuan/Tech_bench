@@ -149,21 +149,19 @@ def find_answer(doc, questions, text):
                 if answer_match:
                     answer = answer_match.group(1)  # 提取答案
                     answer_found = 1  # 标记找到答案
-                    
                     # 拼接从当前段落向前的所有文本
                     combined_text = "\n".join([p.text.strip() for p in doc.paragraphs[:idx+1]])
                     print("combined_text is: "+combined_text)
                     # 查找所有匹配项，从后向前寻找最近的匹配
                     matches = list(question_pattern.finditer(combined_text))
                     if matches:
-            
                         # 获取最后一个匹配项（离“故选：”最近的匹配）
                         question_match = matches[-1]
                         print("question_match is: "+question_match.group(1))
                         number = (re.match(r'^(\d+)[．.、]', question_match.group(1))).group(1)
                         print("number is: "+ number)
                         for question_data in questions:
-                            if question_data.get("index") == number:
+                            if question_data.get("index") == number and not question_data.get("answer"):
                                 question_data["answer"] = answer
                                 break
                             
@@ -190,23 +188,26 @@ def find_answer(doc, questions, text):
                         number = (re.match(r'^(\d+)[．.、]', question_match.group(1))).group(1)
                         print("number is: "+ number)
                         for question_data in questions:
-                            if question_data.get("index") == number:
+                            if question_data.get("index") == number and not question_data.get("answer"):
                                 question_data["answer"] = answer
                                 break
                 
+
     if answer_found == 0:
         answer_count = 0
         for paragraph in doc.paragraphs:
-            if re.match(r'\d*\.\s*答案：\s*([A-D])', paragraph.text.strip()):
+            if re.match(r'(\d+)\.\s*答案：\s*([A-D])', paragraph.text.strip()):
                 # 提取答案内容
-                answer_match = re.match(r'\d*\.\s*答案：\s*([A-D])', paragraph.text.strip())
+                answer_match = re.match(r'(\d+)\.\s*答案：\s*([A-D])', paragraph.text.strip())
                 if answer_match:
-                    if answer_count < len(questions):
-                        answer = answer_match.group(1)
-                        questions[answer_count]['answer'] = answer
-                        answer_count += 1
-                        print("答案形式： 答案：")
-                        answer_found = 1
+                    index = answer_match.group(1)
+                    answer = answer_match.group(2)
+                    for question_data in questions:
+                        if question_data.get("index") == index:
+                            question_data["answer"] = answer
+                            break
+                    print("答案形式： 答案：")
+                    answer_found = 1
                 
     if answer_found == 0:      
         # 匹配连续的答案部分，形如：
