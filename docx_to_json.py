@@ -129,16 +129,16 @@ def find_answer(doc, questions, text):
             answer_found = 1
     
     question_pattern = re.compile(
-        r"(?<=[\n \t])"                        # 断言题目前面必须是换行符、空格或制表符 
+        r"(?<=[\n \t])"                        # 断言题目前面必须是换行符、空格或制表符
         r"(?P<question>\d+[．.、].{0,300}?)"           # 匹配题目开头，如 "17. 一定质量的..."
-        r"(?:[AＡ][．.、\s\u200b]\s*(?P<A>.{0,100}?))"             # 匹配 A 选项
-        r"(?:[BＢ][．.、\s\u200b]\s*(?P<B>.{0,100}?))"             # 匹配 B 选项
-        r"(?:[CＣ][．.、\s\u200b]\s*(?P<C>.{0,100}?))"             # 匹配 C 选项
-        r"(?:[DＤ][．.、\s\u200b]\s*?(?P<D>.{0,100}?))"             # 匹配 D 选项
+        r"(?:([AＡ][．.、\s\u200b]|[\(（]A[\)）])\s*(?P<A>.{0,100}?))"             # 匹配 A 选项
+        r"(?:([BＢ][．.、\s\u200b]|[\(（]B[\)）])\s*(?P<B>.{0,100}?))"             # 匹配 B 选项
+        r"(?:([CＣ][．.、\s\u200b]|[\(（]C[\)）])\s*(?P<C>.{0,100}?))"             # 匹配 C 选项
+        r"(?:([DＤ][．.、\s\u200b]|[\(（]D[\)）])\s*?(?P<D>.{0,100}?))"             # 匹配 D 选项
         r"(?=\n|\f|\d+[．.、][\u4e00-\u9fa5])",     # 断言 D 选项后面是换行符、换页符、题号或中文汉字，但不包含这些内容
         re.DOTALL                           # 允许匹配跨行内容
     )
-
+    
     # 匹配题目后紧跟着 “故选：”
     if answer_found == 0:
         for idx, paragraph in enumerate(doc.paragraphs):
@@ -192,9 +192,9 @@ def find_answer(doc, questions, text):
     # 匹配类似 “16. 答案： A”
     if answer_found == 0:
         for paragraph in doc.paragraphs:
-            if re.match(r'(\d+)\.\s*答案：\s*([A-D])', paragraph.text.strip()):
+            if re.match(r'(\d+)[.．]\s*答案：\s*([A-D])', paragraph.text.strip()):
                 # 提取答案内容
-                answer_match = re.match(r'(\d+)\.\s*答案：\s*([A-D])', paragraph.text.strip())
+                answer_match = re.match(r'(\d+)[.．]\s*答案：\s*([A-D])', paragraph.text.strip())
                 if answer_match:
                     index = answer_match.group(1)
                     answer = answer_match.group(2)
@@ -208,15 +208,18 @@ def find_answer(doc, questions, text):
     # 匹配连续的答案部分，形如：
     # 1.C 2.D 3.A 或 1. C 2. D 3. A 或 1、C 2、D 3、A 等形式
     if answer_found == 0:      
-        matches = re.findall(r'((?:\d+[.、\s]+[A-D]+\s*){2,})', text)
+        print("text is: "+repr(text))
+        matches = re.findall(r'((?:\d+[．.、\s\u3000]+[A-D、]+\s*){2,})', text)
         for match in matches:
+            print("match")
             # 提取每个答案（数字和字母）
-            answers = re.findall(r'(\d+)[.、\s]+([A-D]+)', match)
+            answers = re.findall(r'(\d+)[．.、\s\u3000]+([A-D、]+)', match)
             for number, answer in answers:
                 # 遍历题目，找到对应的题号并更新答案
+                formatted_answer = answer.replace("、", "").strip()
                 for question_data in questions:
                     if question_data.get("index") == number:
-                        question_data["answer"] = answer
+                        question_data["answer"] = formatted_answer
                         break
             print("答案形式匹配成功：", answers)
             answer_found = 1
@@ -422,10 +425,10 @@ def extract_questions_and_answer_from_docx(docx_path, output_json_path):
     question_pattern = re.compile(
         r"(?<=[\n \t])"                        # 断言题目前面必须是换行符、空格或制表符
         r"(?P<question>\d+[．.、].{0,300}?)"           # 匹配题目开头，如 "17. 一定质量的..."
-        r"(?:[AＡ][．.、\s\u200b]\s*(?P<A>.{0,100}?))"             # 匹配 A 选项
-        r"(?:[BＢ][．.、\s\u200b]\s*(?P<B>.{0,100}?))"             # 匹配 B 选项
-        r"(?:[CＣ][．.、\s\u200b]\s*(?P<C>.{0,100}?))"             # 匹配 C 选项
-        r"(?:[DＤ][．.、\s\u200b]\s*?(?P<D>.{0,100}?))"             # 匹配 D 选项
+        r"(?:([AＡ][．.、\s\u200b]|[\(（]A[\)）])\s*(?P<A>.{0,100}?))"             # 匹配 A 选项
+        r"(?:([BＢ][．.、\s\u200b]|[\(（]B[\)）])\s*(?P<B>.{0,100}?))"             # 匹配 B 选项
+        r"(?:([CＣ][．.、\s\u200b]|[\(（]C[\)）])\s*(?P<C>.{0,100}?))"             # 匹配 C 选项
+        r"(?:([DＤ][．.、\s\u200b]|[\(（]D[\)）])\s*?(?P<D>.{0,100}?))"             # 匹配 D 选项
         r"(?=\n|\f|\d+[．.、][\u4e00-\u9fa5])",     # 断言 D 选项后面是换行符、换页符、题号或中文汉字，但不包含这些内容
         re.DOTALL                           # 允许匹配跨行内容
     )
