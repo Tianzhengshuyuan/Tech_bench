@@ -119,7 +119,7 @@ def find_answer(doc, questions, text):
             
             # 将题号与答案对应起来
             for question, answer in zip(question_numbers, answers):
-                if question.isdigit():  # 确保题号是数字
+                if question.isdigit() and re.fullmatch(r'[A-D]+', answer):  # 确保题号是数字，题目是ABCD
                     table_answers[question] = answer
                     
     for question_data in questions:
