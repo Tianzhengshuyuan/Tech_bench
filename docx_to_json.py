@@ -207,16 +207,18 @@ def find_answer(doc, questions, text):
                 
     # 匹配连续的答案部分，形如：
     # 1.C 2.D 3.A 或 1. C 2. D 3. A 或 1、C 2、D 3、A 等形式
-    if answer_found == 0:      
-        print("text is: "+repr(text))
-        matches = re.findall(r'((?:\d+[．.、\s\u3000]+[A-D、]+\s*){2,})', text)
+    # 14.A,C,D.  15.A,B,D.  16.A,C
+    # 6．B、C 　　　7．B 　　　8．A、D
+    if answer_found == 0: 
+        print("text is: ")
+        print(repr(text))     
+        matches = re.findall(r'((?:\d+[．.、\s\u3000]+[A-D、.,]+\s*){2,})', text)
         for match in matches:
-            print("match")
             # 提取每个答案（数字和字母）
-            answers = re.findall(r'(\d+)[．.、\s\u3000]+([A-D、]+)', match)
+            answers = re.findall(r'(\d+)[．.、\s\u3000]+([A-D、.,]+)', match)
             for number, answer in answers:
                 # 遍历题目，找到对应的题号并更新答案
-                formatted_answer = answer.replace("、", "").strip()
+                formatted_answer = answer.replace("、", "").replace(".", "").replace(",", "").strip()
                 for question_data in questions:
                     if question_data.get("index") == number:
                         question_data["answer"] = formatted_answer
@@ -484,7 +486,7 @@ def extract_questions_and_answer_from_docx(docx_path, output_json_path):
                 #找到option_paragraph的真正起点
                 start_1 = 1
                 for j in range(1,10):
-                    if doc.paragraphs[i+j].text.replace(" ", "").replace("\t", "").startswith(("A","Ａ")):
+                    if doc.paragraphs[i+j].text.replace(" ", "").replace("\t", "").startswith(("A","Ａ","(A)","（A）")):
                         start_1 = i+j
                         break
                 option_paragraph1 = doc.paragraphs[start_1]
@@ -511,7 +513,7 @@ def extract_questions_and_answer_from_docx(docx_path, output_json_path):
                 print("op4: "+option_paragraph4.text)
 
                 #四个选项各占一行
-                if option_paragraph1.text.lstrip(" \t").startswith(("A","Ａ")) and option_paragraph2.text.lstrip(" \t").startswith(("B","Ｂ")): 
+                if option_paragraph1.text.lstrip(" \t").startswith(("A","Ａ","(A)","（A）")) and option_paragraph2.text.lstrip(" \t").startswith(("B","Ｂ","(B)","（B）")): 
                     print("[[[Situation 1]]]")
                     option_count=0
                     minus = 0
@@ -537,10 +539,16 @@ def extract_questions_and_answer_from_docx(docx_path, output_json_path):
                                 result = run.text.lstrip("．.、\t")  # 普通文本直接添加
                         else: #不是文本就需要处理图像
                             result = extract_formula_from_picture(run, docx_path, relationships).lstrip("．.、")
-                        if re.search(r"[AＡ]", result) and option_count == 0: 
+                        
+                        if re.search(r"\(A\)|（A）", result) and option_count == 0: 
+                            option_count+=1
+                            if len(result) > 3: 
+                                results_A += result[3:]                        
+                        elif re.search(r"[AＡ]", result) and option_count == 0: 
                             option_count+=1
                             if len(result) > 2: #考虑到有时 “C．甲、丁的种群数量下降，丙的种群数量增加”会被解析为一个完整的run
                                 results_A += result[2:]
+
                         elif option_count==1:
                             results_A += result
                     minus = 0
@@ -567,7 +575,11 @@ def extract_questions_and_answer_from_docx(docx_path, output_json_path):
                         else: #不是文本就需要处理图像
                             result = extract_formula_from_picture(run, docx_path, relationships).lstrip("．.、")
 
-                        if re.search(r"[BＢ]", result) and option_count == 1:
+                        if re.search(r"\(B\)|（Ｂ）", result) and option_count == 1:
+                            option_count+=1
+                            if len(result) > 3:
+                                results_B += result[3:]
+                        elif re.search(r"[BＢ]", result) and option_count == 1:
                             option_count+=1
                             if len(result) > 2:
                                 results_B += result[2:]
@@ -597,7 +609,11 @@ def extract_questions_and_answer_from_docx(docx_path, output_json_path):
                         else: #不是文本就需要处理图像
                             result = extract_formula_from_picture(run, docx_path, relationships).lstrip("．.、")
 
-                        if re.search(r"[CＣ]", result) and option_count == 2:
+                        if re.search(r"\(C\)|（C）", result) and option_count == 2:
+                            option_count+=1
+                            if len(result) > 3:
+                                results_C += result[3:]
+                        elif re.search(r"[CＣ]", result) and option_count == 2:
                             option_count+=1
                             if len(result) > 2:
                                 results_C += result[2:]
@@ -627,14 +643,18 @@ def extract_questions_and_answer_from_docx(docx_path, output_json_path):
                         else: #不是文本就需要处理图像
                             result = extract_formula_from_picture(run, docx_path, relationships).lstrip("．.、")
 
-                        if re.search(r"[DＤ]", result) and option_count == 3:
+                        if re.search(r"\(D\)|（D）", result) and option_count == 3:
+                            option_count+=1
+                            if len(result) > 3:
+                                results_D += result[3:]
+                        elif re.search(r"[DＤ]", result) and option_count == 3:
                             option_count+=1
                             if len(result) > 2:
                                 results_D += result[2:]
                         elif option_count==4:
                             results_D += result
                 #四个选项占两行
-                elif option_paragraph1.text.lstrip(" \t").startswith(("A","Ａ")) and option_paragraph2.text.lstrip(" \t").startswith(("C","Ｃ")):
+                elif option_paragraph1.text.lstrip(" \t").startswith(("A","Ａ","(A)","（A）")) and option_paragraph2.text.lstrip(" \t").startswith(("C","Ｃ","(C)","（C）")):
                     print("[[[Situation 2]]]") 
                     option_count=0
                     minus = 0
@@ -680,6 +700,25 @@ def extract_questions_and_answer_from_docx(docx_path, output_json_path):
                                         results_A += result.strip()[2:]
                                     else:
                                         results_B += result.strip()[2:]
+                        elif result.strip().startswith(("(A)","（A）")) or result.strip().startswith(("(B)","（B）")):
+                            if re.search(r"(A)|（A）", result) and re.search(r"(B)|（B）", result): #考虑：“A. 一直变小 B. 一直变大”
+                                # 定义正则表达式匹配整个模式
+                                pattern = r"(?:\(A\)|（A）)(.*?)(?:\(B\)|（B）)(.*)"
+
+                                # 使用 re.search 寻找第一次匹配
+                                match_option = re.search(pattern, result)
+
+                                # 提取各部分内容并去掉多余空白
+                                if match_option:
+                                    results_A = match_option.group(1).strip()  # A. 和 B. 之间的内容
+                                    results_B = match_option.group(2).strip()  # B. 后面的内容
+                            else:
+                                option_count+=1
+                                if len(result.strip()) > 3:
+                                    if option_count==1:
+                                        results_A += result.strip()[3:]
+                                    else:
+                                        results_B += result.strip()[3:]
                         else:
                             if result.endswith(("A","Ａ", "B","Ｂ")): #可能遇到 <w:t>＝25cm/s，向左传播         B．</w:t>
                                 if option_count==1:
@@ -742,6 +781,26 @@ def extract_questions_and_answer_from_docx(docx_path, output_json_path):
                                         results_C += result.strip()[2:]
                                     else:
                                         results_D += result.strip()[2:]
+                        elif result.strip().startswith(("(C)","（C）")) or result.strip().startswith(("(D)", "（D）")):
+                            if re.search(r"\(C\)|（C）", result) and re.search(r"\(D\)|（D）", result): #考虑：“C. 先变小后变大 D. 先变大后变小”
+                                # print("C and D")
+                                # 定义正则表达式匹配整个模式
+                                pattern = r"(?:\(C\)|（C）)(.*?)(?:\(D\)|（D）)(.*)"
+
+                                # 使用 re.search 寻找第一次匹配
+                                match_option = re.search(pattern, result)
+
+                                # 提取各部分内容并去掉多余空白
+                                if match_option:
+                                    results_C = match_option.group(1).strip()  # C. 和 D. 之间的内容
+                                    results_D = match_option.group(2).strip()  # D. 后面的内容
+                            else:
+                                option_count+=1
+                                if len(result.strip()) > 3:
+                                    if option_count==3:
+                                        results_C += result.strip()[3:]
+                                    else:
+                                        results_D += result.strip()[3:]
                         else:
                             if result.endswith(("C", "Ｃ", "D")): 
                                 if option_count==3:
@@ -786,7 +845,71 @@ def extract_questions_and_answer_from_docx(docx_path, output_json_path):
                                 result = run.text.lstrip("．.、\t") # 普通文本直接添加
                         else: #不是文本就需要处理图像
                             result = extract_formula_from_picture(run, docx_path, relationships).lstrip("．.、")
-                        if re.search(r"(^|[^a-zA-Z])[AＡ]([^a-zA-Z]|$)", result) or re.search(r"(^|[^a-zA-Z])[BＢ]([^a-zA-Z]|$)", result) or re.search(r"(^|[^a-zA-Z])[CＣ]([^a-zA-Z]|$)", result) or re.search(r"(^|[^a-zA-Z])[DＤ]([^a-zA-Z]|$)", result):
+                                 
+                        if re.search(r"\(A\)|（A）", result) or re.search(r"\(B\)|（B）", result) or re.search(r"\(C\)|（C）", result) or re.search(r"\(D\)|（D）", result):
+                            #全是文本，一整行被解析成一个run
+                            if re.search(r"\(A\)|（A）", result) and re.search(r"\(B\)|（B）", result) and re.search(r"\(C\)|（C）", result) and re.search(r"\(D\)|（D）", result):
+                                # 定义正则表达式匹配整个模式
+                                pattern = r"(?:\(A\)|（A）)(.*?)(?:\(B\)|（B）)(.*?)(?:\(C\)|（C）)(.*?)(?:\(D\)|（D）)(.*)"
+
+                                # 使用 re.search 寻找第一次匹配
+                                match_option = re.search(pattern, result)
+
+                                # 提取各部分内容并去掉多余空白
+                                if match_option:
+                                    results_A = match_option.group(1).strip()  # A. 和 B. 之间的内容
+                                    results_B = match_option.group(2).strip()  # B. 和 C. 之间的内容
+                                    results_C = match_option.group(3).strip()  # C. 和 D. 之间的内容
+                                    results_D = match_option.group(4).strip()  # D. 后面的内容
+                            elif re.search(r"\(A\)|（A）", result) and re.search(r"\(B\)|（B）", result):
+                                # 定义正则表达式匹配整个模式
+                                print("A and B")
+                                pattern = r"(?:\(A\)|（A）)(.*?)(?:\(B\)|（B）)(.*)"
+
+                                # 使用 re.search 寻找第一次匹配
+                                match_option = re.search(pattern, result)
+                                # 提取各部分内容并去掉多余空白
+                                if match_option:
+                                    results_A = match_option.group(1).strip()  # A. 和 B. 之间的内容
+                                    results_B = match_option.group(2).strip()  # B. 和 C. 之间的内容
+                                    print("resultA: "+results_A)
+                                    print("resultB: "+results_B)
+                                option_count = 2
+                            elif re.search(r"\(B\)|（B）", result) and re.search(r"\(C\)|（C）", result):
+                                # 定义正则表达式匹配整个模式
+                                pattern = r"(?:\(B\)|（B）)(.*?)(?:\(C\)|（C）)(.*?)"
+
+                                # 使用 re.search 寻找第一次匹配
+                                match_option = re.search(pattern, result)
+                                # 提取各部分内容并去掉多余空白
+                                if match_option:
+                                    results_B = match_option.group(1).strip()  # B. 和 C. 之间的内容
+                                    results_C = match_option.group(2).strip()  # C. 和 D. 之间的内容
+                                option_count = 3
+                            elif re.search(r"\(C\)|（C）", result) and re.search(r"\(D\)|（D）", result):
+                                # 定义正则表达式匹配整个模式
+                                pattern = r"(?:\(C\)|（C）)(.*?)(?:\(D\)|（D）)(.*?)"
+
+                                # 使用 re.search 寻找第一次匹配
+                                match_option = re.search(pattern, result)
+                                # 提取各部分内容并去掉多余空白
+                                if match_option:
+                                    results_C = match_option.group(1).strip()  # C. 和 D. 之间的内容
+                                    results_D = match_option.group(2).strip()  
+                                option_count = 4
+                            else:
+                                option_count += 1
+
+                                if len(result.strip()) > 3 and result.strip().startswith(("(A)","（A）", "(B)","（B）", "(C)","（C）", "(D)","（D）")):
+                                    if option_count==1:
+                                        results_A += result.strip()[3:]
+                                    elif option_count==2:
+                                        results_B += result.strip()[3:]
+                                    elif option_count==3:
+                                        results_C += result.strip()[3:]
+                                    else:
+                                        results_D += result.strip()[3:]   
+                        elif re.search(r"(^|[^a-zA-Z])[AＡ]([^a-zA-Z]|$)", result) or re.search(r"(^|[^a-zA-Z])[BＢ]([^a-zA-Z]|$)", result) or re.search(r"(^|[^a-zA-Z])[CＣ]([^a-zA-Z]|$)", result) or re.search(r"(^|[^a-zA-Z])[DＤ]([^a-zA-Z]|$)", result):
                             #全是文本，一整行被解析成一个run
                             if re.search(r"[AＡ]", result) and re.search(r"[BＢ]", result) and re.search(r"[CＣ]", result) and re.search(r"[DＤ]", result):
                                 # 定义正则表达式匹配整个模式
