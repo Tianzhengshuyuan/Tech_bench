@@ -141,7 +141,6 @@ def find_answer(doc, questions, text):
 
     # 匹配题目后紧跟着 “故选：”
     if answer_found == 0:
-        answer_count = 0
         for idx, paragraph in enumerate(doc.paragraphs):
             if re.match(r'故选[:：]\s*([A-D]+)', paragraph.text.strip()):
                 # 提取答案内容
@@ -167,18 +166,16 @@ def find_answer(doc, questions, text):
                             
     # 匹配题目后紧跟着【答案】
     if answer_found == 0:
-        answer_count = 0
         for idx, paragraph in enumerate(doc.paragraphs):
             if re.match(r'【答案】\s*([A-D]+)', paragraph.text.strip()):
                 # 提取答案内容
                 answer_match = re.match(r'【答案】\s*([A-D]+)', paragraph.text.strip())
                 if answer_match:
                     answer = answer_match.group(1)  # 提取答案
-                    answer_found = 1  # 标记找到答案
-                    
+                    answer_found = 1  # 标记找到答案   
                     # 拼接从当前段落向前的所有文本
                     combined_text = "\n".join([p.text.strip() for p in doc.paragraphs[:idx+1]])
-                    
+                    print("combined_text is: "+combined_text)           
                     # 查找所有匹配项，从后向前寻找最近的匹配
                     matches = list(question_pattern.finditer(combined_text))
                     if matches:
@@ -192,9 +189,8 @@ def find_answer(doc, questions, text):
                                 question_data["answer"] = answer
                                 break
                 
-
+    # 匹配类似 “16. 答案： A”
     if answer_found == 0:
-        answer_count = 0
         for paragraph in doc.paragraphs:
             if re.match(r'(\d+)\.\s*答案：\s*([A-D])', paragraph.text.strip()):
                 # 提取答案内容
@@ -209,11 +205,10 @@ def find_answer(doc, questions, text):
                     print("答案形式： 答案：")
                     answer_found = 1
                 
+    # 匹配连续的答案部分，形如：
+    # 1.C 2.D 3.A 或 1. C 2. D 3. A 或 1、C 2、D 3、A 等形式
     if answer_found == 0:      
-        # 匹配连续的答案部分，形如：
-        # 1.C 2.D 3.A 或 1. C 2. D 3. A 或 1、C 2、D 3、A 等形式
         matches = re.findall(r'((?:\d+[.、\s]+[A-D]+\s*){2,})', text)
-
         for match in matches:
             # 提取每个答案（数字和字母）
             answers = re.findall(r'(\d+)[.、\s]+([A-D]+)', match)
@@ -226,8 +221,24 @@ def find_answer(doc, questions, text):
             print("答案形式匹配成功：", answers)
             answer_found = 1
     
+    # 匹配形如 “1、D
+    #          （答案内容。。。）
+    #          2、A
+    #          （答案内容。。。）”
     if answer_found == 0:
-        # 匹配形如 "1-10 ABCDBCAADB" 的紧凑答案格式
+        matches = re.findall(r'\n(\d+)[.、\s]+([A-D]+)\n', text)
+        for number, answer in matches:
+            # 遍历题目，找到对应的题号并更新答案
+            for question_data in questions:
+                if question_data.get("index") == number:
+                    question_data["answer"] = answer
+                    break
+                print("答案形式匹配成功：")
+                answer_found = 1
+    
+    
+    # 匹配形如 "1-10 ABCDBCAADB" 的紧凑答案格式
+    if answer_found == 0:
         compact_matches = re.findall(r'(\d+)[\-—](\d+)\s+([A-D]+)', text)
         for compact_match in compact_matches:
             start, end, answers = compact_match
@@ -243,22 +254,23 @@ def clean_question(question_data):
     """
     # 检查每个 question 条目，删除从某数字到下一个数字的内容
     question_text = question_data.get("question", "")
-    
+    print("question_text is: "+repr(question_text))
     # 匹配类似 "数字." 的模式
-    number_matches = re.findall(r'(\d+)[．.]', question_text)
-    if len(number_matches) >= 2:
-        for i in range(len(number_matches) - 1):
-            current_num = int(number_matches[i])
-            next_num = int(number_matches[i + 1])
-            
-            # 如果后一个数字是前一个数字 + 1
-            if next_num == current_num + 1:
-                # 删除从当前数字到下一个数字之间的内容
-                pattern = rf"{current_num}[．.].*?{next_num}[．.]"
-                question_text = re.sub(pattern, f"{next_num}.", question_text, flags=re.DOTALL)
+    current_match = re.match(r'^(\d+)[．.、]', question_text)
+    next_match = re.search(r'\n(\d+)[．.、]', question_text)
     
-    # 更新清理后的 question
-    question_data["question"] = question_text
+    if current_match and next_match:
+        current_num = int(current_match.group(1))
+        next_num = int(next_match.group(1))
+        print("current is:"+str(current_num)+"next is:"+str(next_num))
+        # 如果后一个数字是前一个数字 + 1
+        if next_num == current_num + 1:
+            # 删除从当前数字到下一个数字之间的内容
+            pattern = rf"{current_num}[．.].*?{next_num}[．.]"
+            question_text = re.sub(pattern, f"{next_num}.", question_text, flags=re.DOTALL)
+
+        # 更新清理后的 question
+        question_data["question"] = question_text
 
 def add_exam_name(questions):
     """
@@ -408,7 +420,7 @@ def extract_questions_and_answer_from_docx(docx_path, output_json_path):
 
     # 匹配的正则表达式
     question_pattern = re.compile(
-         r"(?<=[\n \t])"                        # 断言题目前面必须是换行符、空格或制表符
+        r"(?<=[\n \t])"                        # 断言题目前面必须是换行符、空格或制表符
         r"(?P<question>\d+[．.、].{0,300}?)"           # 匹配题目开头，如 "17. 一定质量的..."
         r"(?:[AＡ][．.、\s\u200b]\s*(?P<A>.{0,100}?))"             # 匹配 A 选项
         r"(?:[BＢ][．.、\s\u200b]\s*(?P<B>.{0,100}?))"             # 匹配 B 选项
@@ -459,12 +471,11 @@ def extract_questions_and_answer_from_docx(docx_path, output_json_path):
         
         print(repr(match.group(0)))
         question_data['index'] = (re.match(r'^(\d+)[．.、]', question_data["question"][:10])).group(1)
-        
+        print("question_data[question] is: "+ question_data["question"])
         # 针对前半部分是试卷，后半部分是试卷+答案的情况
         if any(q['index'] == question_data['index'] for q in questions):
             print(f"Question with index {question_data['index']} already exists. Skipping...")
             break
-        
         for i,paragraph in enumerate(doc.paragraphs):
             if paragraph.text.startswith(question_data["question"][:10].strip()):
                 #找到option_paragraph的真正起点
@@ -491,6 +502,10 @@ def extract_questions_and_answer_from_docx(docx_path, output_json_path):
                 results_B = ""
                 results_C = ""
                 results_D = ""
+                print("op1: "+option_paragraph1.text)
+                print("op2: "+option_paragraph2.text)
+                print("op3: "+option_paragraph3.text)
+                print("op4: "+option_paragraph4.text)
 
                 #四个选项各占一行
                 if option_paragraph1.text.lstrip(" \t").startswith(("A","Ａ")) and option_paragraph2.text.lstrip(" \t").startswith(("B","Ｂ")): 
