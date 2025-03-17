@@ -289,7 +289,24 @@ def clean_question(question_data):
 
         # 更新清理后的 question
         question_data["question"] = question_text
+        
+def clean_options(questions):
+    # 要检查的键
+    keys_to_check = ["A", "B", "C", "D"]
 
+    # 遍历每个条目
+    for question_data in questions:
+        for key in keys_to_check:
+            if key in question_data:
+                value = question_data[key].strip()
+                # 删除以 "）" 开头或以 "（" 结尾的括号
+                if value.startswith("）"):
+                    value = value[1:]  # 去掉开头的 "）"
+                if value.endswith("（"):
+                    value = value[:-1]  # 去掉结尾的 "（"
+                # 更新条目的值
+                question_data[key] = value
+    
 def add_exam_name(questions):
     """
     增加试卷名
@@ -992,6 +1009,9 @@ def extract_questions_and_answer_from_docx(docx_path, output_json_path):
     
     for question in questions:
         print(question)
+        
+    clean_options(questions)   
+     
     find_answer(doc, questions, original_text)
  
     add_exam_name(questions)
