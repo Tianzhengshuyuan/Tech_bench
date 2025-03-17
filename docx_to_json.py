@@ -210,8 +210,6 @@ def find_answer(doc, questions, text):
     # 14.A,C,D.  15.A,B,D.  16.A,C
     # 6．B、C 　　　7．B 　　　8．A、D
     if answer_found == 0: 
-        print("text is: ")
-        print(repr(text))     
         matches = re.findall(r'((?:\d+[．.、\s\u3000]+[A-D、.,，]+\s*){2,})', text)
         for match in matches:
             # 提取每个答案（数字和字母）
@@ -223,22 +221,37 @@ def find_answer(doc, questions, text):
                     if question_data.get("index") == number:
                         question_data["answer"] = formatted_answer
                         break
-            print("答案形式匹配成功：", answers)
+            print("答案形式：1.A 2.B")
             answer_found = 1
     
+    if answer_found == 0: 
+        matches = re.findall(r'((?:\d+[．.、\s\u3000]+\([A-D、,，]+\)\s*){2,})', text)
+        for match in matches:
+            # 提取每个答案（数字和字母）
+            answers = re.findall(r'(\d+)[．.、\s\u3000]+\(([A-D、,，]+)\)', match)
+            for number, answer in answers:
+                # 遍历题目，找到对应的题号并更新答案
+                formatted_answer = answer.replace("、", "").replace(",", "").replace("，", "").strip()
+                for question_data in questions:
+                    if question_data.get("index") == number:
+                        question_data["answer"] = formatted_answer
+                        break
+            print("答案形式：1.(A) 2.(B)")
+            answer_found = 1
+                
     # 匹配形如 “1、D
     #          （答案内容。。。）
     #          2、A
     #          （答案内容。。。）”
     if answer_found == 0:
-        matches = re.findall(r'\n(\d+)[.、\s]+([A-D]+)\n', text)
+        matches = re.findall(r'\n(\d+)[.、\s]+([A-D]+)\s*\n', text)
         for number, answer in matches:
             # 遍历题目，找到对应的题号并更新答案
             for question_data in questions:
                 if question_data.get("index") == number:
                     question_data["answer"] = answer
+                    print("答案形式：一行一个答案")
                     break
-                print("答案形式匹配成功：")
                 answer_found = 1
     
     
