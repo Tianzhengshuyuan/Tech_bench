@@ -93,4 +93,4 @@ python remove_smartTag.py  --docx_name=2004年云南高考理科综合真题及�
 会被识别为
 ![识别结果](./images/wrong_lamda.png)
 2. 题号和A.不是文本，而是自动生成的
-![word文档内容](./images/auto.png)
+![word文档内容](./images/auto.png)（2023年高考物理真题（北京自主命题）（解析版））

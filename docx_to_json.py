@@ -127,6 +127,26 @@ def find_answer(doc, questions, text):
         if index in table_answers:
             question_data["answer"] = table_answers[index]
             answer_found = 1
+            
+    if answer_found == 0:
+        # 匹配表格中的答案
+        table_answers = {}
+        for table in doc.tables:
+            for row in table.rows:
+                for cell in row.cells:
+                    cell_text = cell.text.strip()
+                    # 匹配单元格中的题号和答案，例如 "1．C"
+                    matches = re.findall(r'(\d+)[．.、\s]+([A-D]+)', cell_text)
+                    for number, answer in matches:
+                        table_answers[number] = answer  # 保存题号和答案
+
+        # 将表格中的答案更新到 questions
+        for question_data in questions:
+            index = question_data.get("index")
+            if index in table_answers:
+                question_data["answer"] = table_answers[index]
+                answer_found = 1
+                    
     
     question_pattern = re.compile(
         r"(?<=[\n \t])"                        # 断言题目前面必须是换行符、空格或制表符
@@ -139,6 +159,56 @@ def find_answer(doc, questions, text):
         re.DOTALL                           # 允许匹配跨行内容
     )
     
+    # 匹配连续的答案部分，形如：
+    # 1.C 2.D 3.A 或 1. C 2. D 3. A 或 1、C 2、D 3、A 等形式
+    # 14.A,C,D.  15.A,B,D.  16.A,C
+    # 6．B、C 　　　7．B 　　　8．A、D
+    if answer_found == 0: 
+        matches = re.findall(r'(((?<![A-D][.、]\s)\d+[．.、\s\u3000]+[A-D、.,，]+\s*){2,})', text)
+        print(matches)
+        for match in matches:
+            # 提取每个答案（数字和字母）
+            answers = re.findall(r'(?<![\u4e00-\u9fa5=.、])(\d+)[．.、\s\u3000]+([A-D、.,，]+)', match[0])
+            for number, answer in answers:
+                # 遍历题目，找到对应的题号并更新答案
+                formatted_answer = answer.replace("、", "").replace(".", "").replace(",", "").replace("，", "").strip()
+                for question_data in questions:
+                    if question_data.get("index") == number:
+                        question_data["answer"] = formatted_answer
+                        print("number is: "+number+" answer is: "+formatted_answer)
+                        break
+                    
+            print("答案形式：1.A 2.B")
+            answer_found = 1
+    
+    if answer_found == 0: 
+        matches = re.findall(r'((?:\d+[．.、\s\u3000]+\([A-D、,，]+\)\s*){2,})', text)
+        for match in matches:
+            # 提取每个答案（数字和字母）
+            answers = re.findall(r'(\d+)[．.、\s\u3000]+\(([A-D、,，]+)\)', match)
+            for number, answer in answers:
+                # 遍历题目，找到对应的题号并更新答案
+                formatted_answer = answer.replace("、", "").replace(",", "").replace("，", "").strip()
+                for question_data in questions:
+                    if question_data.get("index") == number:
+                        question_data["answer"] = formatted_answer
+                        break
+            print("答案形式：1.(A) 2.(B)")
+            answer_found = 1
+    
+    # 匹配形如 "1-10 ABCDBCAADB" 的紧凑答案格式
+    if answer_found == 0:
+        compact_matches = re.findall(r'(\d+)[\-—](\d+)\s+([A-D]+)', text)
+        for compact_match in compact_matches:
+            start, end, answers = compact_match
+            for i, answer in enumerate(answers):
+                for question_data in questions:
+                    if question_data.get("index") == str(int(start)+i):
+                        question_data["answer"] = answer
+                        answer_found = 1
+                        print("答案形式：1-10 ABCDBCAADB")
+                        break
+                    
     # 匹配题目后紧跟着 “故选：”
     if answer_found == 0:
         for idx, paragraph in enumerate(doc.paragraphs):
@@ -205,39 +275,6 @@ def find_answer(doc, questions, text):
                     print("答案形式： 答案：")
                     answer_found = 1
                 
-    # 匹配连续的答案部分，形如：
-    # 1.C 2.D 3.A 或 1. C 2. D 3. A 或 1、C 2、D 3、A 等形式
-    # 14.A,C,D.  15.A,B,D.  16.A,C
-    # 6．B、C 　　　7．B 　　　8．A、D
-    if answer_found == 0: 
-        matches = re.findall(r'((?:\d+[．.、\s\u3000]+[A-D、.,，]+\s*){2,})', text)
-        for match in matches:
-            # 提取每个答案（数字和字母）
-            answers = re.findall(r'(\d+)[．.、\s\u3000]+([A-D、.,，]+)', match)
-            for number, answer in answers:
-                # 遍历题目，找到对应的题号并更新答案
-                formatted_answer = answer.replace("、", "").replace(".", "").replace(",", "").replace("，", "").strip()
-                for question_data in questions:
-                    if question_data.get("index") == number:
-                        question_data["answer"] = formatted_answer
-                        break
-            print("答案形式：1.A 2.B")
-            answer_found = 1
-    
-    if answer_found == 0: 
-        matches = re.findall(r'((?:\d+[．.、\s\u3000]+\([A-D、,，]+\)\s*){2,})', text)
-        for match in matches:
-            # 提取每个答案（数字和字母）
-            answers = re.findall(r'(\d+)[．.、\s\u3000]+\(([A-D、,，]+)\)', match)
-            for number, answer in answers:
-                # 遍历题目，找到对应的题号并更新答案
-                formatted_answer = answer.replace("、", "").replace(",", "").replace("，", "").strip()
-                for question_data in questions:
-                    if question_data.get("index") == number:
-                        question_data["answer"] = formatted_answer
-                        break
-            print("答案形式：1.(A) 2.(B)")
-            answer_found = 1
                 
     # 匹配形如 “1、D
     #          （答案内容。。。）
@@ -255,16 +292,7 @@ def find_answer(doc, questions, text):
                 answer_found = 1
     
     
-    # 匹配形如 "1-10 ABCDBCAADB" 的紧凑答案格式
-    if answer_found == 0:
-        compact_matches = re.findall(r'(\d+)[\-—](\d+)\s+([A-D]+)', text)
-        for compact_match in compact_matches:
-            start, end, answers = compact_match
-            for i, answer in enumerate(answers):
-                for question_data in questions:
-                    if question_data.get("index") == str(int(start)+i):
-                        question_data["answer"] = answer
-                        break
+
 
 def clean_question(question_data):
     """
@@ -510,7 +538,7 @@ def extract_questions_and_answer_from_docx(docx_path, output_json_path):
         # 针对前半部分是试卷，后半部分是试卷+答案的情况
         if any(q['index'] == question_data['index'] for q in questions):
             print(f"Question with index {question_data['index']} already exists. Skipping...")
-            break
+            continue
         for i,paragraph in enumerate(doc.paragraphs):
             if paragraph.text.startswith(question_data["question"][:10].strip()):
                 #找到option_paragraph的真正起点
