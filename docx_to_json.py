@@ -212,13 +212,13 @@ def find_answer(doc, questions, text):
     if answer_found == 0: 
         print("text is: ")
         print(repr(text))     
-        matches = re.findall(r'((?:\d+[．.、\s\u3000]+[A-D、.,]+\s*){2,})', text)
+        matches = re.findall(r'((?:\d+[．.、\s\u3000]+[A-D、.,，]+\s*){2,})', text)
         for match in matches:
             # 提取每个答案（数字和字母）
-            answers = re.findall(r'(\d+)[．.、\s\u3000]+([A-D、.,]+)', match)
+            answers = re.findall(r'(\d+)[．.、\s\u3000]+([A-D、.,，]+)', match)
             for number, answer in answers:
                 # 遍历题目，找到对应的题号并更新答案
-                formatted_answer = answer.replace("、", "").replace(".", "").replace(",", "").strip()
+                formatted_answer = answer.replace("、", "").replace(".", "").replace(",", "").replace("，", "").strip()
                 for question_data in questions:
                     if question_data.get("index") == number:
                         question_data["answer"] = formatted_answer
@@ -575,15 +575,18 @@ def extract_questions_and_answer_from_docx(docx_path, output_json_path):
                         else: #不是文本就需要处理图像
                             result = extract_formula_from_picture(run, docx_path, relationships).lstrip("．.、")
 
-                        if re.search(r"\(B\)|（Ｂ）", result) and option_count == 1:
+                        if re.search(r"\(B\)|（B）", result) and option_count == 1:
+                            print("(B)")
                             option_count+=1
                             if len(result) > 3:
                                 results_B += result[3:]
                         elif re.search(r"[BＢ]", result) and option_count == 1:
+                            print("B")
                             option_count+=1
                             if len(result) > 2:
                                 results_B += result[2:]
                         elif option_count==2:
+                            print("other")
                             results_B += result
                     minus = 0
                     for i,run in enumerate(option_paragraph3.runs):

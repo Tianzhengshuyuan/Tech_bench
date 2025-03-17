@@ -3,6 +3,16 @@
 ./doc_to_docx.sh /root/test /root/test_docx 
 ```
 
+处理名字中包含特殊字符从而影响解析的问题
+```bash
+./rename.sh
+```
+
+删除名字中包含“A3”的文件夹、名字中包含“原卷”的文件、并把doc转为docx
+```bash
+./preprocess.sh gaokao/高考物理真题/1.物理高考真题试卷 ./物理_docx
+```
+
 预处理word文档，删除smartTag，只保留里面的<w:r>
 ```bash
 python remove_smartTag.py  --docx_name=2004年云南高考理科综合真题及答案
