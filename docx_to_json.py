@@ -130,8 +130,8 @@ def find_answer(doc, questions, text):
             question_data["answer"] = table_answers[index]
             answer_found = 1
             
+    # 匹配表格中的答案 1. C
     if answer_found == 0:
-        # 匹配表格中的答案
         table_answers = {}
         for table in doc.tables:
             for row in table.rows:
@@ -239,7 +239,9 @@ def find_answer(doc, questions, text):
     # 匹配题目后紧跟着【答案】
     if answer_found == 0:
         for idx, paragraph in enumerate(doc.paragraphs):
+            print("pr: "+repr(paragraph.text))
             if re.match(r'【答案】\s*([A-D]+)', paragraph.text.strip()):
+                print("match")
                 # 提取答案内容
                 answer_match = re.match(r'【答案】\s*([A-D]+)', paragraph.text.strip())
                 if answer_match:
@@ -264,9 +266,9 @@ def find_answer(doc, questions, text):
     # 匹配类似 “16. 答案： A”
     if answer_found == 0:
         for paragraph in doc.paragraphs:
-            if re.match(r'(\d+)[.．]\s*答案：\s*([A-D])', paragraph.text.strip()):
+            if re.match(r'(\d+)[.．]\s*答案：?s*([A-D]+)', paragraph.text.strip()):
                 # 提取答案内容
-                answer_match = re.match(r'(\d+)[.．]\s*答案：\s*([A-D])', paragraph.text.strip())
+                answer_match = re.match(r'(\d+)[.．]\s*答案：?s*([A-D]+)', paragraph.text.strip())
                 if answer_match:
                     index = answer_match.group(1)
                     answer = answer_match.group(2)
