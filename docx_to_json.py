@@ -54,8 +54,8 @@ def delete_irrelevant(full_text):
     删除文档中影响选择题识别的干扰内容
     """
     # 删除内容：“原子量：H1   O16   Mg24    Al27    Cl 35.5    Ca40  Fe56    Zn 65”，从而防止干扰
-    full_text = re.sub(r"原子量.*?1[.、．]", "1.", full_text, flags=re.DOTALL)
-    
+    full_text = re.sub(r"原子量.*?\n", "\n", full_text, flags=re.DOTALL)
+    print(full_text)
     # 如果 full_text 中出现 "第Ⅱ卷"，删除其后的内容，只保留选择题
     match = re.search(r"(?<![\u4e00-\u9fff,，。])第Ⅱ卷", full_text)
     if match:
@@ -112,15 +112,17 @@ def find_answer(doc, questions, text):
     # 匹配表格中的答案
     table_answers = {}
     for table in doc.tables:
-        # 表格至少有两行：第一行为题号，第二行为答案
-        if len(table.rows) >= 2:
-            question_numbers = [cell.text.strip() for cell in table.rows[0].cells]  # 第一行是题号
-            answers = [cell.text.strip() for cell in table.rows[1].cells]          # 第二行是答案
-            
-            # 将题号与答案对应起来
-            for question, answer in zip(question_numbers, answers):
-                if question.isdigit() and re.fullmatch(r'[A-D]+', answer):  # 确保题号是数字，题目是ABCD
-                    table_answers[question] = answer
+        rows = len(table.rows)
+        # 保证表格至少有两行，且行数是偶数（题号和答案成对出现）
+        if rows >= 2 and rows % 2 == 0:
+            for i in range(0, rows, 2):  # 每次处理两行
+                question_numbers = [cell.text.strip() for cell in table.rows[i].cells]  # 奇数行作为题号
+                answers = [cell.text.strip() for cell in table.rows[i + 1].cells]       # 偶数行作为答案
+
+                # 将题号与答案对应起来
+                for question, answer in zip(question_numbers, answers):
+                    if question.isdigit() and re.fullmatch(r'[A-D]+', answer):  # 确保题号是数字，答案为ABCD
+                        table_answers[question] = answer
                     
     for question_data in questions:
         index = question_data.get("index")
@@ -291,9 +293,6 @@ def find_answer(doc, questions, text):
                     break
                 answer_found = 1
     
-    
-
-
 def clean_question(question_data):
     """
     删除question中的冗余内容
@@ -524,6 +523,7 @@ def extract_questions_and_answer_from_docx(docx_path, output_json_path):
     # 删除文档中影响选择题识别的干扰内容
     original_text = full_text
     full_text = delete_irrelevant(full_text)
+    # print(full_text)
     
     # 提取选择题内容
     questions = []
