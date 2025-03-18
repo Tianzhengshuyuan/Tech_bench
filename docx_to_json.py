@@ -166,7 +166,7 @@ def find_answer(doc, questions, text):
     # 14.A,C,D.  15.A,B,D.  16.A,C
     # 6．B、C 　　　7．B 　　　8．A、D
     if answer_found == 0: 
-        matches = re.findall(r'(((?<![A-D][.、]\s)\b\d+\b[．.、\s\u3000]+[A-D、.．,，]+\s*){2,})', text)
+        matches = re.findall(r'(((?<![A-D][.、]\s)(?<![A-D][.．、])\b\d+\b[．.、\s\u3000]+[A-D、.．,，]+\s*){2,})', text)
         # print(matches)
         for match in matches:
             # 提取每个答案（数字和字母）
@@ -197,7 +197,6 @@ def find_answer(doc, questions, text):
                         break
             print("答案形式：1.(A) 2.(B)")
             answer_found = 1
-    
     # 匹配形如 "1-10 ABCDBCAADB" 的紧凑答案格式
     if answer_found == 0:
         compact_matches = re.findall(r'(\d+)[\-—](\d+)\s+([A-D]+)', text)

@@ -208,6 +208,19 @@ Processing file: 物理_docx2/2003年宁夏高考理综真题及答案.docx
 完成smartTag移除，文件已保存为 ./物理_docx2/2003年宁夏高考理综真题及答案.docx
 Processing file: 物理_docx2/2007年内蒙古高考理科综合真题及答案.docx
 完成smartTag移除，文件已保存为 ./物理_docx2/2007年内蒙古高考理科综合真题及答案.docx
+Error occurred while executing: python docx_to_json.py --docx_name="物理_docx2/2007年内蒙古高考理科综合真题及答案" --json_name="output" --new="off" --latex="on"
+Skipping file: 物理_docx2/2007年内蒙古高考理科综合真题及答案.docx
+Last 10 lines of log:
+other
+Traceback (most recent call last):
+  File "/root/tech_bench/docx_to_json.py", line 1064, in <module>
+    extract_questions_and_answer_from_docx(docx_path, output_json_path)
+  File "/root/tech_bench/docx_to_json.py", line 706, in extract_questions_and_answer_from_docx
+    result = extract_formula_from_picture(run, docx_path, relationships).lstrip("．.、")
+  File "/root/tech_bench/docx_to_json.py", line 470, in extract_formula_from_picture
+    content = json.loads(res.text)['res']['latex']
+KeyError: 'latex'
+Last 10 lines of log:
 Processing file: 物理_docx2/1997年云南高考物理真题及答案.docx
 完成smartTag移除，文件已保存为 ./物理_docx2/1997年云南高考物理真题及答案.docx
 Processing file: 物理_docx2/1998年吉林高考物理真题及答案.docx
@@ -246,10 +259,36 @@ Processing file: 物理_docx2/2002年江西高考理科综合真题及答案.doc
 完成smartTag移除，文件已保存为 ./物理_docx2/2002年江西高考理科综合真题及答案.docx
 Processing file: 物理_docx2/2023年高考物理真题（山东自主命题)（解析版）.docx
 完成smartTag移除，文件已保存为 ./物理_docx2/2023年高考物理真题（山东自主命题)（解析版）.docx
+Error occurred while executing: python docx_to_json.py --docx_name="物理_docx2/2023年高考物理真题（山东自主命题)（解析版）" --json_name="output" --new="off" --latex="on"
+Skipping file: 物理_docx2/2023年高考物理真题（山东自主命题)（解析版）.docx
+Last 10 lines of log:
+[[[Situation 3]]]
+Traceback (most recent call last):
+  File "/root/tech_bench/docx_to_json.py", line 1064, in <module>
+    extract_questions_and_answer_from_docx(docx_path, output_json_path)
+  File "/root/tech_bench/docx_to_json.py", line 909, in extract_questions_and_answer_from_docx
+    result = extract_formula_from_picture(run, docx_path, relationships).lstrip("．.、")
+  File "/root/tech_bench/docx_to_json.py", line 470, in extract_formula_from_picture
+    content = json.loads(res.text)['res']['latex']
+KeyError: 'latex'
+Last 10 lines of log:
 Processing file: 物理_docx2/2011高考安徽物理试卷及答案.docx
 完成smartTag移除，文件已保存为 ./物理_docx2/2011高考安徽物理试卷及答案.docx
 Processing file: 物理_docx2/2018重庆高考物理试题和答案.docx
 完成smartTag移除，文件已保存为 ./物理_docx2/2018重庆高考物理试题和答案.docx
+Error occurred while executing: python docx_to_json.py --docx_name="物理_docx2/2018重庆高考物理试题和答案" --json_name="output" --new="off" --latex="on"
+Skipping file: 物理_docx2/2018重庆高考物理试题和答案.docx
+Last 10 lines of log:
+[[[Situation 3]]]
+Traceback (most recent call last):
+  File "/root/tech_bench/docx_to_json.py", line 1064, in <module>
+    extract_questions_and_answer_from_docx(docx_path, output_json_path)
+  File "/root/tech_bench/docx_to_json.py", line 909, in extract_questions_and_answer_from_docx
+    result = extract_formula_from_picture(run, docx_path, relationships).lstrip("．.、")
+  File "/root/tech_bench/docx_to_json.py", line 470, in extract_formula_from_picture
+    content = json.loads(res.text)['res']['latex']
+KeyError: 'latex'
+Last 10 lines of log:
 Processing file: 物理_docx2/1991年安徽高考物理真题及答案.docx
 完成smartTag移除，文件已保存为 ./物理_docx2/1991年安徽高考物理真题及答案.docx
 Processing file: 物理_docx2/1991年山东高考物理真题及答案.docx
@@ -342,6 +381,19 @@ Processing file: 物理_docx2/1992年辽宁高考物理真题及答案.docx
 完成smartTag移除，文件已保存为 ./物理_docx2/1992年辽宁高考物理真题及答案.docx
 Processing file: 物理_docx2/2020年全国统一高考物理试卷（新课标ⅱ）（含解析版）.docx
 完成smartTag移除，文件已保存为 ./物理_docx2/2020年全国统一高考物理试卷（新课标ⅱ）（含解析版）.docx
+Error occurred while executing: python docx_to_json.py --docx_name="物理_docx2/2020年全国统一高考物理试卷（新课标ⅱ）（含解析版）" --json_name="output" --new="off" --latex="on"
+Skipping file: 物理_docx2/2020年全国统一高考物理试卷（新课标ⅱ）（含解析版）.docx
+Last 10 lines of log:
+[[[Situation 3]]]
+Traceback (most recent call last):
+  File "/root/tech_bench/docx_to_json.py", line 1064, in <module>
+    extract_questions_and_answer_from_docx(docx_path, output_json_path)
+  File "/root/tech_bench/docx_to_json.py", line 909, in extract_questions_and_answer_from_docx
+    result = extract_formula_from_picture(run, docx_path, relationships).lstrip("．.、")
+  File "/root/tech_bench/docx_to_json.py", line 470, in extract_formula_from_picture
+    content = json.loads(res.text)['res']['latex']
+KeyError: 'latex'
+Last 10 lines of log:
 Processing file: 物理_docx2/2008年北京市高考物理试卷（含解析版）.docx
 完成smartTag移除，文件已保存为 ./物理_docx2/2008年北京市高考物理试卷（含解析版）.docx
 Processing file: 物理_docx2/2004年吉林高考理科综合真题及答案.docx
@@ -400,6 +452,19 @@ Processing file: 物理_docx2/1992年陕西高考物理真题及答案.docx
 完成smartTag移除，文件已保存为 ./物理_docx2/1992年陕西高考物理真题及答案.docx
 Processing file: 物理_docx2/精品解析：2021年海南省普通高中学业水平选择性考试(海南卷）（解析版）.docx
 完成smartTag移除，文件已保存为 ./物理_docx2/精品解析：2021年海南省普通高中学业水平选择性考试(海南卷）（解析版）.docx
+Error occurred while executing: python docx_to_json.py --docx_name="物理_docx2/精品解析：2021年海南省普通高中学业水平选择性考试(海南卷）（解析版）" --json_name="output" --new="off" --latex="on"
+Skipping file: 物理_docx2/精品解析：2021年海南省普通高中学业水平选择性考试(海南卷）（解析版）.docx
+Last 10 lines of log:
+[[[Situation 3]]]
+Traceback (most recent call last):
+  File "/root/tech_bench/docx_to_json.py", line 1064, in <module>
+    extract_questions_and_answer_from_docx(docx_path, output_json_path)
+  File "/root/tech_bench/docx_to_json.py", line 909, in extract_questions_and_answer_from_docx
+    result = extract_formula_from_picture(run, docx_path, relationships).lstrip("．.、")
+  File "/root/tech_bench/docx_to_json.py", line 470, in extract_formula_from_picture
+    content = json.loads(res.text)['res']['latex']
+KeyError: 'latex'
+Last 10 lines of log:
 Processing file: 物理_docx2/1997年辽宁高考物理真题及答案.docx
 完成smartTag移除，文件已保存为 ./物理_docx2/1997年辽宁高考物理真题及答案.docx
 Processing file: 物理_docx2/2000年黑龙江高考物理真题及答案.docx
@@ -422,8 +487,34 @@ Processing file: 物理_docx2/2001年浙江高考理综真题及答案.docx
 完成smartTag移除，文件已保存为 ./物理_docx2/2001年浙江高考理综真题及答案.docx
 Processing file: 物理_docx2/1995年青海高考物理真题及答案.docx
 完成smartTag移除，文件已保存为 ./物理_docx2/1995年青海高考物理真题及答案.docx
+Error occurred while executing: python docx_to_json.py --docx_name="物理_docx2/1995年青海高考物理真题及答案" --json_name="output" --new="off" --latex="on"
+Skipping file: 物理_docx2/1995年青海高考物理真题及答案.docx
+Last 10 lines of log:
+other
+Traceback (most recent call last):
+  File "/root/tech_bench/docx_to_json.py", line 1064, in <module>
+    extract_questions_and_answer_from_docx(docx_path, output_json_path)
+  File "/root/tech_bench/docx_to_json.py", line 706, in extract_questions_and_answer_from_docx
+    result = extract_formula_from_picture(run, docx_path, relationships).lstrip("．.、")
+  File "/root/tech_bench/docx_to_json.py", line 470, in extract_formula_from_picture
+    content = json.loads(res.text)['res']['latex']
+KeyError: 'latex'
+Last 10 lines of log:
 Processing file: 物理_docx2/精品解析：2021年福建省普通高中学业水平选择性考试物理试题（福建新高考）（解析版）.docx
 完成smartTag移除，文件已保存为 ./物理_docx2/精品解析：2021年福建省普通高中学业水平选择性考试物理试题（福建新高考）（解析版）.docx
+Error occurred while executing: python docx_to_json.py --docx_name="物理_docx2/精品解析：2021年福建省普通高中学业水平选择性考试物理试题（福建新高考）（解析版）" --json_name="output" --new="off" --latex="on"
+Skipping file: 物理_docx2/精品解析：2021年福建省普通高中学业水平选择性考试物理试题（福建新高考）（解析版）.docx
+Last 10 lines of log:
+B
+Traceback (most recent call last):
+  File "/root/tech_bench/docx_to_json.py", line 1064, in <module>
+    extract_questions_and_answer_from_docx(docx_path, output_json_path)
+  File "/root/tech_bench/docx_to_json.py", line 635, in extract_questions_and_answer_from_docx
+    result = extract_formula_from_picture(run, docx_path, relationships).lstrip("．.、")
+  File "/root/tech_bench/docx_to_json.py", line 470, in extract_formula_from_picture
+    content = json.loads(res.text)['res']['latex']
+KeyError: 'latex'
+Last 10 lines of log:
 Processing file: 物理_docx2/1996年广东高考物理真题及答案.docx
 完成smartTag移除，文件已保存为 ./物理_docx2/1996年广东高考物理真题及答案.docx
 Processing file: 物理_docx2/1994年湖北高考物理真题及答案.docx
@@ -466,6 +557,19 @@ Processing file: 物理_docx2/1993年湖南高考物理真题及答案.docx
 完成smartTag移除，文件已保存为 ./物理_docx2/1993年湖南高考物理真题及答案.docx
 Processing file: 物理_docx2/2021年河北省普通高中学业水平选择性考试（河北卷）（解析版）.docx
 完成smartTag移除，文件已保存为 ./物理_docx2/2021年河北省普通高中学业水平选择性考试（河北卷）（解析版）.docx
+Error occurred while executing: python docx_to_json.py --docx_name="物理_docx2/2021年河北省普通高中学业水平选择性考试（河北卷）（解析版）" --json_name="output" --new="off" --latex="on"
+Skipping file: 物理_docx2/2021年河北省普通高中学业水平选择性考试（河北卷）（解析版）.docx
+Last 10 lines of log:
+[[[Situation 3]]]
+Traceback (most recent call last):
+  File "/root/tech_bench/docx_to_json.py", line 1064, in <module>
+    extract_questions_and_answer_from_docx(docx_path, output_json_path)
+  File "/root/tech_bench/docx_to_json.py", line 909, in extract_questions_and_answer_from_docx
+    result = extract_formula_from_picture(run, docx_path, relationships).lstrip("．.、")
+  File "/root/tech_bench/docx_to_json.py", line 470, in extract_formula_from_picture
+    content = json.loads(res.text)['res']['latex']
+KeyError: 'latex'
+Last 10 lines of log:
 Processing file: 物理_docx2/2011年江苏省高考物理试卷解析版.docx
 完成smartTag移除，文件已保存为 ./物理_docx2/2011年江苏省高考物理试卷解析版.docx
 Processing file: 物理_docx2/2007年青海高考理科综合真题及答案.docx
@@ -494,6 +598,19 @@ Processing file: 物理_docx2/2004年陕西高考理科综合真题及答案.doc
 完成smartTag移除，文件已保存为 ./物理_docx2/2004年陕西高考理科综合真题及答案.docx
 Processing file: 物理_docx2/2023年高考物理真题（广东自主命题）（解析版）.docx
 完成smartTag移除，文件已保存为 ./物理_docx2/2023年高考物理真题（广东自主命题）（解析版）.docx
+Error occurred while executing: python docx_to_json.py --docx_name="物理_docx2/2023年高考物理真题（广东自主命题）（解析版）" --json_name="output" --new="off" --latex="on"
+Skipping file: 物理_docx2/2023年高考物理真题（广东自主命题）（解析版）.docx
+Last 10 lines of log:
+other
+Traceback (most recent call last):
+  File "/root/tech_bench/docx_to_json.py", line 1064, in <module>
+    extract_questions_and_answer_from_docx(docx_path, output_json_path)
+  File "/root/tech_bench/docx_to_json.py", line 672, in extract_questions_and_answer_from_docx
+    result = extract_formula_from_picture(run, docx_path, relationships).lstrip("．.、")
+  File "/root/tech_bench/docx_to_json.py", line 470, in extract_formula_from_picture
+    content = json.loads(res.text)['res']['latex']
+KeyError: 'latex'
+Last 10 lines of log:
 Processing file: 物理_docx2/2008高考福建卷理综物理部分(含答案).docx
 完成smartTag移除，文件已保存为 ./物理_docx2/2008高考福建卷理综物理部分(含答案).docx
 Processing file: 物理_docx2/2005年江西高考理科综合真题及答案.docx
@@ -512,6 +629,19 @@ Processing file: 物理_docx2/1991年四川高考物理真题及答案.docx
 完成smartTag移除，文件已保存为 ./物理_docx2/1991年四川高考物理真题及答案.docx
 Processing file: 物理_docx2/2016年高考全国I卷物理试题及答案.docx
 完成smartTag移除，文件已保存为 ./物理_docx2/2016年高考全国I卷物理试题及答案.docx
+Error occurred while executing: python docx_to_json.py --docx_name="物理_docx2/2016年高考全国I卷物理试题及答案" --json_name="output" --new="off" --latex="on"
+Skipping file: 物理_docx2/2016年高考全国I卷物理试题及答案.docx
+Last 10 lines of log:
+[[[Situation 2]]]
+Traceback (most recent call last):
+  File "/root/tech_bench/docx_to_json.py", line 1064, in <module>
+    extract_questions_and_answer_from_docx(docx_path, output_json_path)
+  File "/root/tech_bench/docx_to_json.py", line 824, in extract_questions_and_answer_from_docx
+    result = extract_formula_from_picture(run, docx_path, relationships).lstrip("．.、")
+  File "/root/tech_bench/docx_to_json.py", line 470, in extract_formula_from_picture
+    content = json.loads(res.text)['res']['latex']
+KeyError: 'latex'
+Last 10 lines of log:
 Processing file: 物理_docx2/1994年河南高考物理真题及答案.docx
 完成smartTag移除，文件已保存为 ./物理_docx2/1994年河南高考物理真题及答案.docx
 Processing file: 物理_docx2/2023年高考物理真题（海南自主命题）（解析版）.docx
@@ -658,6 +788,19 @@ Processing file: 物理_docx2/1998年湖南高考物理真题及答案.docx
 完成smartTag移除，文件已保存为 ./物理_docx2/1998年湖南高考物理真题及答案.docx
 Processing file: 物理_docx2/1995年山西高考物理真题及答案.docx
 完成smartTag移除，文件已保存为 ./物理_docx2/1995年山西高考物理真题及答案.docx
+Error occurred while executing: python docx_to_json.py --docx_name="物理_docx2/1995年山西高考物理真题及答案" --json_name="output" --new="off" --latex="on"
+Skipping file: 物理_docx2/1995年山西高考物理真题及答案.docx
+Last 10 lines of log:
+[[[Situation 1]]]
+Traceback (most recent call last):
+  File "/root/tech_bench/docx_to_json.py", line 1064, in <module>
+    extract_questions_and_answer_from_docx(docx_path, output_json_path)
+  File "/root/tech_bench/docx_to_json.py", line 600, in extract_questions_and_answer_from_docx
+    result = extract_formula_from_picture(run, docx_path, relationships).lstrip("．.、")
+  File "/root/tech_bench/docx_to_json.py", line 470, in extract_formula_from_picture
+    content = json.loads(res.text)['res']['latex']
+KeyError: 'latex'
+Last 10 lines of log:
 Processing file: 物理_docx2/2000年湖北高考物理真题及答案.docx
 完成smartTag移除，文件已保存为 ./物理_docx2/2000年湖北高考物理真题及答案.docx
 Processing file: 物理_docx2/1991年内蒙古高考物理真题及答案.docx
@@ -732,6 +875,19 @@ Processing file: 物理_docx2/1996年黑龙江高考物理真题及答案.docx
 完成smartTag移除，文件已保存为 ./物理_docx2/1996年黑龙江高考物理真题及答案.docx
 Processing file: 物理_docx2/2022届江苏省高考物理真题试卷（解析版）.docx
 完成smartTag移除，文件已保存为 ./物理_docx2/2022届江苏省高考物理真题试卷（解析版）.docx
+Error occurred while executing: python docx_to_json.py --docx_name="物理_docx2/2022届江苏省高考物理真题试卷（解析版）" --json_name="output" --new="off" --latex="on"
+Skipping file: 物理_docx2/2022届江苏省高考物理真题试卷（解析版）.docx
+Last 10 lines of log:
+[[[Situation 3]]]
+Traceback (most recent call last):
+  File "/root/tech_bench/docx_to_json.py", line 1064, in <module>
+    extract_questions_and_answer_from_docx(docx_path, output_json_path)
+  File "/root/tech_bench/docx_to_json.py", line 909, in extract_questions_and_answer_from_docx
+    result = extract_formula_from_picture(run, docx_path, relationships).lstrip("．.、")
+  File "/root/tech_bench/docx_to_json.py", line 470, in extract_formula_from_picture
+    content = json.loads(res.text)['res']['latex']
+KeyError: 'latex'
+Last 10 lines of log:
 Processing file: 物理_docx2/2006年山东高考理综真题及答案.docx
 完成smartTag移除，文件已保存为 ./物理_docx2/2006年山东高考理综真题及答案.docx
 Processing file: 物理_docx2/1999年江苏高考物理真题及答案.docx
@@ -750,10 +906,36 @@ Processing file: 物理_docx2/1997年重庆高考物理真题及答案.docx
 完成smartTag移除，文件已保存为 ./物理_docx2/1997年重庆高考物理真题及答案.docx
 Processing file: 物理_docx2/1995年天津高考物理真题及答案.docx
 完成smartTag移除，文件已保存为 ./物理_docx2/1995年天津高考物理真题及答案.docx
+Error occurred while executing: python docx_to_json.py --docx_name="物理_docx2/1995年天津高考物理真题及答案" --json_name="output" --new="off" --latex="on"
+Skipping file: 物理_docx2/1995年天津高考物理真题及答案.docx
+Last 10 lines of log:
+[[[Situation 1]]]
+Traceback (most recent call last):
+  File "/root/tech_bench/docx_to_json.py", line 1064, in <module>
+    extract_questions_and_answer_from_docx(docx_path, output_json_path)
+  File "/root/tech_bench/docx_to_json.py", line 600, in extract_questions_and_answer_from_docx
+    result = extract_formula_from_picture(run, docx_path, relationships).lstrip("．.、")
+  File "/root/tech_bench/docx_to_json.py", line 470, in extract_formula_from_picture
+    content = json.loads(res.text)['res']['latex']
+KeyError: 'latex'
+Last 10 lines of log:
 Processing file: 物理_docx2/2008年高考四川理综物理试题(含答案).docx
 完成smartTag移除，文件已保存为 ./物理_docx2/2008年高考四川理综物理试题(含答案).docx
 Processing file: 物理_docx2/2018年浙江省高考物理【11月】（含解析版）.docx
 完成smartTag移除，文件已保存为 ./物理_docx2/2018年浙江省高考物理【11月】（含解析版）.docx
+Error occurred while executing: python docx_to_json.py --docx_name="物理_docx2/2018年浙江省高考物理【11月】（含解析版）" --json_name="output" --new="off" --latex="on"
+Skipping file: 物理_docx2/2018年浙江省高考物理【11月】（含解析版）.docx
+Last 10 lines of log:
+[[[Situation 2]]]
+Traceback (most recent call last):
+  File "/root/tech_bench/docx_to_json.py", line 1064, in <module>
+    extract_questions_and_answer_from_docx(docx_path, output_json_path)
+  File "/root/tech_bench/docx_to_json.py", line 744, in extract_questions_and_answer_from_docx
+    result = extract_formula_from_picture(run, docx_path, relationships).lstrip("．.、")
+  File "/root/tech_bench/docx_to_json.py", line 470, in extract_formula_from_picture
+    content = json.loads(res.text)['res']['latex']
+KeyError: 'latex'
+Last 10 lines of log:
 Processing file: 物理_docx2/1990年吉林高考物理真题及答案.docx
 完成smartTag移除，文件已保存为 ./物理_docx2/1990年吉林高考物理真题及答案.docx
 Processing file: 物理_docx2/1991年福建高考物理真题及答案.docx
@@ -804,6 +986,19 @@ Processing file: 物理_docx2/2002年安徽高考理科综合真题及答案.doc
 完成smartTag移除，文件已保存为 ./物理_docx2/2002年安徽高考理科综合真题及答案.docx
 Processing file: 物理_docx2/2023年高考物理真题（湖北自主命题）（解析版）.docx
 完成smartTag移除，文件已保存为 ./物理_docx2/2023年高考物理真题（湖北自主命题）（解析版）.docx
+Error occurred while executing: python docx_to_json.py --docx_name="物理_docx2/2023年高考物理真题（湖北自主命题）（解析版）" --json_name="output" --new="off" --latex="on"
+Skipping file: 物理_docx2/2023年高考物理真题（湖北自主命题）（解析版）.docx
+Last 10 lines of log:
+[[[Situation 2]]]
+Traceback (most recent call last):
+  File "/root/tech_bench/docx_to_json.py", line 1064, in <module>
+    extract_questions_and_answer_from_docx(docx_path, output_json_path)
+  File "/root/tech_bench/docx_to_json.py", line 744, in extract_questions_and_answer_from_docx
+    result = extract_formula_from_picture(run, docx_path, relationships).lstrip("．.、")
+  File "/root/tech_bench/docx_to_json.py", line 470, in extract_formula_from_picture
+    content = json.loads(res.text)['res']['latex']
+KeyError: 'latex'
+Last 10 lines of log:
 Processing file: 物理_docx2/2022年新高考天津物理高考真题（缺第2-4题）（解析版）.docx
 完成smartTag移除，文件已保存为 ./物理_docx2/2022年新高考天津物理高考真题（缺第2-4题）（解析版）.docx
 Processing file: 物理_docx2/1994年云南高考物理真题及答案.docx
@@ -816,6 +1011,19 @@ Processing file: 物理_docx2/2003年辽宁高考理综真题及答案.docx
 完成smartTag移除，文件已保存为 ./物理_docx2/2003年辽宁高考理综真题及答案.docx
 Processing file: 物理_docx2/2007年宁夏高考理科综合真题及答案.docx
 完成smartTag移除，文件已保存为 ./物理_docx2/2007年宁夏高考理科综合真题及答案.docx
+Error occurred while executing: python docx_to_json.py --docx_name="物理_docx2/2007年宁夏高考理科综合真题及答案" --json_name="output" --new="off" --latex="on"
+Skipping file: 物理_docx2/2007年宁夏高考理科综合真题及答案.docx
+Last 10 lines of log:
+[[[Situation 2]]]
+Traceback (most recent call last):
+  File "/root/tech_bench/docx_to_json.py", line 1064, in <module>
+    extract_questions_and_answer_from_docx(docx_path, output_json_path)
+  File "/root/tech_bench/docx_to_json.py", line 744, in extract_questions_and_answer_from_docx
+    result = extract_formula_from_picture(run, docx_path, relationships).lstrip("．.、")
+  File "/root/tech_bench/docx_to_json.py", line 470, in extract_formula_from_picture
+    content = json.loads(res.text)['res']['latex']
+KeyError: 'latex'
+Last 10 lines of log:
 Processing file: 物理_docx2/2017年上海市高中毕业统一学业考试物理试卷（答案版）.docx
 完成smartTag移除，文件已保存为 ./物理_docx2/2017年上海市高中毕业统一学业考试物理试卷（答案版）.docx
 Processing file: 物理_docx2/2001年云南高考理综真题及答案.docx
@@ -830,6 +1038,19 @@ Processing file: 物理_docx2/1994年广西高考物理真题及答案.docx
 完成smartTag移除，文件已保存为 ./物理_docx2/1994年广西高考物理真题及答案.docx
 Processing file: 物理_docx2/2023年高考湖南卷物理真题（解析版）.docx
 完成smartTag移除，文件已保存为 ./物理_docx2/2023年高考湖南卷物理真题（解析版）.docx
+Error occurred while executing: python docx_to_json.py --docx_name="物理_docx2/2023年高考湖南卷物理真题（解析版）" --json_name="output" --new="off" --latex="on"
+Skipping file: 物理_docx2/2023年高考湖南卷物理真题（解析版）.docx
+Last 10 lines of log:
+[[[Situation 2]]]
+Traceback (most recent call last):
+  File "/root/tech_bench/docx_to_json.py", line 1064, in <module>
+    extract_questions_and_answer_from_docx(docx_path, output_json_path)
+  File "/root/tech_bench/docx_to_json.py", line 824, in extract_questions_and_answer_from_docx
+    result = extract_formula_from_picture(run, docx_path, relationships).lstrip("．.、")
+  File "/root/tech_bench/docx_to_json.py", line 470, in extract_formula_from_picture
+    content = json.loads(res.text)['res']['latex']
+KeyError: 'latex'
+Last 10 lines of log:
 Processing file: 物理_docx2/2008重庆高考物理试题和答案.docx
 完成smartTag移除，文件已保存为 ./物理_docx2/2008重庆高考物理试题和答案.docx
 Processing file: 物理_docx2/1998年河北高考物理真题及答案.docx
@@ -860,6 +1081,19 @@ Processing file: 物理_docx2/1995年湖北高考物理真题及答案.docx
 完成smartTag移除，文件已保存为 ./物理_docx2/1995年湖北高考物理真题及答案.docx
 Processing file: 物理_docx2/2022年6月选考浙江物理高考真题（解析版）.docx
 完成smartTag移除，文件已保存为 ./物理_docx2/2022年6月选考浙江物理高考真题（解析版）.docx
+Error occurred while executing: python docx_to_json.py --docx_name="物理_docx2/2022年6月选考浙江物理高考真题（解析版）" --json_name="output" --new="off" --latex="on"
+Skipping file: 物理_docx2/2022年6月选考浙江物理高考真题（解析版）.docx
+Last 10 lines of log:
+[[[Situation 2]]]
+Traceback (most recent call last):
+  File "/root/tech_bench/docx_to_json.py", line 1064, in <module>
+    extract_questions_and_answer_from_docx(docx_path, output_json_path)
+  File "/root/tech_bench/docx_to_json.py", line 824, in extract_questions_and_answer_from_docx
+    result = extract_formula_from_picture(run, docx_path, relationships).lstrip("．.、")
+  File "/root/tech_bench/docx_to_json.py", line 470, in extract_formula_from_picture
+    content = json.loads(res.text)['res']['latex']
+KeyError: 'latex'
+Last 10 lines of log:
 Processing file: 物理_docx2/1995年广西高考物理真题及答案.docx
 完成smartTag移除，文件已保存为 ./物理_docx2/1995年广西高考物理真题及答案.docx
 Processing file: 物理_docx2/1996年广西高考物理真题及答案.docx
@@ -936,8 +1170,6 @@ Processing file: 物理_docx2/2001年海南高考理综真题及答案.docx
 完成smartTag移除，文件已保存为 ./物理_docx2/2001年海南高考理综真题及答案.docx
 Processing file: 物理_docx2/1995年四川高考物理真题及答案.docx
 完成smartTag移除，文件已保存为 ./物理_docx2/1995年四川高考物理真题及答案.docx
-Processing file: 物理_docx2/2021年天津市高考物理试卷解析版.docx
-完成smartTag移除，文件已保存为 ./物理_docx2/2021年天津市高考物理试卷解析版.docx
 Processing file: 物理_docx2/2003年山东高考理综真题及答案.docx
 完成smartTag移除，文件已保存为 ./物理_docx2/2003年山东高考理综真题及答案.docx
 Processing file: 物理_docx2/2002年湖北高考理科综合真题及答案.docx
@@ -956,8 +1188,6 @@ Processing file: 物理_docx2/2005年湖北高考理科综合真题及答案.doc
 完成smartTag移除，文件已保存为 ./物理_docx2/2005年湖北高考理科综合真题及答案.docx
 Processing file: 物理_docx2/1999年山东高考物理真题及答案.docx
 完成smartTag移除，文件已保存为 ./物理_docx2/1999年山东高考物理真题及答案.docx
-Processing file: 物理_docx2/2019年高考全国I卷物理试题及答案.docx
-完成smartTag移除，文件已保存为 ./物理_docx2/2019年高考全国I卷物理试题及答案.docx
 Processing file: 物理_docx2/2013高考安徽物理试卷及答案.docx
 完成smartTag移除，文件已保存为 ./物理_docx2/2013高考安徽物理试卷及答案.docx
 Processing file: 物理_docx2/1997年西藏高考物理真题及答案.docx
@@ -1018,6 +1248,19 @@ Processing file: 物理_docx2/2000年江西高考物理真题及答案.docx
 完成smartTag移除，文件已保存为 ./物理_docx2/2000年江西高考物理真题及答案.docx
 Processing file: 物理_docx2/2015年上海市高中毕业统一学业考试物理试卷（答案版）.docx
 完成smartTag移除，文件已保存为 ./物理_docx2/2015年上海市高中毕业统一学业考试物理试卷（答案版）.docx
+Error occurred while executing: python docx_to_json.py --docx_name="物理_docx2/2015年上海市高中毕业统一学业考试物理试卷（答案版）" --json_name="output" --new="off" --latex="on"
+Skipping file: 物理_docx2/2015年上海市高中毕业统一学业考试物理试卷（答案版）.docx
+Last 10 lines of log:
+[[[Situation 3]]]
+Traceback (most recent call last):
+  File "/root/tech_bench/docx_to_json.py", line 1064, in <module>
+    extract_questions_and_answer_from_docx(docx_path, output_json_path)
+  File "/root/tech_bench/docx_to_json.py", line 909, in extract_questions_and_answer_from_docx
+    result = extract_formula_from_picture(run, docx_path, relationships).lstrip("．.、")
+  File "/root/tech_bench/docx_to_json.py", line 470, in extract_formula_from_picture
+    content = json.loads(res.text)['res']['latex']
+KeyError: 'latex'
+Last 10 lines of log:
 Processing file: 物理_docx2/2011年全国统一高考物理试卷（新课标）（含解析版）.docx
 完成smartTag移除，文件已保存为 ./物理_docx2/2011年全国统一高考物理试卷（新课标）（含解析版）.docx
 Processing file: 物理_docx2/2016年江苏省高考物理试卷解析版.docx
@@ -1034,12 +1277,23 @@ Processing file: 物理_docx2/1997年湖南高考物理真题及答案.docx
 完成smartTag移除，文件已保存为 ./物理_docx2/1997年湖南高考物理真题及答案.docx
 Processing file: 物理_docx2/1995年云南高考物理真题及答案.docx
 完成smartTag移除，文件已保存为 ./物理_docx2/1995年云南高考物理真题及答案.docx
+Error occurred while executing: python docx_to_json.py --docx_name="物理_docx2/1995年云南高考物理真题及答案" --json_name="output" --new="off" --latex="on"
+Skipping file: 物理_docx2/1995年云南高考物理真题及答案.docx
+Last 10 lines of log:
+other
+Traceback (most recent call last):
+  File "/root/tech_bench/docx_to_json.py", line 1064, in <module>
+    extract_questions_and_answer_from_docx(docx_path, output_json_path)
+  File "/root/tech_bench/docx_to_json.py", line 635, in extract_questions_and_answer_from_docx
+    result = extract_formula_from_picture(run, docx_path, relationships).lstrip("．.、")
+  File "/root/tech_bench/docx_to_json.py", line 470, in extract_formula_from_picture
+    content = json.loads(res.text)['res']['latex']
+KeyError: 'latex'
+Last 10 lines of log:
 Processing file: 物理_docx2/2001年上海市高中毕业统一学业考试物理试卷（答案版）.docx
 完成smartTag移除，文件已保存为 ./物理_docx2/2001年上海市高中毕业统一学业考试物理试卷（答案版）.docx
 Processing file: 物理_docx2/2002年河南高考物理真题及答案.docx
 完成smartTag移除，文件已保存为 ./物理_docx2/2002年河南高考物理真题及答案.docx
-Processing file: 物理_docx2/2015广东高考物理试卷(及答案).docx
-完成smartTag移除，文件已保存为 ./物理_docx2/2015广东高考物理试卷(及答案).docx
 Processing file: 物理_docx2/1991年广东高考物理真题及答案.docx
 完成smartTag移除，文件已保存为 ./物理_docx2/1991年广东高考物理真题及答案.docx
 Processing file: 物理_docx2/1997年湖北高考物理真题及答案.docx
@@ -1052,6 +1306,19 @@ Processing file: 物理_docx2/2005年湖南高考理科综合真题及答案.doc
 完成smartTag移除，文件已保存为 ./物理_docx2/2005年湖南高考理科综合真题及答案.docx
 Processing file: 物理_docx2/1995年新疆高考物理真题及答案.docx
 完成smartTag移除，文件已保存为 ./物理_docx2/1995年新疆高考物理真题及答案.docx
+Error occurred while executing: python docx_to_json.py --docx_name="物理_docx2/1995年新疆高考物理真题及答案" --json_name="output" --new="off" --latex="on"
+Skipping file: 物理_docx2/1995年新疆高考物理真题及答案.docx
+Last 10 lines of log:
+[[[Situation 1]]]
+Traceback (most recent call last):
+  File "/root/tech_bench/docx_to_json.py", line 1064, in <module>
+    extract_questions_and_answer_from_docx(docx_path, output_json_path)
+  File "/root/tech_bench/docx_to_json.py", line 600, in extract_questions_and_answer_from_docx
+    result = extract_formula_from_picture(run, docx_path, relationships).lstrip("．.、")
+  File "/root/tech_bench/docx_to_json.py", line 470, in extract_formula_from_picture
+    content = json.loads(res.text)['res']['latex']
+KeyError: 'latex'
+Last 10 lines of log:
 Processing file: 物理_docx2/2005年江苏高考物理真题及答案.docx
 完成smartTag移除，文件已保存为 ./物理_docx2/2005年江苏高考物理真题及答案.docx
 Processing file: 物理_docx2/2011年浙江省高考物理（含解析版）.docx
@@ -1108,6 +1375,19 @@ Processing file: 物理_docx2/1998年西藏高考物理真题及答案.docx
 完成smartTag移除，文件已保存为 ./物理_docx2/1998年西藏高考物理真题及答案.docx
 Processing file: 物理_docx2/精品解析：2021年辽宁省普通高中学业水平选择性考试物理试题（辽宁卷）（解析版）(1).docx
 完成smartTag移除，文件已保存为 ./物理_docx2/精品解析：2021年辽宁省普通高中学业水平选择性考试物理试题（辽宁卷）（解析版）(1).docx
+Error occurred while executing: python docx_to_json.py --docx_name="物理_docx2/精品解析：2021年辽宁省普通高中学业水平选择性考试物理试题（辽宁卷）（解析版）(1)" --json_name="output" --new="off" --latex="on"
+Skipping file: 物理_docx2/精品解析：2021年辽宁省普通高中学业水平选择性考试物理试题（辽宁卷）（解析版）(1).docx
+Last 10 lines of log:
+other
+Traceback (most recent call last):
+  File "/root/tech_bench/docx_to_json.py", line 1064, in <module>
+    extract_questions_and_answer_from_docx(docx_path, output_json_path)
+  File "/root/tech_bench/docx_to_json.py", line 672, in extract_questions_and_answer_from_docx
+    result = extract_formula_from_picture(run, docx_path, relationships).lstrip("．.、")
+  File "/root/tech_bench/docx_to_json.py", line 470, in extract_formula_from_picture
+    content = json.loads(res.text)['res']['latex']
+KeyError: 'latex'
+Last 10 lines of log:
 Processing file: 物理_docx2/2007年天津高考理科综合真题及答案.docx
 完成smartTag移除，文件已保存为 ./物理_docx2/2007年天津高考理科综合真题及答案.docx
 Processing file: 物理_docx2/1998年山东高考物理真题及答案.docx
@@ -1130,6 +1410,19 @@ Processing file: 物理_docx2/1997年山东高考物理真题及答案.docx
 完成smartTag移除，文件已保存为 ./物理_docx2/1997年山东高考物理真题及答案.docx
 Processing file: 物理_docx2/2007年吉林高考理科综合真题及答案.docx
 完成smartTag移除，文件已保存为 ./物理_docx2/2007年吉林高考理科综合真题及答案.docx
+Error occurred while executing: python docx_to_json.py --docx_name="物理_docx2/2007年吉林高考理科综合真题及答案" --json_name="output" --new="off" --latex="on"
+Skipping file: 物理_docx2/2007年吉林高考理科综合真题及答案.docx
+Last 10 lines of log:
+other
+Traceback (most recent call last):
+  File "/root/tech_bench/docx_to_json.py", line 1064, in <module>
+    extract_questions_and_answer_from_docx(docx_path, output_json_path)
+  File "/root/tech_bench/docx_to_json.py", line 706, in extract_questions_and_answer_from_docx
+    result = extract_formula_from_picture(run, docx_path, relationships).lstrip("．.、")
+  File "/root/tech_bench/docx_to_json.py", line 470, in extract_formula_from_picture
+    content = json.loads(res.text)['res']['latex']
+KeyError: 'latex'
+Last 10 lines of log:
 Processing file: 物理_docx2/2004年江苏高考物理真题及答案.docx
 完成smartTag移除，文件已保存为 ./物理_docx2/2004年江苏高考物理真题及答案.docx
 Processing file: 物理_docx2/2012广东高考物理试卷(及答案).docx
@@ -1176,8 +1469,6 @@ Processing file: 物理_docx2/2007年江西高考理科综合真题及答案.doc
 完成smartTag移除，文件已保存为 ./物理_docx2/2007年江西高考理科综合真题及答案.docx
 Processing file: 物理_docx2/辽宁2006年高考试题理科综合试题及答案.doc.docx
 完成smartTag移除，文件已保存为 ./物理_docx2/辽宁2006年高考试题理科综合试题及答案.doc.docx
-Processing file: 物理_docx2/2023年高考物理真题（北京自主命题）（解析版）.docx
-完成smartTag移除，文件已保存为 ./物理_docx2/2023年高考物理真题（北京自主命题）（解析版）.docx
 Processing file: 物理_docx2/2012年北京市高考物理试卷（含解析版）.docx
 完成smartTag移除，文件已保存为 ./物理_docx2/2012年北京市高考物理试卷（含解析版）.docx
 Processing file: 物理_docx2/1997年天津高考物理真题及答案.docx
@@ -1302,8 +1593,6 @@ Processing file: 物理_docx2/2005年陕西高考理科综合真题及答案.doc
 完成smartTag移除，文件已保存为 ./物理_docx2/2005年陕西高考理科综合真题及答案.docx
 Processing file: 物理_docx2/1994年河北高考物理真题及答案.docx
 完成smartTag移除，文件已保存为 ./物理_docx2/1994年河北高考物理真题及答案.docx
-Processing file: 物理_docx2/2007年上海高考理科综合能力测试真题及答案.docx
-完成smartTag移除，文件已保存为 ./物理_docx2/2007年上海高考理科综合能力测试真题及答案.docx
 Processing file: 物理_docx2/1991年天津高考物理真题及答案.docx
 完成smartTag移除，文件已保存为 ./物理_docx2/1991年天津高考物理真题及答案.docx
 Processing file: 物理_docx2/2006年高考试题陕西卷理科综合试题及答案.doc.docx
@@ -1366,6 +1655,19 @@ Processing file: 物理_docx2/2005年辽宁高考文理综合真题及答案.doc
 完成smartTag移除，文件已保存为 ./物理_docx2/2005年辽宁高考文理综合真题及答案.docx
 Processing file: 物理_docx2/精品解析：2021年辽宁省普通高中学业水平选择性考试物理试题（辽宁卷）（解析版）.docx
 完成smartTag移除，文件已保存为 ./物理_docx2/精品解析：2021年辽宁省普通高中学业水平选择性考试物理试题（辽宁卷）（解析版）.docx
+Error occurred while executing: python docx_to_json.py --docx_name="物理_docx2/精品解析：2021年辽宁省普通高中学业水平选择性考试物理试题（辽宁卷）（解析版）" --json_name="output" --new="off" --latex="on"
+Skipping file: 物理_docx2/精品解析：2021年辽宁省普通高中学业水平选择性考试物理试题（辽宁卷）（解析版）.docx
+Last 10 lines of log:
+[[[Situation 2]]]
+Traceback (most recent call last):
+  File "/root/tech_bench/docx_to_json.py", line 1064, in <module>
+    extract_questions_and_answer_from_docx(docx_path, output_json_path)
+  File "/root/tech_bench/docx_to_json.py", line 744, in extract_questions_and_answer_from_docx
+    result = extract_formula_from_picture(run, docx_path, relationships).lstrip("．.、")
+  File "/root/tech_bench/docx_to_json.py", line 470, in extract_formula_from_picture
+    content = json.loads(res.text)['res']['latex']
+KeyError: 'latex'
+Last 10 lines of log:
 Processing file: 物理_docx2/2006年贵州高考理综真题及答案.docx
 完成smartTag移除，文件已保存为 ./物理_docx2/2006年贵州高考理综真题及答案.docx
 Processing file: 物理_docx2/2004年广东高考物理真题及答案.docx
@@ -1402,6 +1704,19 @@ Processing file: 物理_docx2/2001年广西高考理综真题及答案.docx
 完成smartTag移除，文件已保存为 ./物理_docx2/2001年广西高考理综真题及答案.docx
 Processing file: 物理_docx2/2016年上海市高中毕业统一学业考试物理试卷（答案版）.docx
 完成smartTag移除，文件已保存为 ./物理_docx2/2016年上海市高中毕业统一学业考试物理试卷（答案版）.docx
+Error occurred while executing: python docx_to_json.py --docx_name="物理_docx2/2016年上海市高中毕业统一学业考试物理试卷（答案版）" --json_name="output" --new="off" --latex="on"
+Skipping file: 物理_docx2/2016年上海市高中毕业统一学业考试物理试卷（答案版）.docx
+Last 10 lines of log:
+other
+Traceback (most recent call last):
+  File "/root/tech_bench/docx_to_json.py", line 1064, in <module>
+    extract_questions_and_answer_from_docx(docx_path, output_json_path)
+  File "/root/tech_bench/docx_to_json.py", line 706, in extract_questions_and_answer_from_docx
+    result = extract_formula_from_picture(run, docx_path, relationships).lstrip("．.、")
+  File "/root/tech_bench/docx_to_json.py", line 470, in extract_formula_from_picture
+    content = json.loads(res.text)['res']['latex']
+KeyError: 'latex'
+Last 10 lines of log:
 Processing file: 物理_docx2/1996年海南高考物理真题及答案.docx
 完成smartTag移除，文件已保存为 ./物理_docx2/1996年海南高考物理真题及答案.docx
 Processing file: 物理_docx2/2005年广西高考理科综合真题及答案.docx
@@ -1482,10 +1797,36 @@ Processing file: 物理_docx2/2000年重庆高考物理真题及答案.docx
 完成smartTag移除，文件已保存为 ./物理_docx2/2000年重庆高考物理真题及答案.docx
 Processing file: 物理_docx2/1995年北京高考物理真题及答案.docx
 完成smartTag移除，文件已保存为 ./物理_docx2/1995年北京高考物理真题及答案.docx
+Error occurred while executing: python docx_to_json.py --docx_name="物理_docx2/1995年北京高考物理真题及答案" --json_name="output" --new="off" --latex="on"
+Skipping file: 物理_docx2/1995年北京高考物理真题及答案.docx
+Last 10 lines of log:
+other
+Traceback (most recent call last):
+  File "/root/tech_bench/docx_to_json.py", line 1064, in <module>
+    extract_questions_and_answer_from_docx(docx_path, output_json_path)
+  File "/root/tech_bench/docx_to_json.py", line 672, in extract_questions_and_answer_from_docx
+    result = extract_formula_from_picture(run, docx_path, relationships).lstrip("．.、")
+  File "/root/tech_bench/docx_to_json.py", line 470, in extract_formula_from_picture
+    content = json.loads(res.text)['res']['latex']
+KeyError: 'latex'
+Last 10 lines of log:
 Processing file: 物理_docx2/2007年河北高考理科综合真题及答案.docx
 完成smartTag移除，文件已保存为 ./物理_docx2/2007年河北高考理科综合真题及答案.docx
 Processing file: 物理_docx2/2022年新高考湖南物理高考真题（解析版）.docx
 完成smartTag移除，文件已保存为 ./物理_docx2/2022年新高考湖南物理高考真题（解析版）.docx
+Error occurred while executing: python docx_to_json.py --docx_name="物理_docx2/2022年新高考湖南物理高考真题（解析版）" --json_name="output" --new="off" --latex="on"
+Skipping file: 物理_docx2/2022年新高考湖南物理高考真题（解析版）.docx
+Last 10 lines of log:
+other
+Traceback (most recent call last):
+  File "/root/tech_bench/docx_to_json.py", line 1064, in <module>
+    extract_questions_and_answer_from_docx(docx_path, output_json_path)
+  File "/root/tech_bench/docx_to_json.py", line 672, in extract_questions_and_answer_from_docx
+    result = extract_formula_from_picture(run, docx_path, relationships).lstrip("．.、")
+  File "/root/tech_bench/docx_to_json.py", line 470, in extract_formula_from_picture
+    content = json.loads(res.text)['res']['latex']
+KeyError: 'latex'
+Last 10 lines of log:
 Processing file: 物理_docx2/2011年全国统一高考物理试卷（全国卷ⅱ）（含解析版）.docx
 完成smartTag移除，文件已保存为 ./物理_docx2/2011年全国统一高考物理试卷（全国卷ⅱ）（含解析版）.docx
 Processing file: 物理_docx2/2023年高考全国乙卷物理真题（解析版）.docx
