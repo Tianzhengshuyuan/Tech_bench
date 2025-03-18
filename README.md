@@ -3,14 +3,14 @@
 ./doc_to_docx.sh /root/test /root/test_docx 
 ```
 
-处理名字中包含特殊字符从而影响解析的问题
-```bash
-./rename.sh
-```
-
 删除名字中包含“A3”的文件夹、名字中包含“原卷”的文件、并把doc转为docx
 ```bash
 ./preprocess.sh gaokao/高考物理真题/1.物理高考真题试卷 ./物理_docx
+```
+
+处理名字中包含特殊字符从而影响解析的问题
+```bash
+./rename.sh
 ```
 
 预处理word文档，删除smartTag，只保留里面的<w:r>
@@ -31,6 +31,15 @@ python remove_smartTag.py  --docx_name=2004年云南高考理科综合真题及�
 使用.sh脚本，执行一个文件夹里的所有文件从.doc到.json的转换
 ```bash
 ./run_all.sh GAOKAO off > log.txt
+```
+
+一个完整的工作流程belike:
+把gaokao文件夹移入tech_bench
+```bash
+./preprocess.sh gaokao/高考物理真题/1.物理高考真题试卷 ./物理_docx
+cp -r 物理_docx 物理_docx2
+./run_all.sh 物理_docx2 off
+python postprocess.py
 ```
 
 待解决的问题：
