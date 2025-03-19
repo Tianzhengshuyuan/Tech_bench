@@ -34,6 +34,41 @@ python remove_smartTag.py  --docx_name=2004年云南高考理科综合真题及�
 ./run_all.sh GAOKAO off > log.txt
 ```
 
+区分理综里的物理、化学、生物题
+1. 使用k_means方法：
+```bash
+python extract_Comprehensive_questions.py
+python k_means.py
+```
+
+2. 使用关键词方法：
+```bash
+python extract_Comprehensive_questions.py
+python key_words.py
+``` 
+
+3. 使用逻辑回归分类器
+```bash
+./preprocess.sh gaokao/高考物理真题/1.物理高考真题试卷 ./物理_docx
+cp -r 物理_docx 物理_docx2
+./run_all.sh 物理_docx2 off
+mv output.json output_phy.json
+./preprocess.sh gaokao/高考化学真题/1.化学高考真题试卷 ./化学_docx
+cp -r 化学_docx 化学_docx2
+./run_all.sh 化学_docx2 off
+mv output.json output_che.json
+./preprocess.sh gaokao/高考生物真题/1.生物高考真题试卷 ./生物_docx
+cp -r 生物_docx 生物_docx2
+./run_all.sh 生物_docx2 off
+mv output.json output_bio.json
+python extract_test_data.py
+
+
+
+4. 使用支持向量机 https://zhuanlan.zhihu.com/p/77750026
+5. 使用朴素贝叶斯方法
+6. 使用bert模型
+
 去除重复的条目，统计ABCD选项、answer的缺失率
 ```bash
 python postprocess.py
@@ -119,6 +154,7 @@ python postprocess.py
     - 在线大语言模型？尝试了gpt-4o、kimi、deepseek，准确性好，但是无法批量处理，只能返回一小部分结果
     - 本地部署开源大语言模型？
     - 聚类？k-means分类完全不准确
+    - 朴素贝叶斯？https://blog.csdn.net/haha0332/article/details/112575122
 
 
 ## 如何处理有图的情况

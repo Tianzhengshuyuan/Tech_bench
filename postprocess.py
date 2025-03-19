@@ -1,7 +1,7 @@
 import json
 
 # 加载 JSON 文件
-with open("output.json", "r", encoding="utf-8") as file:
+with open("output_phy.json", "r", encoding="utf-8") as file:
     data = json.load(file)
 
 # 去重逻辑
@@ -17,7 +17,7 @@ for entry in data:
         unique_entries.append(entry)
 
 # 将去重后的数据保存到新文件
-with open("output_deduplicated.json", "w", encoding="utf-8") as file:
+with open("phy_deduplicated.json", "w", encoding="utf-8") as file:
     json.dump(unique_entries, file, ensure_ascii=False, indent=4)
         
         
