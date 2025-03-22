@@ -1,7 +1,7 @@
 import json
 
 # 加载 JSON 文件
-with open("output_phy.json", "r", encoding="utf-8") as file:
+with open("output.json", "r", encoding="utf-8") as file:
     data = json.load(file)
 
 # 去重逻辑
@@ -17,7 +17,7 @@ for entry in data:
         unique_entries.append(entry)
 
 # 将去重后的数据保存到新文件
-with open("phy_deduplicated.json", "w", encoding="utf-8") as file:
+with open("output_deduplicated.json", "w", encoding="utf-8") as file:
     json.dump(unique_entries, file, ensure_ascii=False, indent=4)
         
         
@@ -42,8 +42,8 @@ for entry in unique_entries:
     for key in key_to_check1:
         if entry[key] == "" or entry[key].strip() == "":
             empty_ABCD_count += 1
-            empty_value_count += 1
             empty_ABCD.append(entry)
+            empty_value_count += 1
             already_count = 1
             break  # 只计一次，跳出当前条目的检查
  

@@ -3,6 +3,122 @@
 ```bash
 ./doc_to_docx.sh /root/test /root/test_docx 
 ```
+在linux中使用soffice把doc转为docx会丢失wmf形式的公式，改为在windows中使用word文档的vba自动将.doc转为.docx：
+1. Alt+F11打开vba
+2. 复制代码如下，进行批量处理
+```vba
+Sub BatchDocToDocxRecursiveWithDocxCopy()
+    Dim inputFolderPath As String
+    Dim outputFolderPath As String
+    Dim logFilePath As String
+
+    ' 选择包含 .doc 文件的输入文件夹
+    With Application.FileDialog(msoFileDialogFolderPicker)
+        .Title = "选择包含 DOC 文件的文件夹"
+        If .Show = -1 Then
+            inputFolderPath = .SelectedItems(1) & "\"
+        Else
+            Exit Sub
+        End If
+    End With
+
+    ' 选择保存转换后文件的输出文件夹
+    With Application.FileDialog(msoFileDialogFolderPicker)
+        .Title = "选择保存 DOCX 文件的文件夹"
+        If .Show = -1 Then
+            outputFolderPath = .SelectedItems(1) & "\"
+        Else
+            Exit Sub
+        End If
+    End With
+
+    ' 日志文件路径
+    logFilePath = outputFolderPath & "ErrorLog.txt"
+
+    ' 调用递归函数处理文件夹
+    ProcessFolderWithDocxCopy inputFolderPath, outputFolderPath, logFilePath
+
+    MsgBox "批量处理完成！", vbInformation
+End Sub
+
+Sub ProcessFolderWithDocxCopy(ByVal inputFolder As String, ByVal outputFolder As String, ByVal logFile As String)
+    Dim fileName As String
+    Dim doc As Document
+    Dim fso As Object
+    Dim folderItem As Object
+    Dim logText As String
+
+    ' 创建输出文件夹（如果不存在）
+    If Dir(outputFolder, vbDirectory) = "" Then
+        MkDir outputFolder
+    End If
+
+    ' 遍历当前文件夹中的所有文件
+    fileName = Dir(inputFolder & "*.*")
+    Do While fileName <> ""
+        On Error Resume Next ' 开始错误捕捉
+        If InStr(fileName, ".docx") > 0 Then
+            ' 如果是 .docx 文件，直接复制到输出文件夹
+            FileCopy inputFolder & fileName, outputFolder & fileName
+            If Err.Number <> 0 Then
+                ' 如果复制失败，记录到日志
+                logText = "复制失败: " & inputFolder & fileName & " 错误代码: " & Err.Number & " 描述: " & Err.Description & vbCrLf
+                AppendToLog logFile, logText
+                Err.Clear
+            End If
+        ElseIf InStr(fileName, ".doc") > 0 Then
+            ' 如果是 .doc 文件，打开并转换为 .docx
+            Set doc = Documents.Open(inputFolder & fileName)
+            If Err.Number <> 0 Then
+                ' 如果打开失败，记录到日志
+                logText = "打开失败: " & inputFolder & fileName & " 错误代码: " & Err.Number & " 描述: " & Err.Description & vbCrLf
+                AppendToLog logFile, logText
+                Err.Clear
+            Else
+                doc.SaveAs2 outputFolder & Replace(fileName, ".doc", ".docx"), wdFormatXMLDocument
+                If Err.Number <> 0 Then
+                    ' 如果保存失败，记录到日志
+                    logText = "保存失败: " & inputFolder & fileName & " 错误代码: " & Err.Number & " 描述: " & Err.Description & vbCrLf
+                    AppendToLog logFile, logText
+                    Err.Clear
+                End If
+                doc.Close
+            End If
+        End If
+        On Error GoTo 0 ' 关闭错误捕捉
+        fileName = Dir
+    Loop
+
+    ' 遍历子文件夹
+    Set fso = CreateObject("Scripting.FileSystemObject")
+    For Each folderItem In fso.GetFolder(inputFolder).SubFolders
+        ' 递归调用子文件夹
+        ProcessFolderWithDocxCopy folderItem.Path & "\", outputFolder & folderItem.Name & "\", logFile
+    Next
+End Sub
+
+Sub AppendToLog(ByVal logFile As String, ByVal logText As String)
+    Dim logFileNumber As Integer
+
+    ' 打开日志文件（如果不存在则创建）
+    logFileNumber = FreeFile
+    Open logFile For Append As #logFileNumber
+    Print #logFileNumber, logText
+    Close #logFileNumber
+End Sub
+```
+下面的文档无法转换（手动另存为也不行，因此放弃）：
+2001年上海高考理综真题及答案
+2001年天津高考理科真题及答案
+2003年河北高考理综真题及答案
+2004年浙江高考理科综合真题及答案
+2001年上海高考理综真题及答案
+2001年天津高考理科真题及答案
+2005年江苏高考物理真题及答案
+2003年河北高考理综真题及答案
+2004年浙江高考理科综合真题及答案
+2009年浙江省高考物理（含解析版）
+2010年高考福建理综物理试题(含答案)
 
 删除名字中包含“A3”的文件夹、名字中包含“原卷”的文件、并把doc转为docx
 ```bash
@@ -47,7 +163,7 @@ python extract_Comprehensive_questions.py
 python key_words.py
 ``` 
 
-3. 使用逻辑回归分类器
+3. 使用逻辑回归分类器——准确率:0.9611764705882353
 ```bash
 ./preprocess.sh gaokao/高考物理真题/1.物理高考真题试卷 ./物理_docx
 cp -r 物理_docx 物理_docx2
@@ -62,12 +178,24 @@ cp -r 生物_docx 生物_docx2
 ./run_all.sh 生物_docx2 off
 mv output.json output_bio.json
 python extract_test_data.py
+python extract_Comprehensive_questions.py
+python ml_classifier.py logistic
+```
 
+4. 使用支持向量机——准确率：0.9705882352941176
+```bash
+python ml_classifier.py svm
+```
 
+5. 使用朴素贝叶斯方法——准确率：0.9705882352941176
+```bash
+python ml_classifier.py naive_bayes
+```
 
-4. 使用支持向量机 https://zhuanlan.zhihu.com/p/77750026
-5. 使用朴素贝叶斯方法
-6. 使用bert模型
+6. 使用bert模型——准确率：0.9764705882352941 时间：40分钟
+```bash
+python bert_classifier.py
+```
 
 去除重复的条目，统计ABCD选项、answer的缺失率
 ```bash
@@ -75,10 +203,12 @@ python postprocess.py
 ```
 
 ## 一个完整的工作流程belike:
-把gaokao文件夹移入tech_bench
+在windows中完成doc->docx的转换，传到linux
 ```bash
-./preprocess.sh gaokao/高考物理真题/1.物理高考真题试卷 ./物理_docx
-cp -r 物理_docx 物理_docx2
+rsync -av --progress --partial -e "ssh"  /mnt/c/Tech_bench/docx root@192.168.2.65:~/tech_bench/物理_docx
+```
+```bash
+./preprocess.sh ./物理_docx ./物理_docx2
 ./run_all.sh 物理_docx2 off
 python postprocess.py
 ```
@@ -125,7 +255,7 @@ python postprocess.py
 （2011年浙江省高考物理（含解析版））
 （2017年浙江省高考物理【4月】（含解析版））
 ![答案15](./images/答案15.png)（2014年上海市高中毕业统一学业考试物理试卷（word解析版））
-![答案16](./images/答案16.png)（2006年四川高考理综真题及答案）——两种答案形式
+![答案16](./images/答案16.png)（2006年四川高考理综真题及答案）（2007年宁夏高考理科综合真题及答案）——两种答案形式
 ![答案18](./images/答案18.png)（2017年浙江省高考物理【11月】（含解析版）——图片形式的答案
 （2018年浙江省高考物理【11月】（含解析版））（2016年浙江省高考物理【4月】）
 ![答案19](./images/答案19.png)（2010年浙江省高考物理（含解析版））（2008年浙江省高考物理（含解析版）
@@ -139,6 +269,8 @@ python postprocess.py
 ![答案28](./images/答案28.png)（2015高考福建卷理综物理部分(含答案)）
 ![答案29](./images/答案29.png)（2013年高考四川理综物理）
 ![答案30](./images/答案30.png)（2020年上海市高中毕业统一学业考试物理试卷（word解析版））
+![答案31](./images/答案31.png)（2007年上海高考理科综合能力测试真题及答案）
+
 - 没有冒号的“故选”——是否需要处理，加上之后可能影响其他答案识别？
 ![答案8](./images/答案8.png) （2012高考福建卷理综物理部分(含答案)）
 ![答案9](./images/答案9.png) （2011年高考贵州理综物理试卷(含答案)）
@@ -156,7 +288,6 @@ python postprocess.py
     - 聚类？k-means分类完全不准确
     - 朴素贝叶斯？https://blog.csdn.net/haha0332/article/details/112575122
 
-
 ## 如何处理有图的情况
 -图片无法使用脚本提取，因为是根据位置决定和哪一道题绑定在一起，可能会被绑定到相邻的题目里
 -rId和image的对应关系在\word\_rels\document.xml.rels中
@@ -164,7 +295,62 @@ python postprocess.py
 ![图片1](./images/图片1.png)
 2. 前半部分题目、图片、后半部分题目在三个连续的<w:p>里（2002年陕西高考理科综合真题及答案第14题）
 ![图片2](./images/图片2.png)
+3. 17题的图混在16题里，16题题目是一个段落，17题的图和16提的选项是一个段落
+   18题的图混在17题里，17题题目是一个段落，18题的图和17题的选项是一个段落
+   19题没有出现“图”关键词，但有图
+   20题的图和19题的C在一个段落
 
+## 动态生成问题
+可以考虑动态生成的题目：
+数字的替换
+```bash
+    {
+        "question": "4.若元素A的半衰期为4天，元素B的半衰期为5天，则相同质量的A和B，经过20天后，剩下的质量　之比m_A:m_B=(　　　)\n　",
+        "A": "30:31",
+        "B": "31:30",
+        "C": "1:2",
+        "D": "2:1",
+        "index": "4",
+        "answer": "C",
+        "exam": "1993年重庆高考物理"
+    },
+    {
+        "question": "2．（6分）为了探测引力波，“天琴计划” 预计发射地球卫星P，其轨道半径约为地球半径的16倍；另一地球卫星Q的轨道半径约为地球半径的4倍。P与Q的周期之比约为（　　）\n",
+        "A": "2：1",
+        "B": "4：1",
+        "C": "8：1",
+        "D": "16：1",
+        "index": "2",
+        "answer": "C",
+        "exam": "2018年全国统一高考物理试卷（新课标ⅲ）"
+    },
+```
+温度标志着物体内大量[可选]的剧烈程度
+```bash
+    {
+        "question": "3．（6分）下列说法正确的是（　　）\n",
+        "A": "温度标志着物体内大量分子热运动的剧烈程度",
+        "B": "内能是物体中所有分子热运动所具有的动能的总和",
+        "C": "气体压强仅与气体分子的平均动能有关",
+        "D": "气体膨胀对外做功且温度降低，分子的平均动能可能不变",
+        "index": "3",
+        "answer": "A",
+        "exam": "2019年北京市高考物理试卷"
+    },
+```
+前面的描述语言可以化成最新的新闻
+```bash
+    {
+        "question": "6．（6分）2019年5月17日，我国成功发射第45颗北斗导航卫星，该卫星属于地球静止轨道卫星（同步卫星）。该卫星（　　）\n",
+        "A": "入轨后可以位于北京正上方",
+        "B": "入轨后的速度大于第一宇宙速度",
+        "C": "发射速度大于第二宇宙速度",
+        "D": "若发射到近地圆轨道所需能量较少",
+        "index": "6",
+        "answer": "D",
+        "exam": "2019年北京市高考物理试卷"
+    },
+```
 
 # 无法解决的问题：
 1. Simpletex无法正确识别λ，尝试裁剪图片只保留公式部分，但并没有用
@@ -173,5 +359,7 @@ python postprocess.py
 ![识别结果](./images/wrong_lamda.png)
 2. 题号和A.不是文本，而是自动生成的
 ![word文档内容](./images/auto.png)（2023年高考物理真题（北京自主命题）（解析版））（2015广东高考物理试卷(及答案)）
-3. 文件叫解析版实际没有答案（2021年天津市高考物理试卷解析版）
+3. 文件叫解析版实际没有答案（2021年天津市高考物理试卷解析版）（2005年广西高考理科综合真题及答案）
 4. 试卷和答案题号不对应（2019年高考全国I卷物理试题及答案）
+5. 使用这个下箭头的换行不会被解析为两个段落
+![问题1](./images/问题1.png)

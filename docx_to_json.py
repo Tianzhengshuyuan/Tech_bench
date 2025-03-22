@@ -55,7 +55,6 @@ def delete_irrelevant(full_text):
     """
     # 删除内容：“原子量：H1   O16   Mg24    Al27    Cl 35.5    Ca40  Fe56    Zn 65”，从而防止干扰
     full_text = re.sub(r"原子量.*?\n", "\n", full_text, flags=re.DOTALL)
-    print(full_text)
     # 如果 full_text 中出现 "第Ⅱ卷"，删除其后的内容，只保留选择题
     match = re.search(r"(?<![\u4e00-\u9fff,，。])第Ⅱ卷", full_text)
     if match:
@@ -442,8 +441,8 @@ def extract_formula_from_picture(run, dotx_path, relationships):
     """
     run_xml = run.element  # 获取当前运行对象的 XML 元素
     # print(run_xml.xml)
-
     if "<w:object" in run_xml.xml and args.latex == "on":
+        print("args.latex is: "+args.latex)
         # 解析 XML 内容
         root = etree.fromstring(run_xml.xml)
         
@@ -460,6 +459,7 @@ def extract_formula_from_picture(run, dotx_path, relationships):
                     file_path = f"./png_images/{rId}.png"
                     if img:
                         # 使用 SimpleTex 的 API 识别公式
+                        print("simpletex")
                         SIMPLETEX_UAT="x97YHMaxT4hl1kbcvKkAHbQqZGR0HDL0rBAZfmqScLusUcO74sXCCOIsNfqO3PgM"
                         # api_url="https://server.simpletex.cn/api/latex_ocr"  # 标准模型接口地址
                         api_url="https://server.simpletex.cn/api/latex_ocr_turbo"  # 轻量级模型接口地址
@@ -467,6 +467,7 @@ def extract_formula_from_picture(run, dotx_path, relationships):
                         header={ "token": SIMPLETEX_UAT } # 鉴权信息，此处使用UAT方式
                         file=[("file",(file_path,open(file_path, 'rb')))] # 请求文件,字段名一般为file
                         res = requests.post(api_url, files=file, data=data, headers=header) # 使用requests库上传文件
+                        print(res)
                         content = json.loads(res.text)['res']['latex']
                         return content
                     else:
@@ -524,7 +525,6 @@ def extract_questions_and_answer_from_docx(docx_path, output_json_path):
     # 删除文档中影响选择题识别的干扰内容
     original_text = full_text
     full_text = delete_irrelevant(full_text)
-    # print(full_text)
     
     # 提取选择题内容
     questions = []
@@ -1035,9 +1035,6 @@ def extract_questions_and_answer_from_docx(docx_path, output_json_path):
             
         # 添加识别到的问题
         questions.append(question_data)
-    
-    for question in questions:
-        print(question)
         
     clean_options(questions)   
      
@@ -1060,7 +1057,7 @@ if __name__ == "__main__":
     args = parser.parse_args()
     
     docx_path = f"./{args.docx_name}.docx"  
-    output_json_path = f"./{args.json_name}.json"     
+    output_json_path = f"./{args.json_name}.json"  
     extract_questions_and_answer_from_docx(docx_path, output_json_path)
     print(f"完成.json生成，文件已保存到 {args.json_name}.json")
     
