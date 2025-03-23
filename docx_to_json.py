@@ -220,15 +220,12 @@ def find_answer(doc, questions, text):
                     answer_found = 1  # 标记找到答案
                     # 拼接从当前段落向前的所有文本
                     combined_text = "\n".join([p.text.strip() for p in doc.paragraphs[:idx+1]])
-                    print("combined_text is: "+combined_text)
                     # 查找所有匹配项，从后向前寻找最近的匹配
                     matches = list(question_pattern.finditer(combined_text))
                     if matches:
                         # 获取最后一个匹配项（离“故选：”最近的匹配）
                         question_match = matches[-1]
-                        print("question_match is: "+question_match.group(1))
                         number = (re.match(r'^(\d+)[．.、]', question_match.group(1))).group(1)
-                        print("number is: "+ number)
                         for question_data in questions:
                             if question_data.get("index") == number and not question_data.get("answer"):
                                 question_data["answer"] = answer
@@ -237,9 +234,7 @@ def find_answer(doc, questions, text):
     # 匹配题目后紧跟着【答案】
     if answer_found == 0:
         for idx, paragraph in enumerate(doc.paragraphs):
-            print("pr: "+repr(paragraph.text))
             if re.match(r'【答案】\s*([A-D]+)', paragraph.text.strip()):
-                print("match")
                 # 提取答案内容
                 answer_match = re.match(r'【答案】\s*([A-D]+)', paragraph.text.strip())
                 if answer_match:
@@ -247,7 +242,6 @@ def find_answer(doc, questions, text):
                     answer_found = 1  # 标记找到答案   
                     # 拼接从当前段落向前的所有文本
                     combined_text = "\n".join([p.text.strip() for p in doc.paragraphs[:idx+1]])
-                    print("combined_text is: "+combined_text)           
                     # 查找所有匹配项，从后向前寻找最近的匹配
                     matches = list(question_pattern.finditer(combined_text))
                     if matches:
@@ -299,7 +293,6 @@ def clean_question(question_data):
     """
     # 检查每个 question 条目，删除从某数字到下一个数字的内容
     question_text = question_data.get("question", "")
-    print("question_text is: "+repr(question_text))
     # 匹配类似 "数字." 的模式
     current_match = re.match(r'^(\d+)[．.、]', question_text)
     next_match = re.search(r'\n(\d+)[．.、]', question_text)
@@ -442,7 +435,6 @@ def extract_formula_from_picture(run, dotx_path, relationships):
     run_xml = run.element  # 获取当前运行对象的 XML 元素
     # print(run_xml.xml)
     if "<w:object" in run_xml.xml and args.latex == "on":
-        print("args.latex is: "+args.latex)
         # 解析 XML 内容
         root = etree.fromstring(run_xml.xml)
         
@@ -459,7 +451,6 @@ def extract_formula_from_picture(run, dotx_path, relationships):
                     file_path = f"./png_images/{rId}.png"
                     if img:
                         # 使用 SimpleTex 的 API 识别公式
-                        print("simpletex")
                         SIMPLETEX_UAT="x97YHMaxT4hl1kbcvKkAHbQqZGR0HDL0rBAZfmqScLusUcO74sXCCOIsNfqO3PgM"
                         # api_url="https://server.simpletex.cn/api/latex_ocr"  # 标准模型接口地址
                         api_url="https://server.simpletex.cn/api/latex_ocr_turbo"  # 轻量级模型接口地址
@@ -467,7 +458,6 @@ def extract_formula_from_picture(run, dotx_path, relationships):
                         header={ "token": SIMPLETEX_UAT } # 鉴权信息，此处使用UAT方式
                         file=[("file",(file_path,open(file_path, 'rb')))] # 请求文件,字段名一般为file
                         res = requests.post(api_url, files=file, data=data, headers=header) # 使用requests库上传文件
-                        print(res)
                         content = json.loads(res.text)['res']['latex']
                         return content
                     else:
@@ -635,17 +625,14 @@ def extract_questions_and_answer_from_docx(docx_path, output_json_path):
                             result = extract_formula_from_picture(run, docx_path, relationships).lstrip("．.、")
 
                         if re.search(r"\(B\)|（B）", result) and option_count == 1:
-                            print("(B)")
                             option_count+=1
                             if len(result) > 3:
                                 results_B += result[3:]
                         elif re.search(r"[BＢ]", result) and option_count == 1:
-                            print("B")
                             option_count+=1
                             if len(result) > 2:
                                 results_B += result[2:]
                         elif option_count==2:
-                            print("other")
                             results_B += result
                     minus = 0
                     for i,run in enumerate(option_paragraph3.runs):
@@ -743,7 +730,8 @@ def extract_questions_and_answer_from_docx(docx_path, output_json_path):
                         else: #不是文本就需要处理图像
                             result = extract_formula_from_picture(run, docx_path, relationships).lstrip("．.、")
 
-                        if result.strip().startswith(("A","Ａ")) or result.strip().startswith(("B","Ｂ")):
+                        if (result.strip().startswith(("A","Ａ")) and option_count == 0) or \
+                           (result.strip().startswith(("B","Ｂ")) and option_count == 1):
                             if re.search(r"[AＡ]", result) and re.search(r"[BＢ]", result): #考虑：“A. 一直变小 B. 一直变大”
                                 # 定义正则表达式匹配整个模式
                                 pattern = r"[AＡ][．.](.*?)[BＢ][．.](.*)"
@@ -755,8 +743,9 @@ def extract_questions_and_answer_from_docx(docx_path, output_json_path):
                                 if match_option:
                                     results_A = match_option.group(1).strip()  # A. 和 B. 之间的内容
                                     results_B = match_option.group(2).strip()  # B. 后面的内容
+                                    option_count += 2
                             else:
-                                option_count+=1
+                                option_count += 1
                                 if len(result.strip()) > 2:
                                     if option_count==1:
                                         results_A += result.strip()[2:]
@@ -782,13 +771,13 @@ def extract_questions_and_answer_from_docx(docx_path, output_json_path):
                                     else:
                                         results_B += result.strip()[3:]
                         else:
-                            if result.endswith(("A","Ａ", "B","Ｂ")): #可能遇到 <w:t>＝25cm/s，向左传播         B．</w:t>
+                            if result.endswith(("A","Ａ", "B","Ｂ")) and len(result.strip()) > 1: #可能遇到 <w:t>＝25cm/s，向左传播         B．</w:t>
                                 if option_count==1:
                                     results_A += result[:-1]
                                 elif option_count==2:
                                     results_B += result[:-1]  
                                 option_count += 1
-                            elif result.endswith(("A.","Ａ.", "B.", "Ｂ.", "A．","Ａ．", "B．", "Ｂ．")):
+                            elif result.endswith(("A.","Ａ.", "B.", "Ｂ.", "A．","Ａ．", "B．", "Ｂ．")) and len(result.strip()) > 2:
                                 if option_count==1:
                                     results_A += result[:-2]
                                 elif option_count==2:
@@ -823,9 +812,9 @@ def extract_questions_and_answer_from_docx(docx_path, output_json_path):
                         else: #不是文本就需要处理图像
                             result = extract_formula_from_picture(run, docx_path, relationships).lstrip("．.、")
 
-                        if result.strip().startswith(("C","Ｃ")) or result.strip().startswith(("D", "Ｄ")):
+                        if (result.strip().startswith(("C","Ｃ")) and option_count == 2) or \
+                           (result.strip().startswith(("D","Ｄ")) and option_count == 3):
                             if re.search(r"[CＣ]", result) and re.search(r"[DＤ]", result): #考虑：“C. 先变小后变大 D. 先变大后变小”
-                                # print("C and D")
                                 # 定义正则表达式匹配整个模式
                                 pattern = r"[CＣ][．.](.*?)[DＤ][．.](.*)"
 
@@ -836,6 +825,7 @@ def extract_questions_and_answer_from_docx(docx_path, output_json_path):
                                 if match_option:
                                     results_C = match_option.group(1).strip()  # C. 和 D. 之间的内容
                                     results_D = match_option.group(2).strip()  # D. 后面的内容
+                                    option_count += 2
                             else:
                                 option_count+=1
                                 if len(result.strip()) > 2:
@@ -845,7 +835,6 @@ def extract_questions_and_answer_from_docx(docx_path, output_json_path):
                                         results_D += result.strip()[2:]
                         elif result.strip().startswith(("(C)","（C）")) or result.strip().startswith(("(D)", "（D）")):
                             if re.search(r"\(C\)|（C）", result) and re.search(r"\(D\)|（D）", result): #考虑：“C. 先变小后变大 D. 先变大后变小”
-                                # print("C and D")
                                 # 定义正则表达式匹配整个模式
                                 pattern = r"(?:\(C\)|（C）)(.*?)(?:\(D\)|（D）)(.*)"
 
@@ -864,13 +853,13 @@ def extract_questions_and_answer_from_docx(docx_path, output_json_path):
                                     else:
                                         results_D += result.strip()[3:]
                         else:
-                            if result.endswith(("C", "Ｃ", "D")): 
+                            if result.endswith(("C", "Ｃ", "D", "Ｄ")) and len(result.strip()) > 1: 
                                 if option_count==3:
                                     results_C += result[:-1]
                                 elif option_count==4:
                                     results_D += result[:-1]  
                                 option_count += 1
-                            elif result.endswith(("C.","Ｃ.", "D.","Ｄ.", "C．","Ｃ．", "D．","Ｄ．")):
+                            elif result.endswith(("C.","Ｃ.", "D.","Ｄ.", "C．","Ｃ．", "D．","Ｄ．")) and len(result.strip()) > 2:
                                 if option_count==3:
                                     results_C += result[:-2]
                                 elif option_count==4:
@@ -925,7 +914,6 @@ def extract_questions_and_answer_from_docx(docx_path, output_json_path):
                                     results_D = match_option.group(4).strip()  # D. 后面的内容
                             elif re.search(r"\(A\)|（A）", result) and re.search(r"\(B\)|（B）", result):
                                 # 定义正则表达式匹配整个模式
-                                print("A and B")
                                 pattern = r"(?:\(A\)|（A）)(.*?)(?:\(B\)|（B）)(.*)"
 
                                 # 使用 re.search 寻找第一次匹配
@@ -934,8 +922,6 @@ def extract_questions_and_answer_from_docx(docx_path, output_json_path):
                                 if match_option:
                                     results_A = match_option.group(1).strip()  # A. 和 B. 之间的内容
                                     results_B = match_option.group(2).strip()  # B. 和 C. 之间的内容
-                                    print("resultA: "+results_A)
-                                    print("resultB: "+results_B)
                                 option_count = 2
                             elif re.search(r"\(B\)|（B）", result) and re.search(r"\(C\)|（C）", result):
                                 # 定义正则表达式匹配整个模式
@@ -971,8 +957,10 @@ def extract_questions_and_answer_from_docx(docx_path, output_json_path):
                                         results_C += result.strip()[3:]
                                     else:
                                         results_D += result.strip()[3:]   
-                        elif re.search(r"(^|[^a-zA-Z])[AＡ]([^a-zA-Z]|$)", result) or re.search(r"(^|[^a-zA-Z])[BＢ]([^a-zA-Z]|$)", result) or re.search(r"(^|[^a-zA-Z])[CＣ]([^a-zA-Z]|$)", result) or re.search(r"(^|[^a-zA-Z])[DＤ]([^a-zA-Z]|$)", result):
+                        elif re.search(r"(^|[^a-zA-Z])[AＡ]([^a-zA-Z0-9_]|$)", result) or re.search(r"(^|[^a-zA-Z])[BＢ]([^a-zA-Z0-9_]|$)", result) or re.search(r"(^|[^a-zA-Z])[CＣ]([^a-zA-Z0-9_]|$)", result) or re.search(r"(^|[^a-zA-Z])[DＤ]([^a-zA-Z0-9_]|$)", result):
                             #全是文本，一整行被解析成一个run
+                            print("A or B or C or D")
+                            print(result)
                             if re.search(r"[AＡ]", result) and re.search(r"[BＢ]", result) and re.search(r"[CＣ]", result) and re.search(r"[DＤ]", result):
                                 # 定义正则表达式匹配整个模式
                                 pattern = r"[AＡ][．.](.*?)[BＢ][．.](.*?)[CＣ][．.](.*?)[DＤ][．.](.*)"

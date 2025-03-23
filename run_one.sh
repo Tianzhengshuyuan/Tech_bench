@@ -12,5 +12,5 @@ if [ -z "$DOCX_NAME" ] || [ -z "$LATEX_OPTION" ]; then
 fi
 
 # 执行命令
-python remove_smartTag.py --docx_name="物理_docx/$DOCX_NAME"
-python docx_to_json.py --docx_name="物理_docx/$DOCX_NAME" --json_name="json/$DOCX_NAME" --new="on" --latex="$LATEX_OPTION"
+python remove_smartTag.py --docx_name="物理_docx2/$DOCX_NAME"
+python docx_to_json.py --docx_name="物理_docx2/$DOCX_NAME" --json_name="json/$DOCX_NAME" --new="on" --latex="$LATEX_OPTION"
