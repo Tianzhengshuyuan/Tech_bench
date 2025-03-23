@@ -18,6 +18,8 @@ find "$DIR_NAME" -type f ! -name '*答案*' ! -name '*解析*' -exec rm -f {} +
 # 将所有剩下的文件复制到目标文件夹（平铺，无目录结构）
 find "$DIR_NAME" -type f -exec cp {} "$OUTPUT_DIR_NAME" \;
 
+./rename.sh
+
 echo "文件处理完成，所有文件已复制到 $OUTPUT_DIR_NAME 中。"
 
 

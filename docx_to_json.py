@@ -534,7 +534,7 @@ def extract_questions_and_answer_from_docx(docx_path, output_json_path):
             if paragraph.text.startswith(question_data["question"][:10].strip()):
                 #找到option_paragraph的真正起点
                 start_1 = 1
-                for j in range(1,10):
+                for j in range(1,len(doc.paragraphs)-i):
                     if doc.paragraphs[i+j].text.replace(" ", "").replace("\t", "").startswith(("A","Ａ","(A)","（A）")):
                         start_1 = i+j
                         break
@@ -734,7 +734,7 @@ def extract_questions_and_answer_from_docx(docx_path, output_json_path):
                            (result.strip().startswith(("B","Ｂ")) and option_count == 1):
                             if re.search(r"[AＡ]", result) and re.search(r"[BＢ]", result): #考虑：“A. 一直变小 B. 一直变大”
                                 # 定义正则表达式匹配整个模式
-                                pattern = r"[AＡ][．.](.*?)[BＢ][．.](.*)"
+                                pattern = r"[AＡ][．.、\s](.*?)[BＢ][．.、\s](.*)"
 
                                 # 使用 re.search 寻找第一次匹配
                                 match_option = re.search(pattern, result)
@@ -752,8 +752,10 @@ def extract_questions_and_answer_from_docx(docx_path, output_json_path):
                                     else:
                                         results_B += result.strip()[2:]
                         elif result.strip().startswith(("(A)","（A）")) or result.strip().startswith(("(B)","（B）")):
-                            if re.search(r"(A)|（A）", result) and re.search(r"(B)|（B）", result): #考虑：“A. 一直变小 B. 一直变大”
+                            print(result)
+                            if re.search(r"\(A\)|（A）", result) and re.search(r"\(B\)|（B）", result): #考虑：“A. 一直变小 B. 一直变大”
                                 # 定义正则表达式匹配整个模式
+                                print("A and B")
                                 pattern = r"(?:\(A\)|（A）)(.*?)(?:\(B\)|（B）)(.*)"
 
                                 # 使用 re.search 寻找第一次匹配
@@ -783,6 +785,12 @@ def extract_questions_and_answer_from_docx(docx_path, output_json_path):
                                 elif option_count==2:
                                     results_B += result[:-2]                               
                                 option_count += 1
+                            elif result.endswith(("(A)","(B)")) and len(result.strip()) > 3:
+                                if option_count==1:
+                                    results_A += result[:-3]
+                                elif option_count==2:
+                                    results_B += result[:-3]                               
+                                option_count += 1                            
                             else:
                                 if option_count==1:
                                     results_A += result
@@ -816,7 +824,7 @@ def extract_questions_and_answer_from_docx(docx_path, output_json_path):
                            (result.strip().startswith(("D","Ｄ")) and option_count == 3):
                             if re.search(r"[CＣ]", result) and re.search(r"[DＤ]", result): #考虑：“C. 先变小后变大 D. 先变大后变小”
                                 # 定义正则表达式匹配整个模式
-                                pattern = r"[CＣ][．.](.*?)[DＤ][．.](.*)"
+                                pattern = r"[CＣ][．.、\s](.*?)[DＤ][．.、\s](.*)"
 
                                 # 使用 re.search 寻找第一次匹配
                                 match_option = re.search(pattern, result)
@@ -865,6 +873,12 @@ def extract_questions_and_answer_from_docx(docx_path, output_json_path):
                                 elif option_count==4:
                                     results_D += result[:-2]                               
                                 option_count += 1
+                            elif result.endswith(("(C)","(D)")) and len(result.strip()) > 3:
+                                if option_count==3:
+                                    results_C += result[:-3]
+                                elif option_count==4:
+                                    results_D += result[:-3]                               
+                                option_count += 1                               
                             else:
                                 if option_count==3:
                                     results_C += result
@@ -957,13 +971,13 @@ def extract_questions_and_answer_from_docx(docx_path, output_json_path):
                                         results_C += result.strip()[3:]
                                     else:
                                         results_D += result.strip()[3:]   
-                        elif re.search(r"(^|[^a-zA-Z])[AＡ]([^a-zA-Z0-9_]|$)", result) or re.search(r"(^|[^a-zA-Z])[BＢ]([^a-zA-Z0-9_]|$)", result) or re.search(r"(^|[^a-zA-Z])[CＣ]([^a-zA-Z0-9_]|$)", result) or re.search(r"(^|[^a-zA-Z])[DＤ]([^a-zA-Z0-9_]|$)", result):
+                        elif re.search(r"(^|[^a-zA-Z0-9_{}.])[AＡ]([^a-zA-Z0-9_{}]|$)", result) or re.search(r"(^|[^a-zA-Z0-9_{}.])[BＢ]([^a-zA-Z0-9_{}]|$)", result) or re.search(r"(^|[^a-zA-Z0-9_{}.])[CＣ]([^a-zA-Z0-9_{}]|$)", result) or re.search(r"(^|[^a-zA-Z0-9_{}.])[DＤ]([^a-zA-Z0-9_{}]|$)", result):
                             #全是文本，一整行被解析成一个run
                             print("A or B or C or D")
                             print(result)
                             if re.search(r"[AＡ]", result) and re.search(r"[BＢ]", result) and re.search(r"[CＣ]", result) and re.search(r"[DＤ]", result):
                                 # 定义正则表达式匹配整个模式
-                                pattern = r"[AＡ][．.](.*?)[BＢ][．.](.*?)[CＣ][．.](.*?)[DＤ][．.](.*)"
+                                pattern = r"[AＡ][．.、\s](.*?)[BＢ][．.、\s](.*?)[CＣ][．.、\s](.*?)[DＤ][．.、\s](.*)"
 
                                 # 使用 re.search 寻找第一次匹配
                                 match_option = re.search(pattern, result)
