@@ -459,6 +459,8 @@ def extract_formula_from_picture(run, dotx_path, relationships):
                         file=[("file",(file_path,open(file_path, 'rb')))] # 请求文件,字段名一般为file
                         res = requests.post(api_url, files=file, data=data, headers=header) # 使用requests库上传文件
                         content = json.loads(res.text)['res']['latex']
+                        print(content)
+                        print("simple")
                         return content
                     else:
                         print(f"Could not find image for rId: {rId}")
@@ -792,6 +794,7 @@ def extract_questions_and_answer_from_docx(docx_path, output_json_path):
                                     results_B += result[:-3]                               
                                 option_count += 1                            
                             else:
+                                print(result)
                                 if option_count==1:
                                     results_A += result
                                 elif option_count==2:
@@ -910,7 +913,7 @@ def extract_questions_and_answer_from_docx(docx_path, output_json_path):
                                 result = run.text.lstrip("．.、\t") # 普通文本直接添加
                         else: #不是文本就需要处理图像
                             result = extract_formula_from_picture(run, docx_path, relationships).lstrip("．.、")
-                                 
+                            print(result)
                         if re.search(r"\(A\)|（A）", result) or re.search(r"\(B\)|（B）", result) or re.search(r"\(C\)|（C）", result) or re.search(r"\(D\)|（D）", result):
                             #全是文本，一整行被解析成一个run
                             if re.search(r"\(A\)|（A）", result) and re.search(r"\(B\)|（B）", result) and re.search(r"\(C\)|（C）", result) and re.search(r"\(D\)|（D）", result):
@@ -971,7 +974,7 @@ def extract_questions_and_answer_from_docx(docx_path, output_json_path):
                                         results_C += result.strip()[3:]
                                     else:
                                         results_D += result.strip()[3:]   
-                        elif re.search(r"(^|[^a-zA-Z0-9_{}.])[AＡ]([^a-zA-Z0-9_{}]|$)", result) or re.search(r"(^|[^a-zA-Z0-9_{}.])[BＢ]([^a-zA-Z0-9_{}]|$)", result) or re.search(r"(^|[^a-zA-Z0-9_{}.])[CＣ]([^a-zA-Z0-9_{}]|$)", result) or re.search(r"(^|[^a-zA-Z0-9_{}.])[DＤ]([^a-zA-Z0-9_{}]|$)", result):
+                        elif re.search(r"(^|[^a-zA-Z0-9_{}.]\^)[AＡ]([^a-zA-Z0-9_{}\^]|$)", result) or re.search(r"(^|[^a-zA-Z0-9_{}.\^])[BＢ]([^a-zA-Z0-9_{}\^]|$)", result) or re.search(r"(^|[^a-zA-Z0-9_{}.\^])[CＣ]([^a-zA-Z0-9_{}\^]|$)", result) or re.search(r"(^|[^a-zA-Z0-9_{}.\^])[DＤ]([^a-zA-Z0-9_{}\^]|$)", result):
                             #全是文本，一整行被解析成一个run
                             print("A or B or C or D")
                             print(result)
@@ -989,9 +992,8 @@ def extract_questions_and_answer_from_docx(docx_path, output_json_path):
                                     results_C = match_option.group(3).strip()  # C. 和 D. 之间的内容
                                     results_D = match_option.group(4).strip()  # D. 后面的内容
                             else:
-                                option_count += 1
-
                                 if len(result.strip()) > 2 and result.strip().startswith(("A","Ａ", "B","Ｂ", "C","Ｃ", "D","Ｄ")):
+                                    option_count += 1
                                     if result.endswith(("B","Ｂ", "C","Ｃ", "D","Ｄ")): #考虑到可能出现 <w:t xml:space="preserve">    B．0        C．</w:t>
                                         if option_count==1:
                                             results_A += result.strip()[2:-1]
@@ -1014,13 +1016,53 @@ def extract_questions_and_answer_from_docx(docx_path, output_json_path):
                                         option_count += 1                                    
                                     else:
                                         if option_count==1:
+                                            print("A")
                                             results_A += result.strip()[2:]
                                         elif option_count==2:
+                                            print("B")
                                             results_B += result.strip()[2:]
                                         elif option_count==3:
+                                            print("C")
                                             results_C += result.strip()[2:]
                                         else:
+                                            print("D")
                                             results_D += result.strip()[2:]
+                                elif len(result.strip()) > 2:
+                                    print("result len > 2 and result is: " + result)
+                                    if option_count==1 and re.search(r"(^|[^a-zA-Z0-9_{}.\^])[BＢ]([^a-zA-Z0-9_{}\^]|$)", result):
+                                        match_before_B = re.search(r"^(.*?)\s*[BＢ]", result.strip())
+                                        if match_before_B:
+                                            print("before B: "+match_before_B.group(1).strip())
+                                            results_A += match_before_B.group(1).strip() 
+                                        option_count += 1
+                                        match_after_B = re.search(r"[BＢ][．.、\s](.*)", result.strip())
+                                        if match_after_B:
+                                            print("after B: "+match_after_B.group(1).strip())
+                                            results_B += match_after_B.group(1).strip()
+                                    
+                                    if option_count==2 and re.search(r"(^|[^a-zA-Z0-9_{}.\^])[CＣ]([^a-zA-Z0-9_{}\^]|$)", result):
+                                        match_before_C = re.search(r"^(.*?)\s*[CＣ]", result.strip())
+                                        if match_before_C:
+                                            print("before C: "+match_before_C.group(1).strip())
+                                            results_B += match_before_C.group(1).strip() 
+                                        option_count += 1
+                                        match_after_C = re.search(r"[CＣ][．.、\s](.*)", result.strip())
+                                        if match_after_C:
+                                            print("after C: "+match_after_C.group(1).strip())
+                                            results_C += match_after_C.group(1).strip()
+                                    
+                                    if option_count==3 and re.search(r"(^|[^a-zA-Z0-9_{}.\^])[DＤ]([^a-zA-Z0-9_{}\^]|$)", result):
+                                        match_before_D = re.search(r"^(.*?)\s*[DＤ]", result.strip())
+                                        if match_before_D:
+                                            print("before D: "+match_before_D.group(1).strip())
+                                            results_C += match_before_D.group(1).strip() 
+                                        option_count += 1
+                                        match_after_D = re.search(r"[DＤ][．.、\s](.*)", result.strip())
+                                        if match_after_D:
+                                            print("after D: "+match_after_D.group(1).strip())
+                                            results_D += match_after_D.group(1).strip()                    
+                                else:
+                                    option_count += 1    
                         elif option_count==1:
                             results_A += result
                         elif option_count==2:
