@@ -196,6 +196,7 @@ def find_answer(doc, questions, text):
                         break
             print("答案形式：1.(A) 2.(B)")
             answer_found = 1
+            
     # 匹配形如 "1-10 ABCDBCAADB" 的紧凑答案格式
     if answer_found == 0:
         compact_matches = re.findall(r'(\d+)[\-—](\d+)\s+([A-D]+)', text)
@@ -212,9 +213,9 @@ def find_answer(doc, questions, text):
     # 匹配题目后紧跟着 “故选：”
     if answer_found == 0:
         for idx, paragraph in enumerate(doc.paragraphs):
-            if re.match(r'故选[:：]\s*([A-D]+)', paragraph.text.strip()):
+            if re.search(r'故选[:：]\s*([A-D]+)', paragraph.text.strip()):
                 # 提取答案内容
-                answer_match = re.match(r'故选[:：]\s*([A-D]+)', paragraph.text.strip())
+                answer_match = re.search(r'故选[:：]\s*([A-D]+)', paragraph.text.strip())
                 if answer_match:
                     answer = answer_match.group(1)  # 提取答案
                     answer_found = 1  # 标记找到答案
@@ -452,16 +453,18 @@ def extract_formula_from_picture(run, dotx_path, relationships):
                     if img:
                         # 使用 SimpleTex 的 API 识别公式
                         SIMPLETEX_UAT="x97YHMaxT4hl1kbcvKkAHbQqZGR0HDL0rBAZfmqScLusUcO74sXCCOIsNfqO3PgM"
-                        # api_url="https://server.simpletex.cn/api/latex_ocr"  # 标准模型接口地址
-                        api_url="https://server.simpletex.cn/api/latex_ocr_turbo"  # 轻量级模型接口地址
+                        api_url="https://server.simpletex.cn/api/latex_ocr"  # 标准模型接口地址
+                        # api_url="https://server.simpletex.cn/api/latex_ocr_turbo"  # 轻量级模型接口地址
                         data = { } # 请求参数数据（非文件型参数），视情况填入，可以参考各个接口的参数说明
                         header={ "token": SIMPLETEX_UAT } # 鉴权信息，此处使用UAT方式
                         file=[("file",(file_path,open(file_path, 'rb')))] # 请求文件,字段名一般为file
                         res = requests.post(api_url, files=file, data=data, headers=header) # 使用requests库上传文件
-                        content = json.loads(res.text)['res']['latex']
-                        print(content)
-                        print("simple")
-                        return content
+                        print(res.text)
+                        if "err_info" in json.loads(res.text)['res']:
+                            return ""
+                        else:
+                            content = json.loads(res.text)['res']['latex']
+                            return content
                     else:
                         print(f"Could not find image for rId: {rId}")
     return ""
@@ -494,24 +497,7 @@ def extract_questions_and_answer_from_docx(docx_path, output_json_path):
         # 遍历段落中的每个 run
         minus = 0
         for run in paragraph.runs:
-            if run.font.superscript:  # 如果是上标
-                if minus == 0:
-                    paragraph_text += f"^{run.text}" 
-                else:
-                    paragraph_text += run.text
-                    minus = 0
-                if run.text == "﹣":
-                    minus = 1
-            elif run.font.subscript:  # 如果是下标
-                if minus == 0:
-                    paragraph_text += f"_{run.text}" 
-                else:
-                    paragraph_text += run.text
-                    minus = 0
-                if run.text == "﹣":
-                    minus = 1
-            else:
-                paragraph_text += run.text  # 普通文本直接添加
+            paragraph_text += run.text  # 普通文本直接添加
         full_text += paragraph_text + "\n"  # 添加段落并换行
 
     # 删除文档中影响选择题识别的干扰内容
@@ -522,559 +508,606 @@ def extract_questions_and_answer_from_docx(docx_path, output_json_path):
     questions = []
     for match in question_pattern.finditer(full_text):
         question_data = match.groupdict()
+        # print("question_data[question] is: "+ repr(question_data["question"]))
+
+        # 处理题目段落，提取公式并拼接
+        for i, paragraph in enumerate(doc.paragraphs):
+            if paragraph.text.startswith(question_data["question"][:10].strip()):
+                # print("paragraph.text1: "+paragraph.text)
+                question_start = i
+                break
+        for i in range(question_start, len(doc.paragraphs)):
+            if doc.paragraphs[i].text.strip().endswith(question_data["question"][-10:].strip()):
+                # print("doc text is: "+repr(doc.paragraphs[i].text))
+                question_end = i   
+                break    
+        print("\n")        
+                
+        question_text = ""
+        # print("question_start is: " + str(question_start))
+        # print("question_end is: " + str(question_end))
+        if question_start > question_end:
+            question_end = question_start
+        for i in range(question_start, question_end+1):
+            for run in doc.paragraphs[i].runs:
+                if run.text.strip():  # 普通文本
+                    if run.font.superscript:  # 如果是上标
+                        if minus == 0:
+                            question_text += f"^{run.text}" 
+                        else:
+                            question_text += run.text
+                            minus = 0
+                        if run.text == "﹣":
+                            minus = 1
+                    elif run.font.subscript:  # 如果是下标
+                        if minus == 0:
+                            question_text += f"_{run.text}" 
+                        else:
+                            question_text += run.text
+                            minus = 0
+                        if run.text == "﹣":
+                            minus = 1
+                    else:
+                        question_text += run.text  # 普通文本直接添加
+                else:  # 检测并处理公式图片
+                    formula_content = extract_formula_from_picture(run, docx_path, relationships)
+                    if formula_content:
+                        question_text += f" {formula_content} "  # 用 LaTeX 公式替代图片
+        
+        question_data["question"] = question_text
+        print(question_data["question"])
         
         clean_question(question_data)
         
         print(repr(match.group(0)))
         question_data['index'] = (re.match(r'^(\d+)[．.、]', question_data["question"][:10])).group(1)
-        print("question_data[question] is: "+ question_data["question"])
+      
         # 针对前半部分是试卷，后半部分是试卷+答案的情况
         if any(q['index'] == question_data['index'] for q in questions):
             print(f"Question with index {question_data['index']} already exists. Skipping...")
             continue
-        for i,paragraph in enumerate(doc.paragraphs):
-            if paragraph.text.startswith(question_data["question"][:10].strip()):
-                #找到option_paragraph的真正起点
-                start_1 = 1
-                for j in range(1,len(doc.paragraphs)-i):
-                    if doc.paragraphs[i+j].text.replace(" ", "").replace("\t", "").startswith(("A","Ａ","(A)","（A）")):
-                        start_1 = i+j
-                        break
-                option_paragraph1 = doc.paragraphs[start_1]
-                option_paragraph2 = None
-                for start_2 in range(start_1 + 1, len(doc.paragraphs)):
-                    if doc.paragraphs[start_2].text.strip():  # 检查段落是否不为空
-                        option_paragraph2 = doc.paragraphs[start_2]
-                        break
-                for start_3 in range(start_2 + 1, len(doc.paragraphs)):
-                    if doc.paragraphs[start_3].text.strip():  # 检查段落是否不为空
-                        option_paragraph3 = doc.paragraphs[start_3]
-                        break
-                for start_4 in range(start_3 + 1, len(doc.paragraphs)):
-                    if doc.paragraphs[start_4].text.strip():  # 检查段落是否不为空
-                        option_paragraph4 = doc.paragraphs[start_4]
-                        break
-                results_A = ""
-                results_B = ""
-                results_C = ""
-                results_D = ""
-                print("op1: "+option_paragraph1.text)
-                print("op2: "+option_paragraph2.text)
-                print("op3: "+option_paragraph3.text)
-                print("op4: "+option_paragraph4.text)
 
-                #四个选项各占一行
-                if option_paragraph1.text.lstrip(" \t").startswith(("A","Ａ","(A)","（A）")) and option_paragraph2.text.lstrip(" \t").startswith(("B","Ｂ","(B)","（B）")): 
-                    print("[[[Situation 1]]]")
-                    option_count=0
-                    minus = 0
-                    for i,run in enumerate(option_paragraph1.runs):
-                        if run.text.strip(): # 如果是纯文本，考虑是否存在上下标需要处理
-                            if run.font.superscript:  # 如果是上标
-                                if minus == 0:
-                                    result = f"^{run.text}" 
-                                else:
-                                    result = run.text
-                                    minus = 0
-                                if run.text == "﹣":
-                                    minus = 1
-                            elif run.font.subscript:  # 如果是下标
-                                if minus == 0:
-                                    result = f"_{run.text}" 
-                                else:
-                                    result = run.text
-                                    minus = 0
-                                if run.text == "﹣":
-                                    minus = 1
+        #找到option_paragraph的真正起点
+        start_1 = 1
+        for j in range(1,len(doc.paragraphs)-question_start):
+            if doc.paragraphs[question_start+j].text.replace(" ", "").replace("\t", "").startswith(("A","Ａ","(A)","（A）")):
+                start_1 = question_start+j
+                break
+        option_paragraph1 = doc.paragraphs[start_1]
+        option_paragraph2 = None
+        for start_2 in range(start_1 + 1, len(doc.paragraphs)):
+            if doc.paragraphs[start_2].text.strip():  # 检查段落是否不为空
+                option_paragraph2 = doc.paragraphs[start_2]
+                break
+        for start_3 in range(start_2 + 1, len(doc.paragraphs)):
+            if doc.paragraphs[start_3].text.strip():  # 检查段落是否不为空
+                option_paragraph3 = doc.paragraphs[start_3]
+                break
+        for start_4 in range(start_3 + 1, len(doc.paragraphs)):
+            if doc.paragraphs[start_4].text.strip():  # 检查段落是否不为空
+                option_paragraph4 = doc.paragraphs[start_4]
+                break
+        results_A = ""
+        results_B = ""
+        results_C = ""
+        results_D = ""
+        print("op1: "+option_paragraph1.text)
+        print("op2: "+option_paragraph2.text)
+        print("op3: "+option_paragraph3.text)
+        print("op4: "+option_paragraph4.text)
+
+        #四个选项各占一行
+        if option_paragraph1.text.lstrip(" \t").startswith(("A","Ａ","(A)","（A）")) and option_paragraph2.text.lstrip(" \t").startswith(("B","Ｂ","(B)","（B）")): 
+            print("[[[Situation 1]]]")
+            option_count=0
+            minus = 0
+            for i,run in enumerate(option_paragraph1.runs):
+                if run.text.strip(): # 如果是纯文本，考虑是否存在上下标需要处理
+                    if run.font.superscript:  # 如果是上标
+                        if minus == 0:
+                            result = f"^{run.text}" 
+                        else:
+                            result = run.text
+                            minus = 0
+                        if run.text == "﹣":
+                            minus = 1
+                    elif run.font.subscript:  # 如果是下标
+                        if minus == 0:
+                            result = f"_{run.text}" 
+                        else:
+                            result = run.text
+                            minus = 0
+                        if run.text == "﹣":
+                            minus = 1
+                    else:
+                        result = run.text.lstrip("．.、\t")  # 普通文本直接添加
+                else: #不是文本就需要处理图像
+                    result = extract_formula_from_picture(run, docx_path, relationships).lstrip("．.、")
+                
+                if re.search(r"\(A\)|（A）", result) and option_count == 0: 
+                    option_count+=1
+                    if len(result) > 3: 
+                        results_A += result[3:]                        
+                elif re.search(r"[AＡ]", result) and option_count == 0: 
+                    option_count+=1
+                    if len(result) > 2: #考虑到有时 “C．甲、丁的种群数量下降，丙的种群数量增加”会被解析为一个完整的run
+                        results_A += result[2:]
+
+                elif option_count==1:
+                    results_A += result
+            minus = 0
+            for i,run in enumerate(option_paragraph2.runs):
+                if run.text.strip(): # 如果是纯文本，考虑是否存在上下标需要处理
+                    if run.font.superscript:  # 如果是上标
+                        if minus == 0:
+                            result = f"^{run.text}" 
+                        else:
+                            result = run.text
+                            minus = 0
+                        if run.text == "﹣":
+                            minus = 1
+                    elif run.font.subscript:  # 如果是下标
+                        if minus == 0:
+                            result = f"_{run.text}" 
+                        else:
+                            result = run.text
+                            minus = 0
+                        if run.text == "﹣":
+                            minus = 1
+                    else:
+                        result = run.text.lstrip("．.、\t")  # 普通文本直接添加
+                else: #不是文本就需要处理图像
+                    result = extract_formula_from_picture(run, docx_path, relationships).lstrip("．.、")
+
+                if re.search(r"\(B\)|（B）", result) and option_count == 1:
+                    option_count+=1
+                    if len(result) > 3:
+                        results_B += result[3:]
+                elif re.search(r"[BＢ]", result) and option_count == 1:
+                    option_count+=1
+                    if len(result) > 2:
+                        results_B += result[2:]
+                elif option_count==2:
+                    results_B += result
+            minus = 0
+            for i,run in enumerate(option_paragraph3.runs):
+                if run.text.strip(): # 如果是纯文本，考虑是否存在上下标需要处理
+                    if run.font.superscript:  # 如果是上标
+                        if minus == 0:
+                            result = f"^{run.text}" 
+                        else:
+                            result = run.text
+                            minus = 0
+                        if run.text == "﹣":
+                            minus = 1
+                    elif run.font.subscript:  # 如果是下标
+                        if minus == 0:
+                            result = f"_{run.text}" 
+                        else:
+                            result = run.text
+                            minus = 0
+                        if run.text == "﹣":
+                            minus = 1
+                    else:
+                        result = run.text.lstrip("．.、\t")  # 普通文本直接添加
+                else: #不是文本就需要处理图像
+                    result = extract_formula_from_picture(run, docx_path, relationships).lstrip("．.、")
+
+                if re.search(r"\(C\)|（C）", result) and option_count == 2:
+                    option_count+=1
+                    if len(result) > 3:
+                        results_C += result[3:]
+                elif re.search(r"[CＣ]", result) and option_count == 2:
+                    option_count+=1
+                    if len(result) > 2:
+                        results_C += result[2:]
+                elif option_count==3:
+                    results_C += result
+            minus = 0
+            for i,run in enumerate(option_paragraph4.runs):
+                if run.text.strip(): # 如果是纯文本，考虑是否存在上下标需要处理
+                    if run.font.superscript:  # 如果是上标
+                        if minus == 0:
+                            result = f"^{run.text}" 
+                        else:
+                            result = run.text
+                            minus = 0
+                        if run.text == "﹣":
+                            minus = 1
+                    elif run.font.subscript:  # 如果是下标
+                        if minus == 0:
+                            result = f"_{run.text}" 
+                        else:
+                            result = run.text
+                            minus = 0
+                        if run.text == "﹣":
+                            minus = 1
+                    else:
+                        result = run.text.lstrip("．.、\t")  # 普通文本直接添加
+                else: #不是文本就需要处理图像
+                    result = extract_formula_from_picture(run, docx_path, relationships).lstrip("．.、")
+
+                if re.search(r"\(D\)|（D）", result) and option_count == 3:
+                    option_count+=1
+                    if len(result) > 3:
+                        results_D += result[3:]
+                elif re.search(r"[DＤ]", result) and option_count == 3:
+                    option_count+=1
+                    if len(result) > 2:
+                        results_D += result[2:]
+                elif option_count==4:
+                    results_D += result
+        #四个选项占两行
+        elif option_paragraph1.text.lstrip(" \t").startswith(("A","Ａ","(A)","（A）")) and option_paragraph2.text.lstrip(" \t").startswith(("C","Ｃ","(C)","（C）")):
+            print("[[[Situation 2]]]") 
+            option_count=0
+            minus = 0
+            for i,run in enumerate(option_paragraph1.runs):
+                if run.text.strip(): # 如果是纯文本，考虑是否存在上下标需要处理
+                    if run.font.superscript:  # 如果是上标
+                        if minus == 0:
+                            result = f"^{run.text}" 
+                        else:
+                            result = run.text
+                            minus = 0
+                        if run.text == "﹣":
+                            minus = 1
+                    elif run.font.subscript:  # 如果是下标
+                        if minus == 0:
+                            result = f"_{run.text}" 
+                        else:
+                            result = run.text
+                            minus = 0
+                        if run.text == "﹣":
+                            minus = 1
+                    else:
+                        result = run.text.lstrip("．.、\t")  # 普通文本直接添加
+                else: #不是文本就需要处理图像
+                    result = extract_formula_from_picture(run, docx_path, relationships).lstrip("．.、")
+
+                if (result.strip().startswith(("A","Ａ")) and option_count == 0) or \
+                    (result.strip().startswith(("B","Ｂ")) and option_count == 1):
+                    if re.search(r"[AＡ]", result) and re.search(r"[BＢ]", result): #考虑：“A. 一直变小 B. 一直变大”
+                        # 定义正则表达式匹配整个模式
+                        pattern = r"[AＡ][．.、\s](.*?)[BＢ][．.、\s](.*)"
+
+                        # 使用 re.search 寻找第一次匹配
+                        match_option = re.search(pattern, result)
+
+                        # 提取各部分内容并去掉多余空白
+                        if match_option:
+                            results_A = match_option.group(1).strip()  # A. 和 B. 之间的内容
+                            results_B = match_option.group(2).strip()  # B. 后面的内容
+                            option_count += 2
+                    else:
+                        option_count += 1
+                        if len(result.strip()) > 2:
+                            if option_count==1:
+                                results_A += result.strip()[2:]
                             else:
-                                result = run.text.lstrip("．.、\t")  # 普通文本直接添加
-                        else: #不是文本就需要处理图像
-                            result = extract_formula_from_picture(run, docx_path, relationships).lstrip("．.、")
-                        
-                        if re.search(r"\(A\)|（A）", result) and option_count == 0: 
-                            option_count+=1
-                            if len(result) > 3: 
-                                results_A += result[3:]                        
-                        elif re.search(r"[AＡ]", result) and option_count == 0: 
-                            option_count+=1
-                            if len(result) > 2: #考虑到有时 “C．甲、丁的种群数量下降，丙的种群数量增加”会被解析为一个完整的run
-                                results_A += result[2:]
+                                results_B += result.strip()[2:]
+                elif result.strip().startswith(("(A)","（A）")) or result.strip().startswith(("(B)","（B）")):
+                    print(result)
+                    if re.search(r"\(A\)|（A）", result) and re.search(r"\(B\)|（B）", result): #考虑：“A. 一直变小 B. 一直变大”
+                        # 定义正则表达式匹配整个模式
+                        print("A and B")
+                        pattern = r"(?:\(A\)|（A）)(.*?)(?:\(B\)|（B）)(.*)"
 
-                        elif option_count==1:
+                        # 使用 re.search 寻找第一次匹配
+                        match_option = re.search(pattern, result)
+
+                        # 提取各部分内容并去掉多余空白
+                        if match_option:
+                            results_A = match_option.group(1).strip()  # A. 和 B. 之间的内容
+                            results_B = match_option.group(2).strip()  # B. 后面的内容
+                    else:
+                        option_count+=1
+                        if len(result.strip()) > 3:
+                            if option_count==1:
+                                results_A += result.strip()[3:]
+                            else:
+                                results_B += result.strip()[3:]
+                else:
+                    if result.endswith(("A","Ａ", "B","Ｂ")) and len(result.strip()) > 1: #可能遇到 <w:t>＝25cm/s，向左传播         B．</w:t>
+                        if option_count==1:
+                            results_A += result[:-1]
+                        elif option_count==2:
+                            results_B += result[:-1]  
+                        option_count += 1
+                    elif result.endswith(("A.","Ａ.", "B.", "Ｂ.", "A．","Ａ．", "B．", "Ｂ．")) and len(result.strip()) > 2:
+                        if option_count==1:
+                            results_A += result[:-2]
+                        elif option_count==2:
+                            results_B += result[:-2]                               
+                        option_count += 1
+                    elif result.endswith(("(A)","(B)")) and len(result.strip()) > 3:
+                        if option_count==1:
+                            results_A += result[:-3]
+                        elif option_count==2:
+                            results_B += result[:-3]                               
+                        option_count += 1                            
+                    else:
+                        print(result)
+                        if option_count==1:
                             results_A += result
-                    minus = 0
-                    for i,run in enumerate(option_paragraph2.runs):
-                        if run.text.strip(): # 如果是纯文本，考虑是否存在上下标需要处理
-                            if run.font.superscript:  # 如果是上标
-                                if minus == 0:
-                                    result = f"^{run.text}" 
-                                else:
-                                    result = run.text
-                                    minus = 0
-                                if run.text == "﹣":
-                                    minus = 1
-                            elif run.font.subscript:  # 如果是下标
-                                if minus == 0:
-                                    result = f"_{run.text}" 
-                                else:
-                                    result = run.text
-                                    minus = 0
-                                if run.text == "﹣":
-                                    minus = 1
-                            else:
-                                result = run.text.lstrip("．.、\t")  # 普通文本直接添加
-                        else: #不是文本就需要处理图像
-                            result = extract_formula_from_picture(run, docx_path, relationships).lstrip("．.、")
-
-                        if re.search(r"\(B\)|（B）", result) and option_count == 1:
-                            option_count+=1
-                            if len(result) > 3:
-                                results_B += result[3:]
-                        elif re.search(r"[BＢ]", result) and option_count == 1:
-                            option_count+=1
-                            if len(result) > 2:
-                                results_B += result[2:]
                         elif option_count==2:
                             results_B += result
-                    minus = 0
-                    for i,run in enumerate(option_paragraph3.runs):
-                        if run.text.strip(): # 如果是纯文本，考虑是否存在上下标需要处理
-                            if run.font.superscript:  # 如果是上标
-                                if minus == 0:
-                                    result = f"^{run.text}" 
-                                else:
-                                    result = run.text
-                                    minus = 0
-                                if run.text == "﹣":
-                                    minus = 1
-                            elif run.font.subscript:  # 如果是下标
-                                if minus == 0:
-                                    result = f"_{run.text}" 
-                                else:
-                                    result = run.text
-                                    minus = 0
-                                if run.text == "﹣":
-                                    minus = 1
-                            else:
-                                result = run.text.lstrip("．.、\t")  # 普通文本直接添加
-                        else: #不是文本就需要处理图像
-                            result = extract_formula_from_picture(run, docx_path, relationships).lstrip("．.、")
+            minus = 0
+            for i,run in enumerate(option_paragraph2.runs):
+                if run.text.strip(): # 如果是纯文本，考虑是否存在上下标需要处理
+                    if run.font.superscript:  # 如果是上标
+                        if minus == 0:
+                            result = f"^{run.text}" 
+                        else:
+                            result = run.text
+                            minus = 0
+                        if run.text == "﹣":
+                            minus = 1
+                    elif run.font.subscript:  # 如果是下标
+                        if minus == 0:
+                            result = f"_{run.text}" 
+                        else:
+                            result = run.text
+                            minus = 0
+                        if run.text == "﹣":
+                            minus = 1
+                    else:
+                        result = run.text.lstrip("．.、\t")  # 普通文本直接添加
+                else: #不是文本就需要处理图像
+                    result = extract_formula_from_picture(run, docx_path, relationships).lstrip("．.、")
 
-                        if re.search(r"\(C\)|（C）", result) and option_count == 2:
-                            option_count+=1
-                            if len(result) > 3:
-                                results_C += result[3:]
-                        elif re.search(r"[CＣ]", result) and option_count == 2:
-                            option_count+=1
-                            if len(result) > 2:
-                                results_C += result[2:]
-                        elif option_count==3:
-                            results_C += result
-                    minus = 0
-                    for i,run in enumerate(option_paragraph4.runs):
-                        if run.text.strip(): # 如果是纯文本，考虑是否存在上下标需要处理
-                            if run.font.superscript:  # 如果是上标
-                                if minus == 0:
-                                    result = f"^{run.text}" 
-                                else:
-                                    result = run.text
-                                    minus = 0
-                                if run.text == "﹣":
-                                    minus = 1
-                            elif run.font.subscript:  # 如果是下标
-                                if minus == 0:
-                                    result = f"_{run.text}" 
-                                else:
-                                    result = run.text
-                                    minus = 0
-                                if run.text == "﹣":
-                                    minus = 1
-                            else:
-                                result = run.text.lstrip("．.、\t")  # 普通文本直接添加
-                        else: #不是文本就需要处理图像
-                            result = extract_formula_from_picture(run, docx_path, relationships).lstrip("．.、")
+                if (result.strip().startswith(("C","Ｃ")) and option_count == 2) or \
+                    (result.strip().startswith(("D","Ｄ")) and option_count == 3):
+                    if re.search(r"[CＣ]", result) and re.search(r"[DＤ]", result): #考虑：“C. 先变小后变大 D. 先变大后变小”
+                        # 定义正则表达式匹配整个模式
+                        pattern = r"[CＣ][．.、\s](.*?)[DＤ][．.、\s](.*)"
 
-                        if re.search(r"\(D\)|（D）", result) and option_count == 3:
-                            option_count+=1
-                            if len(result) > 3:
-                                results_D += result[3:]
-                        elif re.search(r"[DＤ]", result) and option_count == 3:
-                            option_count+=1
-                            if len(result) > 2:
-                                results_D += result[2:]
+                        # 使用 re.search 寻找第一次匹配
+                        match_option = re.search(pattern, result)
+
+                        # 提取各部分内容并去掉多余空白
+                        if match_option:
+                            results_C = match_option.group(1).strip()  # C. 和 D. 之间的内容
+                            results_D = match_option.group(2).strip()  # D. 后面的内容
+                            option_count += 2
+                    else:
+                        option_count+=1
+                        if len(result.strip()) > 2:
+                            if option_count==3:
+                                results_C += result.strip()[2:]
+                            else:
+                                results_D += result.strip()[2:]
+                elif result.strip().startswith(("(C)","（C）")) or result.strip().startswith(("(D)", "（D）")):
+                    if re.search(r"\(C\)|（C）", result) and re.search(r"\(D\)|（D）", result): #考虑：“C. 先变小后变大 D. 先变大后变小”
+                        # 定义正则表达式匹配整个模式
+                        pattern = r"(?:\(C\)|（C）)(.*?)(?:\(D\)|（D）)(.*)"
+
+                        # 使用 re.search 寻找第一次匹配
+                        match_option = re.search(pattern, result)
+
+                        # 提取各部分内容并去掉多余空白
+                        if match_option:
+                            results_C = match_option.group(1).strip()  # C. 和 D. 之间的内容
+                            results_D = match_option.group(2).strip()  # D. 后面的内容
+                    else:
+                        option_count+=1
+                        if len(result.strip()) > 3:
+                            if option_count==3:
+                                results_C += result.strip()[3:]
+                            else:
+                                results_D += result.strip()[3:]
+                else:
+                    if result.endswith(("C", "Ｃ", "D", "Ｄ")) and len(result.strip()) > 1: 
+                        if option_count==3:
+                            results_C += result[:-1]
                         elif option_count==4:
-                            results_D += result
-                #四个选项占两行
-                elif option_paragraph1.text.lstrip(" \t").startswith(("A","Ａ","(A)","（A）")) and option_paragraph2.text.lstrip(" \t").startswith(("C","Ｃ","(C)","（C）")):
-                    print("[[[Situation 2]]]") 
-                    option_count=0
-                    minus = 0
-                    for i,run in enumerate(option_paragraph1.runs):
-                        if run.text.strip(): # 如果是纯文本，考虑是否存在上下标需要处理
-                            if run.font.superscript:  # 如果是上标
-                                if minus == 0:
-                                    result = f"^{run.text}" 
-                                else:
-                                    result = run.text
-                                    minus = 0
-                                if run.text == "﹣":
-                                    minus = 1
-                            elif run.font.subscript:  # 如果是下标
-                                if minus == 0:
-                                    result = f"_{run.text}" 
-                                else:
-                                    result = run.text
-                                    minus = 0
-                                if run.text == "﹣":
-                                    minus = 1
-                            else:
-                                result = run.text.lstrip("．.、\t")  # 普通文本直接添加
-                        else: #不是文本就需要处理图像
-                            result = extract_formula_from_picture(run, docx_path, relationships).lstrip("．.、")
-
-                        if (result.strip().startswith(("A","Ａ")) and option_count == 0) or \
-                           (result.strip().startswith(("B","Ｂ")) and option_count == 1):
-                            if re.search(r"[AＡ]", result) and re.search(r"[BＢ]", result): #考虑：“A. 一直变小 B. 一直变大”
-                                # 定义正则表达式匹配整个模式
-                                pattern = r"[AＡ][．.、\s](.*?)[BＢ][．.、\s](.*)"
-
-                                # 使用 re.search 寻找第一次匹配
-                                match_option = re.search(pattern, result)
-
-                                # 提取各部分内容并去掉多余空白
-                                if match_option:
-                                    results_A = match_option.group(1).strip()  # A. 和 B. 之间的内容
-                                    results_B = match_option.group(2).strip()  # B. 后面的内容
-                                    option_count += 2
-                            else:
-                                option_count += 1
-                                if len(result.strip()) > 2:
-                                    if option_count==1:
-                                        results_A += result.strip()[2:]
-                                    else:
-                                        results_B += result.strip()[2:]
-                        elif result.strip().startswith(("(A)","（A）")) or result.strip().startswith(("(B)","（B）")):
-                            print(result)
-                            if re.search(r"\(A\)|（A）", result) and re.search(r"\(B\)|（B）", result): #考虑：“A. 一直变小 B. 一直变大”
-                                # 定义正则表达式匹配整个模式
-                                print("A and B")
-                                pattern = r"(?:\(A\)|（A）)(.*?)(?:\(B\)|（B）)(.*)"
-
-                                # 使用 re.search 寻找第一次匹配
-                                match_option = re.search(pattern, result)
-
-                                # 提取各部分内容并去掉多余空白
-                                if match_option:
-                                    results_A = match_option.group(1).strip()  # A. 和 B. 之间的内容
-                                    results_B = match_option.group(2).strip()  # B. 后面的内容
-                            else:
-                                option_count+=1
-                                if len(result.strip()) > 3:
-                                    if option_count==1:
-                                        results_A += result.strip()[3:]
-                                    else:
-                                        results_B += result.strip()[3:]
-                        else:
-                            if result.endswith(("A","Ａ", "B","Ｂ")) and len(result.strip()) > 1: #可能遇到 <w:t>＝25cm/s，向左传播         B．</w:t>
-                                if option_count==1:
-                                    results_A += result[:-1]
-                                elif option_count==2:
-                                    results_B += result[:-1]  
-                                option_count += 1
-                            elif result.endswith(("A.","Ａ.", "B.", "Ｂ.", "A．","Ａ．", "B．", "Ｂ．")) and len(result.strip()) > 2:
-                                if option_count==1:
-                                    results_A += result[:-2]
-                                elif option_count==2:
-                                    results_B += result[:-2]                               
-                                option_count += 1
-                            elif result.endswith(("(A)","(B)")) and len(result.strip()) > 3:
-                                if option_count==1:
-                                    results_A += result[:-3]
-                                elif option_count==2:
-                                    results_B += result[:-3]                               
-                                option_count += 1                            
-                            else:
-                                print(result)
-                                if option_count==1:
-                                    results_A += result
-                                elif option_count==2:
-                                    results_B += result
-                    minus = 0
-                    for i,run in enumerate(option_paragraph2.runs):
-                        if run.text.strip(): # 如果是纯文本，考虑是否存在上下标需要处理
-                            if run.font.superscript:  # 如果是上标
-                                if minus == 0:
-                                    result = f"^{run.text}" 
-                                else:
-                                    result = run.text
-                                    minus = 0
-                                if run.text == "﹣":
-                                    minus = 1
-                            elif run.font.subscript:  # 如果是下标
-                                if minus == 0:
-                                    result = f"_{run.text}" 
-                                else:
-                                    result = run.text
-                                    minus = 0
-                                if run.text == "﹣":
-                                    minus = 1
-                            else:
-                                result = run.text.lstrip("．.、\t")  # 普通文本直接添加
-                        else: #不是文本就需要处理图像
-                            result = extract_formula_from_picture(run, docx_path, relationships).lstrip("．.、")
-
-                        if (result.strip().startswith(("C","Ｃ")) and option_count == 2) or \
-                           (result.strip().startswith(("D","Ｄ")) and option_count == 3):
-                            if re.search(r"[CＣ]", result) and re.search(r"[DＤ]", result): #考虑：“C. 先变小后变大 D. 先变大后变小”
-                                # 定义正则表达式匹配整个模式
-                                pattern = r"[CＣ][．.、\s](.*?)[DＤ][．.、\s](.*)"
-
-                                # 使用 re.search 寻找第一次匹配
-                                match_option = re.search(pattern, result)
-
-                                # 提取各部分内容并去掉多余空白
-                                if match_option:
-                                    results_C = match_option.group(1).strip()  # C. 和 D. 之间的内容
-                                    results_D = match_option.group(2).strip()  # D. 后面的内容
-                                    option_count += 2
-                            else:
-                                option_count+=1
-                                if len(result.strip()) > 2:
-                                    if option_count==3:
-                                        results_C += result.strip()[2:]
-                                    else:
-                                        results_D += result.strip()[2:]
-                        elif result.strip().startswith(("(C)","（C）")) or result.strip().startswith(("(D)", "（D）")):
-                            if re.search(r"\(C\)|（C）", result) and re.search(r"\(D\)|（D）", result): #考虑：“C. 先变小后变大 D. 先变大后变小”
-                                # 定义正则表达式匹配整个模式
-                                pattern = r"(?:\(C\)|（C）)(.*?)(?:\(D\)|（D）)(.*)"
-
-                                # 使用 re.search 寻找第一次匹配
-                                match_option = re.search(pattern, result)
-
-                                # 提取各部分内容并去掉多余空白
-                                if match_option:
-                                    results_C = match_option.group(1).strip()  # C. 和 D. 之间的内容
-                                    results_D = match_option.group(2).strip()  # D. 后面的内容
-                            else:
-                                option_count+=1
-                                if len(result.strip()) > 3:
-                                    if option_count==3:
-                                        results_C += result.strip()[3:]
-                                    else:
-                                        results_D += result.strip()[3:]
-                        else:
-                            if result.endswith(("C", "Ｃ", "D", "Ｄ")) and len(result.strip()) > 1: 
-                                if option_count==3:
-                                    results_C += result[:-1]
-                                elif option_count==4:
-                                    results_D += result[:-1]  
-                                option_count += 1
-                            elif result.endswith(("C.","Ｃ.", "D.","Ｄ.", "C．","Ｃ．", "D．","Ｄ．")) and len(result.strip()) > 2:
-                                if option_count==3:
-                                    results_C += result[:-2]
-                                elif option_count==4:
-                                    results_D += result[:-2]                               
-                                option_count += 1
-                            elif result.endswith(("(C)","(D)")) and len(result.strip()) > 3:
-                                if option_count==3:
-                                    results_C += result[:-3]
-                                elif option_count==4:
-                                    results_D += result[:-3]                               
-                                option_count += 1                               
-                            else:
-                                if option_count==3:
-                                    results_C += result
-                                elif option_count==4:
-                                    results_D += result                        
-                else: #四个选项在同一行
-                    print("[[[Situation 3]]]")
-                    option_count=0
-                    minus = 0
-                    for i,run in enumerate(option_paragraph1.runs):
-                        if run.text.strip(): # 如果是纯文本，考虑是否存在上下标需要处理
-                            if run.font.superscript:  # 如果是上标
-                                if minus == 0:
-                                    result = f"^{run.text}" 
-                                else:
-                                    result = run.text
-                                    minus = 0
-                                if run.text == "﹣":
-                                    minus = 1
-                            elif run.font.subscript:  # 如果是下标
-                                if minus == 0:
-                                    result = f"_{run.text}" 
-                                else:
-                                    result = run.text
-                                    minus = 0
-                                if run.text == "﹣":
-                                    minus = 1
-                            else:
-                                result = run.text.lstrip("．.、\t") # 普通文本直接添加
-                        else: #不是文本就需要处理图像
-                            result = extract_formula_from_picture(run, docx_path, relationships).lstrip("．.、")
-                            print(result)
-                        if re.search(r"\(A\)|（A）", result) or re.search(r"\(B\)|（B）", result) or re.search(r"\(C\)|（C）", result) or re.search(r"\(D\)|（D）", result):
-                            #全是文本，一整行被解析成一个run
-                            if re.search(r"\(A\)|（A）", result) and re.search(r"\(B\)|（B）", result) and re.search(r"\(C\)|（C）", result) and re.search(r"\(D\)|（D）", result):
-                                # 定义正则表达式匹配整个模式
-                                pattern = r"(?:\(A\)|（A）)(.*?)(?:\(B\)|（B）)(.*?)(?:\(C\)|（C）)(.*?)(?:\(D\)|（D）)(.*)"
-
-                                # 使用 re.search 寻找第一次匹配
-                                match_option = re.search(pattern, result)
-
-                                # 提取各部分内容并去掉多余空白
-                                if match_option:
-                                    results_A = match_option.group(1).strip()  # A. 和 B. 之间的内容
-                                    results_B = match_option.group(2).strip()  # B. 和 C. 之间的内容
-                                    results_C = match_option.group(3).strip()  # C. 和 D. 之间的内容
-                                    results_D = match_option.group(4).strip()  # D. 后面的内容
-                            elif re.search(r"\(A\)|（A）", result) and re.search(r"\(B\)|（B）", result):
-                                # 定义正则表达式匹配整个模式
-                                pattern = r"(?:\(A\)|（A）)(.*?)(?:\(B\)|（B）)(.*)"
-
-                                # 使用 re.search 寻找第一次匹配
-                                match_option = re.search(pattern, result)
-                                # 提取各部分内容并去掉多余空白
-                                if match_option:
-                                    results_A = match_option.group(1).strip()  # A. 和 B. 之间的内容
-                                    results_B = match_option.group(2).strip()  # B. 和 C. 之间的内容
-                                option_count = 2
-                            elif re.search(r"\(B\)|（B）", result) and re.search(r"\(C\)|（C）", result):
-                                # 定义正则表达式匹配整个模式
-                                pattern = r"(?:\(B\)|（B）)(.*?)(?:\(C\)|（C）)(.*?)"
-
-                                # 使用 re.search 寻找第一次匹配
-                                match_option = re.search(pattern, result)
-                                # 提取各部分内容并去掉多余空白
-                                if match_option:
-                                    results_B = match_option.group(1).strip()  # B. 和 C. 之间的内容
-                                    results_C = match_option.group(2).strip()  # C. 和 D. 之间的内容
-                                option_count = 3
-                            elif re.search(r"\(C\)|（C）", result) and re.search(r"\(D\)|（D）", result):
-                                # 定义正则表达式匹配整个模式
-                                pattern = r"(?:\(C\)|（C）)(.*?)(?:\(D\)|（D）)(.*?)"
-
-                                # 使用 re.search 寻找第一次匹配
-                                match_option = re.search(pattern, result)
-                                # 提取各部分内容并去掉多余空白
-                                if match_option:
-                                    results_C = match_option.group(1).strip()  # C. 和 D. 之间的内容
-                                    results_D = match_option.group(2).strip()  
-                                option_count = 4
-                            else:
-                                option_count += 1
-
-                                if len(result.strip()) > 3 and result.strip().startswith(("(A)","（A）", "(B)","（B）", "(C)","（C）", "(D)","（D）")):
-                                    if option_count==1:
-                                        results_A += result.strip()[3:]
-                                    elif option_count==2:
-                                        results_B += result.strip()[3:]
-                                    elif option_count==3:
-                                        results_C += result.strip()[3:]
-                                    else:
-                                        results_D += result.strip()[3:]   
-                        elif re.search(r"(^|[^a-zA-Z0-9_{}.]\^)[AＡ]([^a-zA-Z0-9_{}\^]|$)", result) or re.search(r"(^|[^a-zA-Z0-9_{}.\^])[BＢ]([^a-zA-Z0-9_{}\^]|$)", result) or re.search(r"(^|[^a-zA-Z0-9_{}.\^])[CＣ]([^a-zA-Z0-9_{}\^]|$)", result) or re.search(r"(^|[^a-zA-Z0-9_{}.\^])[DＤ]([^a-zA-Z0-9_{}\^]|$)", result):
-                            #全是文本，一整行被解析成一个run
-                            print("A or B or C or D")
-                            print(result)
-                            if re.search(r"[AＡ]", result) and re.search(r"[BＢ]", result) and re.search(r"[CＣ]", result) and re.search(r"[DＤ]", result):
-                                # 定义正则表达式匹配整个模式
-                                pattern = r"[AＡ][．.、\s](.*?)[BＢ][．.、\s](.*?)[CＣ][．.、\s](.*?)[DＤ][．.、\s](.*)"
-
-                                # 使用 re.search 寻找第一次匹配
-                                match_option = re.search(pattern, result)
-
-                                # 提取各部分内容并去掉多余空白
-                                if match_option:
-                                    results_A = match_option.group(1).strip()  # A. 和 B. 之间的内容
-                                    results_B = match_option.group(2).strip()  # B. 和 C. 之间的内容
-                                    results_C = match_option.group(3).strip()  # C. 和 D. 之间的内容
-                                    results_D = match_option.group(4).strip()  # D. 后面的内容
-                            else:
-                                if len(result.strip()) > 2 and result.strip().startswith(("A","Ａ", "B","Ｂ", "C","Ｃ", "D","Ｄ")):
-                                    option_count += 1
-                                    if result.endswith(("B","Ｂ", "C","Ｃ", "D","Ｄ")): #考虑到可能出现 <w:t xml:space="preserve">    B．0        C．</w:t>
-                                        if option_count==1:
-                                            results_A += result.strip()[2:-1]
-                                        elif option_count==2:
-                                            results_B += result.strip()[2:-1]
-                                        elif option_count==3:
-                                            results_C += result.strip()[2:-1]
-                                        else:
-                                            results_D += result.strip()[2:-1]  
-                                        option_count += 1 
-                                    elif result.endswith(("B.","Ｂ.", "C.","Ｃ.", "D.","Ｄ.", "B．","Ｂ．", "C．","Ｃ．", "D．","Ｄ．")):  
-                                        if option_count==1:
-                                            results_A += result.strip()[2:-2]
-                                        elif option_count==2:
-                                            results_B += result.strip()[2:-2]
-                                        elif option_count==3:
-                                            results_C += result.strip()[2:-2]
-                                        else:
-                                            results_D += result.strip()[2:-2]  
-                                        option_count += 1                                    
-                                    else:
-                                        if option_count==1:
-                                            print("A")
-                                            results_A += result.strip()[2:]
-                                        elif option_count==2:
-                                            print("B")
-                                            results_B += result.strip()[2:]
-                                        elif option_count==3:
-                                            print("C")
-                                            results_C += result.strip()[2:]
-                                        else:
-                                            print("D")
-                                            results_D += result.strip()[2:]
-                                elif len(result.strip()) > 2:
-                                    print("result len > 2 and result is: " + result)
-                                    if option_count==1 and re.search(r"(^|[^a-zA-Z0-9_{}.\^])[BＢ]([^a-zA-Z0-9_{}\^]|$)", result):
-                                        match_before_B = re.search(r"^(.*?)\s*[BＢ]", result.strip())
-                                        if match_before_B:
-                                            print("before B: "+match_before_B.group(1).strip())
-                                            results_A += match_before_B.group(1).strip() 
-                                        option_count += 1
-                                        match_after_B = re.search(r"[BＢ][．.、\s](.*)", result.strip())
-                                        if match_after_B:
-                                            print("after B: "+match_after_B.group(1).strip())
-                                            results_B += match_after_B.group(1).strip()
-                                    
-                                    if option_count==2 and re.search(r"(^|[^a-zA-Z0-9_{}.\^])[CＣ]([^a-zA-Z0-9_{}\^]|$)", result):
-                                        match_before_C = re.search(r"^(.*?)\s*[CＣ]", result.strip())
-                                        if match_before_C:
-                                            print("before C: "+match_before_C.group(1).strip())
-                                            results_B += match_before_C.group(1).strip() 
-                                        option_count += 1
-                                        match_after_C = re.search(r"[CＣ][．.、\s](.*)", result.strip())
-                                        if match_after_C:
-                                            print("after C: "+match_after_C.group(1).strip())
-                                            results_C += match_after_C.group(1).strip()
-                                    
-                                    if option_count==3 and re.search(r"(^|[^a-zA-Z0-9_{}.\^])[DＤ]([^a-zA-Z0-9_{}\^]|$)", result):
-                                        match_before_D = re.search(r"^(.*?)\s*[DＤ]", result.strip())
-                                        if match_before_D:
-                                            print("before D: "+match_before_D.group(1).strip())
-                                            results_C += match_before_D.group(1).strip() 
-                                        option_count += 1
-                                        match_after_D = re.search(r"[DＤ][．.、\s](.*)", result.strip())
-                                        if match_after_D:
-                                            print("after D: "+match_after_D.group(1).strip())
-                                            results_D += match_after_D.group(1).strip()                    
-                                else:
-                                    option_count += 1    
-                        elif option_count==1:
-                            results_A += result
-                        elif option_count==2:
-                            results_B += result
-                        elif option_count==3:
+                            results_D += result[:-1]  
+                        option_count += 1
+                    elif result.endswith(("C.","Ｃ.", "D.","Ｄ.", "C．","Ｃ．", "D．","Ｄ．")) and len(result.strip()) > 2:
+                        if option_count==3:
+                            results_C += result[:-2]
+                        elif option_count==4:
+                            results_D += result[:-2]                               
+                        option_count += 1
+                    elif result.endswith(("(C)","(D)")) and len(result.strip()) > 3:
+                        if option_count==3:
+                            results_C += result[:-3]
+                        elif option_count==4:
+                            results_D += result[:-3]                               
+                        option_count += 1                               
+                    else:
+                        if option_count==3:
                             results_C += result
+                        elif option_count==4:
+                            results_D += result                        
+        else: #四个选项在同一行
+            print("[[[Situation 3]]]")
+            option_count=0
+            minus = 0
+            for i,run in enumerate(option_paragraph1.runs):
+                if run.text.strip(): # 如果是纯文本，考虑是否存在上下标需要处理
+                    if run.font.superscript:  # 如果是上标
+                        if minus == 0:
+                            result = f"^{run.text}" 
                         else:
-                            results_D += result
-                question_data["A"] = results_A
-                question_data["B"] = results_B
-                question_data["C"] = results_C
-                question_data["D"] = results_D
+                            result = run.text
+                            minus = 0
+                        if run.text == "﹣":
+                            minus = 1
+                    elif run.font.subscript:  # 如果是下标
+                        if minus == 0:
+                            result = f"_{run.text}" 
+                        else:
+                            result = run.text
+                            minus = 0
+                        if run.text == "﹣":
+                            minus = 1
+                    else:
+                        result = run.text.lstrip("．.、\t") # 普通文本直接添加
+                else: #不是文本就需要处理图像
+                    result = extract_formula_from_picture(run, docx_path, relationships).lstrip("．.、")
+                    print(result)
+                if re.search(r"\(A\)|（A）", result) or re.search(r"\(B\)|（B）", result) or re.search(r"\(C\)|（C）", result) or re.search(r"\(D\)|（D）", result):
+                    #全是文本，一整行被解析成一个run
+                    if re.search(r"\(A\)|（A）", result) and re.search(r"\(B\)|（B）", result) and re.search(r"\(C\)|（C）", result) and re.search(r"\(D\)|（D）", result):
+                        # 定义正则表达式匹配整个模式
+                        pattern = r"(?:\(A\)|（A）)(.*?)(?:\(B\)|（B）)(.*?)(?:\(C\)|（C）)(.*?)(?:\(D\)|（D）)(.*)"
+
+                        # 使用 re.search 寻找第一次匹配
+                        match_option = re.search(pattern, result)
+
+                        # 提取各部分内容并去掉多余空白
+                        if match_option:
+                            results_A = match_option.group(1).strip()  # A. 和 B. 之间的内容
+                            results_B = match_option.group(2).strip()  # B. 和 C. 之间的内容
+                            results_C = match_option.group(3).strip()  # C. 和 D. 之间的内容
+                            results_D = match_option.group(4).strip()  # D. 后面的内容
+                    elif re.search(r"\(A\)|（A）", result) and re.search(r"\(B\)|（B）", result):
+                        # 定义正则表达式匹配整个模式
+                        pattern = r"(?:\(A\)|（A）)(.*?)(?:\(B\)|（B）)(.*)"
+
+                        # 使用 re.search 寻找第一次匹配
+                        match_option = re.search(pattern, result)
+                        # 提取各部分内容并去掉多余空白
+                        if match_option:
+                            results_A = match_option.group(1).strip()  # A. 和 B. 之间的内容
+                            results_B = match_option.group(2).strip()  # B. 和 C. 之间的内容
+                        option_count = 2
+                    elif re.search(r"\(B\)|（B）", result) and re.search(r"\(C\)|（C）", result):
+                        # 定义正则表达式匹配整个模式
+                        pattern = r"(?:\(B\)|（B）)(.*?)(?:\(C\)|（C）)(.*?)"
+
+                        # 使用 re.search 寻找第一次匹配
+                        match_option = re.search(pattern, result)
+                        # 提取各部分内容并去掉多余空白
+                        if match_option:
+                            results_B = match_option.group(1).strip()  # B. 和 C. 之间的内容
+                            results_C = match_option.group(2).strip()  # C. 和 D. 之间的内容
+                        option_count = 3
+                    elif re.search(r"\(C\)|（C）", result) and re.search(r"\(D\)|（D）", result):
+                        # 定义正则表达式匹配整个模式
+                        pattern = r"(?:\(C\)|（C）)(.*?)(?:\(D\)|（D）)(.*?)"
+
+                        # 使用 re.search 寻找第一次匹配
+                        match_option = re.search(pattern, result)
+                        # 提取各部分内容并去掉多余空白
+                        if match_option:
+                            results_C = match_option.group(1).strip()  # C. 和 D. 之间的内容
+                            results_D = match_option.group(2).strip()  
+                        option_count = 4
+                    else:
+                        option_count += 1
+
+                        if len(result.strip()) > 3 and result.strip().startswith(("(A)","（A）", "(B)","（B）", "(C)","（C）", "(D)","（D）")):
+                            if option_count==1:
+                                results_A += result.strip()[3:]
+                            elif option_count==2:
+                                results_B += result.strip()[3:]
+                            elif option_count==3:
+                                results_C += result.strip()[3:]
+                            else:
+                                results_D += result.strip()[3:]   
+                elif re.search(r"(^|[^a-zA-Z0-9_{}.]\^)[AＡ]([^a-zA-Z0-9_{}\^]|$)", result) or re.search(r"(^|[^a-zA-Z0-9_{}.\^])[BＢ]([^a-zA-Z0-9_{}\^]|$)", result) or re.search(r"(^|[^a-zA-Z0-9_{}.\^])[CＣ]([^a-zA-Z0-9_{}\^]|$)", result) or re.search(r"(^|[^a-zA-Z0-9_{}.\^])[DＤ]([^a-zA-Z0-9_{}\^]|$)", result):
+                    #全是文本，一整行被解析成一个run
+                    print("A or B or C or D")
+                    print(result)
+                    if re.search(r"[AＡ]", result) and re.search(r"[BＢ]", result) and re.search(r"[CＣ]", result) and re.search(r"[DＤ]", result):
+                        # 定义正则表达式匹配整个模式
+                        pattern = r"[AＡ][．.、\s](.*?)[BＢ][．.、\s](.*?)[CＣ][．.、\s](.*?)[DＤ][．.、\s](.*)"
+
+                        # 使用 re.search 寻找第一次匹配
+                        match_option = re.search(pattern, result)
+
+                        # 提取各部分内容并去掉多余空白
+                        if match_option:
+                            results_A = match_option.group(1).strip()  # A. 和 B. 之间的内容
+                            results_B = match_option.group(2).strip()  # B. 和 C. 之间的内容
+                            results_C = match_option.group(3).strip()  # C. 和 D. 之间的内容
+                            results_D = match_option.group(4).strip()  # D. 后面的内容
+                    else:
+                        if len(result.strip()) > 2 and result.strip().startswith(("A","Ａ", "B","Ｂ", "C","Ｃ", "D","Ｄ")):
+                            option_count += 1
+                            if result.endswith(("B","Ｂ", "C","Ｃ", "D","Ｄ")): #考虑到可能出现 <w:t xml:space="preserve">    B．0        C．</w:t>
+                                if option_count==1:
+                                    results_A += result.strip()[2:-1]
+                                elif option_count==2:
+                                    results_B += result.strip()[2:-1]
+                                elif option_count==3:
+                                    results_C += result.strip()[2:-1]
+                                else:
+                                    results_D += result.strip()[2:-1]  
+                                option_count += 1 
+                            elif result.endswith(("B.","Ｂ.", "C.","Ｃ.", "D.","Ｄ.", "B．","Ｂ．", "C．","Ｃ．", "D．","Ｄ．")):  
+                                if option_count==1:
+                                    results_A += result.strip()[2:-2]
+                                elif option_count==2:
+                                    results_B += result.strip()[2:-2]
+                                elif option_count==3:
+                                    results_C += result.strip()[2:-2]
+                                else:
+                                    results_D += result.strip()[2:-2]  
+                                option_count += 1                                    
+                            else:
+                                if option_count==1:
+                                    print("A")
+                                    results_A += result.strip()[2:]
+                                elif option_count==2:
+                                    print("B")
+                                    results_B += result.strip()[2:]
+                                elif option_count==3:
+                                    print("C")
+                                    results_C += result.strip()[2:]
+                                else:
+                                    print("D")
+                                    results_D += result.strip()[2:]
+                        elif len(result.strip()) > 2:
+                            print("result len > 2 and result is: " + result)
+                            if option_count==1 and re.search(r"(^|[^a-zA-Z0-9_{}.\^])[BＢ]([^a-zA-Z0-9_{}\^]|$)", result):
+                                match_before_B = re.search(r"^(.*?)\s*[BＢ]", result.strip())
+                                if match_before_B:
+                                    print("before B: "+match_before_B.group(1).strip())
+                                    results_A += match_before_B.group(1).strip() 
+                                option_count += 1
+                                match_after_B = re.search(r"[BＢ][．.、\s](.*)", result.strip())
+                                if match_after_B:
+                                    print("after B: "+match_after_B.group(1).strip())
+                                    results_B += match_after_B.group(1).strip()
+                            
+                            if option_count==2 and re.search(r"(^|[^a-zA-Z0-9_{}.\^])[CＣ]([^a-zA-Z0-9_{}\^]|$)", result):
+                                match_before_C = re.search(r"^(.*?)\s*[CＣ]", result.strip())
+                                if match_before_C:
+                                    print("before C: "+match_before_C.group(1).strip())
+                                    results_B += match_before_C.group(1).strip() 
+                                option_count += 1
+                                match_after_C = re.search(r"[CＣ][．.、\s](.*)", result.strip())
+                                if match_after_C:
+                                    print("after C: "+match_after_C.group(1).strip())
+                                    results_C += match_after_C.group(1).strip()
+                            
+                            if option_count==3 and re.search(r"(^|[^a-zA-Z0-9_{}.\^])[DＤ]([^a-zA-Z0-9_{}\^]|$)", result):
+                                match_before_D = re.search(r"^(.*?)\s*[DＤ]", result.strip())
+                                if match_before_D:
+                                    print("before D: "+match_before_D.group(1).strip())
+                                    results_C += match_before_D.group(1).strip() 
+                                option_count += 1
+                                match_after_D = re.search(r"[DＤ][．.、\s](.*)", result.strip())
+                                if match_after_D:
+                                    print("after D: "+match_after_D.group(1).strip())
+                                    results_D += match_after_D.group(1).strip()                    
+                        else:
+                            option_count += 1    
+                elif option_count==1:
+                    results_A += result
+                elif option_count==2:
+                    results_B += result
+                elif option_count==3:
+                    results_C += result
+                else:
+                    results_D += result
+        question_data["A"] = results_A
+        question_data["B"] = results_B
+        question_data["C"] = results_C
+        question_data["D"] = results_D
         print(">>>>>>>>>>")  
             
         # 添加识别到的问题

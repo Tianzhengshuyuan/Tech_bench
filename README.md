@@ -282,6 +282,40 @@ python postprocess.py
     - 原因是A、B、C、D是表格中的单元格，但是其他文档都不是这样的，放弃处理此文档
 检查到613行
 
+## 题目解析问题
+- 题目中的公式如何识别？
+    - wmf形式
+    - png形式
+- 题目中的表格如何识别？
+
+## word文档中换行符不是段落结束符，影响解析
+![换行符](./images/line.png) （1994年新疆高考物理真题及答案）
+```bash
+from docx import Document
+
+def replace_line_breaks_with_paragraphs(file_path, output_path):
+    # 打开 Word 文档
+    doc = Document(file_path)
+    for paragraph in doc.paragraphs:
+        # 替换每个段落中的换行符（\n）为段落结束符
+        if '\n' in paragraph.text:
+            lines = paragraph.text.split('\n')
+            for i, line in enumerate(lines):
+                if i == 0:
+                    paragraph.text = line
+                else:
+                    # 添加新段落
+                    doc.add_paragraph(line)
+
+    # 保存修改后的文档
+    doc.save(output_path)
+
+# 输入和输出文件路径
+input_file = "input.docx"
+output_file = "output.docx"
+replace_line_breaks_with_paragraphs(input_file, output_file)
+```
+
 ## 如何在理综试卷中区分物理、化学、生物？
     - 人工区分？工作量大
     - 使用关键词区分？
