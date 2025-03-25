@@ -392,6 +392,7 @@ def extract_high_res_image_from_docx(docx_path, rId, relationships):
     """
     # 获取 rId 对应的 Target 路径
     target_path = relationships.get(rId)
+    print("target path is: "+target_path)
     if not target_path:
         print(f"No target found for rId: {rId}")
         return None
@@ -405,26 +406,34 @@ def extract_high_res_image_from_docx(docx_path, rId, relationships):
         if target_path in docx_zip.namelist():
             with docx_zip.open(target_path) as image_file:
                 image_data = image_file.read()
-                wmf_path = f"./wmf_images/{rId}.wmf"
-                with open(wmf_path, "wb") as wmf_file:
-                    wmf_file.write(image_data)
-                output_path = f"./png_images/{rId}.png"
-                output_dir = f"./png_images/"
-                # 构造命令
-                command = [
-                    "libreoffice", "--headless", "--convert-to", "png", wmf_path, "--outdir", output_dir
-                ]
+                if target_path.endswith(".wmf"):
+                    wmf_path = f"./wmf_images/{rId}.wmf"
+                    with open(wmf_path, "wb") as wmf_file:
+                        wmf_file.write(image_data)
+                    output_path = f"./png_images/{rId}.png"
+                    output_dir = f"./png_images/"
+                    # 构造命令
+                    command = [
+                        "libreoffice", "--headless", "--convert-to", "png", wmf_path, "--outdir", output_dir
+                    ]
+                    
+                    # 执行命令
+                    result = subprocess.run(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+                    return PILImage.open(output_path)
                 
-                # 执行命令
-                result = subprocess.run(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
-                return PILImage.open(output_path)
-            
-                # image = PILImage.open(output_path)
-                # # 裁剪图像（去除空白区域）
-                # cropped_image = crop_image(image)
-                # # 保存裁剪后的图像
-                # cropped_image.save(f"./png_new_images/{rId}.png")
-                # return cropped_image                
+                    # image = PILImage.open(output_path)
+                    # # 裁剪图像（去除空白区域）
+                    # cropped_image = crop_image(image)
+                    # # 保存裁剪后的图像
+                    # cropped_image.save(f"./png_new_images/{rId}.png")
+                    # return cropped_image   
+                elif target_path.endswith('.png'):
+                    print("png formula")
+                    png_path = f"./png_images/{rId}.png"
+                    # 保存 PNG 文件
+                    with open(png_path, "wb") as png_file:
+                        png_file.write(image_data)
+                    return PILImage.open(png_path) 
         else:
             print(f"Target path {target_path} not found in ZIP.")
     return None
@@ -434,11 +443,13 @@ def extract_formula_from_picture(run, dotx_path, relationships):
     提取段落中的公式图片并识别为 LaTeX。
     """
     run_xml = run.element  # 获取当前运行对象的 XML 元素
+    print("picture formula")
     # print(run_xml.xml)
+    rId = None
+    root = etree.fromstring(run_xml.xml)
     if "<w:object" in run_xml.xml and args.latex == "on":
+        print("w:object")
         # 解析 XML 内容
-        root = etree.fromstring(run_xml.xml)
-        
         # 找到 <w:object> 元素
         w_object = root.find('.//{http://schemas.openxmlformats.org/wordprocessingml/2006/main}object')
         if w_object is not None:
@@ -447,26 +458,48 @@ def extract_formula_from_picture(run, dotx_path, relationships):
                 v_imagedata = v_shape.find('.//{urn:schemas-microsoft-com:vml}imagedata') # 找到 <v:imagedata> 元素
                 if v_imagedata is not None:
                     rId = v_imagedata.get('{http://schemas.openxmlformats.org/officeDocument/2006/relationships}id') # 获取 r:id 属性值
-                if rId:
-                    img = extract_high_res_image_from_docx(docx_path, rId, relationships) # 使用 rId 提取高分辨率图像
-                    file_path = f"./png_images/{rId}.png"
-                    if img:
-                        # 使用 SimpleTex 的 API 识别公式
-                        SIMPLETEX_UAT="x97YHMaxT4hl1kbcvKkAHbQqZGR0HDL0rBAZfmqScLusUcO74sXCCOIsNfqO3PgM"
-                        api_url="https://server.simpletex.cn/api/latex_ocr"  # 标准模型接口地址
-                        # api_url="https://server.simpletex.cn/api/latex_ocr_turbo"  # 轻量级模型接口地址
-                        data = { } # 请求参数数据（非文件型参数），视情况填入，可以参考各个接口的参数说明
-                        header={ "token": SIMPLETEX_UAT } # 鉴权信息，此处使用UAT方式
-                        file=[("file",(file_path,open(file_path, 'rb')))] # 请求文件,字段名一般为file
-                        res = requests.post(api_url, files=file, data=data, headers=header) # 使用requests库上传文件
-                        print(res.text)
-                        if "err_info" in json.loads(res.text)['res']:
-                            return ""
-                        else:
-                            content = json.loads(res.text)['res']['latex']
-                            return content
-                    else:
-                        print(f"Could not find image for rId: {rId}")
+    
+    if not rId:
+        namespaces = {
+            "w": "http://schemas.openxmlformats.org/wordprocessingml/2006/main",
+            "v": "urn:schemas-microsoft-com:vml",
+        }
+
+        # 找到 <w:pict>
+        w_pict = root.find('.//{http://schemas.openxmlformats.org/wordprocessingml/2006/main}pict')
+        if w_pict is not None:
+            print("<w:pict> found")
+            # 找到 <v:shape>
+            v_shape = w_pict.find('.//{urn:schemas-microsoft-com:vml}shape')
+            if v_shape is not None:
+                print("<v:shape> found")
+                # 找到 <v:imagedata>
+                v_imagedata = v_shape.find('.//{urn:schemas-microsoft-com:vml}imagedata')
+                if v_imagedata is not None:
+                    print("<v:imagedata> found")
+                    rId = v_imagedata.get('{http://schemas.openxmlformats.org/officeDocument/2006/relationships}id')
+    if rId:
+        # 使用 rId 提取高分辨率图像
+        img = extract_high_res_image_from_docx(docx_path, rId, relationships)
+        file_path = f"./png_images/{rId}.png"            
+
+        if img:
+            # 使用 SimpleTex 的 API 识别公式
+            SIMPLETEX_UAT="x97YHMaxT4hl1kbcvKkAHbQqZGR0HDL0rBAZfmqScLusUcO74sXCCOIsNfqO3PgM"
+            api_url="https://server.simpletex.cn/api/latex_ocr"  # 标准模型接口地址
+            # api_url="https://server.simpletex.cn/api/latex_ocr_turbo"  # 轻量级模型接口地址
+            data = { } # 请求参数数据（非文件型参数），视情况填入，可以参考各个接口的参数说明
+            header={ "token": SIMPLETEX_UAT } # 鉴权信息，此处使用UAT方式
+            file=[("file",(file_path,open(file_path, 'rb')))] # 请求文件,字段名一般为file
+            res = requests.post(api_url, files=file, data=data, headers=header) # 使用requests库上传文件
+            print(res.text)
+            if "err_info" in json.loads(res.text)['res']:
+                return ""
+            else:
+                content = json.loads(res.text)['res']['latex']
+                return content
+        else:
+            print(f"Could not find image for rId: {rId}")
     return ""
 
 def extract_questions_and_answer_from_docx(docx_path, output_json_path):
