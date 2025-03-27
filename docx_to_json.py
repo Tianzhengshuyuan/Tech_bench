@@ -486,8 +486,8 @@ def extract_formula_from_picture(run, dotx_path, relationships):
         if img:
             # 使用 SimpleTex 的 API 识别公式
             SIMPLETEX_UAT="x97YHMaxT4hl1kbcvKkAHbQqZGR0HDL0rBAZfmqScLusUcO74sXCCOIsNfqO3PgM"
-            api_url="https://server.simpletex.cn/api/latex_ocr"  # 标准模型接口地址
-            # api_url="https://server.simpletex.cn/api/latex_ocr_turbo"  # 轻量级模型接口地址
+            # api_url="https://server.simpletex.cn/api/latex_ocr"  # 标准模型接口地址
+            api_url="https://server.simpletex.cn/api/latex_ocr_turbo"  # 轻量级模型接口地址
             data = { } # 请求参数数据（非文件型参数），视情况填入，可以参考各个接口的参数说明
             header={ "token": SIMPLETEX_UAT } # 鉴权信息，此处使用UAT方式
             file=[("file",(file_path,open(file_path, 'rb')))] # 请求文件,字段名一般为file
@@ -541,18 +541,17 @@ def extract_questions_and_answer_from_docx(docx_path, output_json_path):
     questions = []
     for match in question_pattern.finditer(full_text):
         question_data = match.groupdict()
-        # print("question_data[question] is: "+ repr(question_data["question"]))
+        print("question_data[question] is: "+ repr(question_data["question"]))
 
         # 处理题目段落，提取公式并拼接
         for i, paragraph in enumerate(doc.paragraphs):
             if paragraph.text.startswith(question_data["question"][:10].strip()):
-                # print("paragraph.text1: "+paragraph.text)
                 question_start = i
                 break
+        question_end = 0
         for i in range(question_start, len(doc.paragraphs)):
             if doc.paragraphs[i].text.strip().endswith(question_data["question"][-10:].strip()):
-                # print("doc text is: "+repr(doc.paragraphs[i].text))
-                question_end = i   
+                question_end = i 
                 break    
         print("\n")        
                 
@@ -561,6 +560,8 @@ def extract_questions_and_answer_from_docx(docx_path, output_json_path):
         # print("question_end is: " + str(question_end))
         if question_start > question_end:
             question_end = question_start
+        
+        start = 1
         for i in range(question_start, question_end+1):
             for run in doc.paragraphs[i].runs:
                 if run.text.strip():  # 普通文本
@@ -582,16 +583,19 @@ def extract_questions_and_answer_from_docx(docx_path, output_json_path):
                             minus = 1
                     else:
                         question_text += run.text  # 普通文本直接添加
+                    start = 0
                 else:  # 检测并处理公式图片
-                    formula_content = extract_formula_from_picture(run, docx_path, relationships)
-                    if formula_content:
-                        question_text += f" {formula_content} "  # 用 LaTeX 公式替代图片
+                    if start == 0:
+                        formula_content = extract_formula_from_picture(run, docx_path, relationships)
+                        if formula_content:
+                            question_text += f" {formula_content} "  # 用 LaTeX 公式替代图片
+            question_text += "\n"
         
         question_data["question"] = question_text
-        print(question_data["question"])
         
         clean_question(question_data)
         
+        print("question part is: "+question_data["question"])
         print(repr(match.group(0)))
         question_data['index'] = (re.match(r'^(\d+)[．.、]', question_data["question"][:10])).group(1)
       
@@ -841,23 +845,14 @@ def extract_questions_and_answer_from_docx(docx_path, output_json_path):
                             else:
                                 results_B += result.strip()[3:]
                 else:
-                    if result.endswith(("A","Ａ", "B","Ｂ")) and len(result.strip()) > 1: #可能遇到 <w:t>＝25cm/s，向左传播         B．</w:t>
-                        if option_count==1:
-                            results_A += result[:-1]
-                        elif option_count==2:
-                            results_B += result[:-1]  
+                    if result.endswith(("B","Ｂ")) and len(result.strip()) > 1 and option_count==1:  #可能遇到 <w:t>＝25cm/s，向左传播         B．</w:t>
+                        results_A += result[:-1]
                         option_count += 1
-                    elif result.endswith(("A.","Ａ.", "B.", "Ｂ.", "A．","Ａ．", "B．", "Ｂ．")) and len(result.strip()) > 2:
-                        if option_count==1:
-                            results_A += result[:-2]
-                        elif option_count==2:
-                            results_B += result[:-2]                               
+                    elif result.endswith(("B.", "Ｂ.", "B．", "Ｂ．")) and len(result.strip()) > 2 and option_count==1:                       
+                        results_A += result[:-2]                              
                         option_count += 1
-                    elif result.endswith(("(A)","(B)")) and len(result.strip()) > 3:
-                        if option_count==1:
-                            results_A += result[:-3]
-                        elif option_count==2:
-                            results_B += result[:-3]                               
+                    elif result.endswith("(B)") and len(result.strip()) > 3 and option_count==1:
+                        results_A += result[:-3]                            
                         option_count += 1                            
                     else:
                         print(result)
@@ -930,23 +925,26 @@ def extract_questions_and_answer_from_docx(docx_path, output_json_path):
                             else:
                                 results_D += result.strip()[3:]
                 else:
-                    if result.endswith(("C", "Ｃ", "D", "Ｄ")) and len(result.strip()) > 1: 
-                        if option_count==3:
+                    if (result.endswith(("C", "Ｃ")) and len(result.strip()) > 1 and option_count==2) or \
+                    (result.endswith(("D", "Ｄ")) and len(result.strip()) > 1 and option_count==3): 
+                        if option_count==2:
+                            results_B += result[:-1]  
+                        elif option_count==3:
                             results_C += result[:-1]
-                        elif option_count==4:
-                            results_D += result[:-1]  
                         option_count += 1
-                    elif result.endswith(("C.","Ｃ.", "D.","Ｄ.", "C．","Ｃ．", "D．","Ｄ．")) and len(result.strip()) > 2:
-                        if option_count==3:
+                    elif (result.endswith(("C.","Ｃ.", "C．","Ｃ．")) and len(result.strip()) > 2 and option_count==2) or \
+                    (result.endswith(("D.","Ｄ.", "D．","Ｄ．")) and len(result.strip()) > 2 and option_count==3):
+                        if option_count==2:
+                            results_B += result[:-2]                               
+                        elif option_count==3:
                             results_C += result[:-2]
-                        elif option_count==4:
-                            results_D += result[:-2]                               
                         option_count += 1
-                    elif result.endswith(("(C)","(D)")) and len(result.strip()) > 3:
-                        if option_count==3:
-                            results_C += result[:-3]
-                        elif option_count==4:
-                            results_D += result[:-3]                               
+                    elif (result.endswith("(C)") and len(result.strip()) > 3 and option_count==2) or \
+                    (result.endswith("(D)") and len(result.strip()) > 3 and option_count==3):
+                        if option_count==2:
+                            results_B += result[:-3]
+                        elif option_count==3:
+                            results_C += result[:-3]                               
                         option_count += 1                               
                     else:
                         if option_count==3:
@@ -1040,7 +1038,10 @@ def extract_questions_and_answer_from_docx(docx_path, output_json_path):
                                 results_C += result.strip()[3:]
                             else:
                                 results_D += result.strip()[3:]   
-                elif re.search(r"(^|[^a-zA-Z0-9_{}.]\^)[AＡ]([^a-zA-Z0-9_{}\^]|$)", result) or re.search(r"(^|[^a-zA-Z0-9_{}.\^])[BＢ]([^a-zA-Z0-9_{}\^]|$)", result) or re.search(r"(^|[^a-zA-Z0-9_{}.\^])[CＣ]([^a-zA-Z0-9_{}\^]|$)", result) or re.search(r"(^|[^a-zA-Z0-9_{}.\^])[DＤ]([^a-zA-Z0-9_{}\^]|$)", result):
+                elif (re.search(r"(^|[^a-zA-Z0-9_{}.]\^)[AＡ]([^a-zA-Z0-9_{}\^]|$)", result) and option_count == 0) or \
+                     (re.search(r"(^|[^a-zA-Z0-9_{}.\^])[BＢ]([^a-zA-Z0-9_{}\^]|$)", result) and option_count == 1) or \
+                     (re.search(r"(^|[^a-zA-Z0-9_{}.\^])[CＣ]([^a-zA-Z0-9_{}\^]|$)", result) and option_count == 2) or \
+                     (re.search(r"(^|[^a-zA-Z0-9_{}.\^])[DＤ]([^a-zA-Z0-9_{}\^]|$)", result) and option_count == 3):
                     #全是文本，一整行被解析成一个run
                     print("A or B or C or D")
                     print(result)

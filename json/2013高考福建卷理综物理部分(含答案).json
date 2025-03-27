@@ -1,6 +1,6 @@
 [
     {
-        "question": "13.设太阳质量为M，某行星绕太阳公转周期为T，轨道可视为r的圆。已知万有引力常量为G，则描述该行星运动的上述物理量满足\n",
+        "question": "13.设太阳质量为M，某行星绕太阳公转周期为T，轨道可视为r的圆。已知万有引力常量为G，则描述该行星运动的上述物理量满足",
         "A": "GM=\\frac{4\\pi^2r^3}{T^2}",
         "B": "GM=\\frac{4\\pi^2r^2}{T^2}",
         "C": "GM=\\frac{4\\pi^2r^2}{T^3}",
@@ -9,37 +9,37 @@
         "exam": "2013高考福建卷理综物理部分(含答案)"
     },
     {
-        "question": "14.一束由红、紫两色组成的复色光，从空气斜射向玻璃三棱镜。下面四幅途中能正确表示该复色光经三棱镜分离成两束单色光的是\n",
+        "question": "14.一束由红、紫两色组成的复色光，从空气斜射向玻璃三棱镜。下面四幅途中能正确表示该复色光经三棱镜分离成两束单色光的是",
         "A": "",
-        "B": "",
-        "C": "",
-        "D": "",
+        "B": "\\sqrt[]{\\frac{*}{\\text{红}}}",
+        "C": "\\text{一年}",
+        "D": "\\sqrt{\\frac{a}{a}}",
         "index": "14",
         "answer": "B",
         "exam": "2013高考福建卷理综物理部分(含答案)"
     },
     {
-        "question": "15.如图,实验室一台手摇交流发电机,内阻r=1.0,外接R=9.0的电阻。闭合开关S，当发电机转子以某一转速匀速转动时，产生的电动势，则\n",
+        "question": "15.如图,实验室一台手摇交流发电机,内阻r=1.0 \\mathbf{\\Omega} ,外接R=9.0 \\mathbf{\\Omega} 的电阻。闭合开关S，当发电机转子以某一转速匀速转动时，产生的电动势 e=10\\sqrt{2}\\sin10\\pi t(V) ，则",
         "A": "该交变电流的频率为10Hz",
         "B": "该电动势的有效值为10\\sqrt{2}V",
         "C": "外接电阻R所消耗的电功率为10W",
-        "D": "电路中理想交流电流表的示数为1.0A",
+        "D": "电路中理想交流电流表\\text{Q}的示数为1.0A",
         "index": "15",
         "answer": "D",
         "exam": "2013高考福建卷理综物理部分(含答案)"
     },
     {
-        "question": "16.如图，t=0时刻，波源在坐标原点从平衡位置沿y轴正方向开始振动，振动周期为0.4s，在同一均匀介质中形成沿x轴正、负两方向传播的简谐横波。下图中能够正确表示t=0.6时波形的图是\n",
+        "question": "16.如图，t=0时刻，波源在坐标原点从平衡位置沿y轴正方向开始振动，振动周期为0.4s，在同一均匀介质中形成沿x轴正、负两方向传播的简谐横波。下图中能够正确表示t=0.6时波形的图是",
         "A": "",
         "B": "",
-        "C": "",
-        "D": "",
+        "C": "\\begin{array}{c|c}&&\\\\&&\\\\&&\\\\&&&\\\\&&&\\\\&&&\\end{array}",
+        "D": "\\text{AV}",
         "index": "16",
         "answer": "C",
         "exam": "2013高考福建卷理综物理部分(含答案)"
     },
     {
-        "question": "17.在国际单位制（简称SI）中，力学和电学的基本单位有：m（米）、kg（千克）、s（秒）、A（安培）。导出单位V（伏特）用上述基本单位可表示为\n",
+        "question": "17.在国际单位制（简称SI）中，力学和电学的基本单位有：m（米）、kg（千克）、s（秒）、A（安培）。导出单位V（伏特）用上述基本单位可表示为",
         "A": "m^2\\cdot kg\\cdot s^{-4}\\cdot A^{-1}",
         "B": "m^2\\cdot kg\\cdot s^{-3}\\cdot A^{-1}",
         "C": "m^2\\cdot kg\\cdot s^{-2}\\cdot A^{-1}",
@@ -49,26 +49,26 @@
         "exam": "2013高考福建卷理综物理部分(含答案)"
     },
     {
-        "question": "18. 如图，矩形闭合线框在匀强磁场上方，由不同高度静止释放，用t_1、t_2分别表示线框ab边和cd边刚进入磁场的时刻。线框下落过程形状不变，ab边始终保持与磁场水平边界OO’平行，线框平面与磁场方向垂直。设OO’下方磁场磁场区域足够大，不计空气影响，则下列哪一个图像不可能反映线框下落过程中速度v随时间t变化的规律\n      ",
-        "A": "",
-        "B": "",
-        "C": "",
-        "D": "",
+        "question": "18. 如图，矩形闭合线框在匀强磁场上方，由不同高度静止释放，用t_1、t_2分别表示线框ab边和cd边刚进入磁场的时刻。线框下落过程形状不变，ab边始终保持与磁场水平边界OO’平行，线框平面与磁场方向垂直。设OO’下方磁场磁场区域足够大，不计空气影响，则下列哪一个图像不可能反映线框下落过程中速度v随时间t变化的规律",
+        "A": "\\underset{t_1}{\\operatorname*{\\overset{r_1}{\\operatorname*{\\overset{r_1}{\\operatorname*{\\overset{r_1}{\\operatorname*{\\overset{r_1}{\\operatorname*{\\overset{r_1}{\\operatorname*{\\overset{r_1}{\\operatorname*{\\overset{r_1}{\\operatorname*{\\overset{r_1}{\\operatorname*{\\overset{r_1}{\\operatorname*{\\overset{r_1}{\\operatorname*{\\overset{r_1}}{\\operatorname*{\\overset{r_1}{\\operatorname*{\\overset{r_1}{\\operatorname*{\\overset{r_1}{\\operatorname*{\\overset{r_1}{\\operatorname*{\\overset{r_1}{\\operatorname*{\\overset{r_1}{\\operatorname*{\\overset{r_1}{\\operatorname*{\\overset{r_1}}{\\operatorname*{\\overset{r_1}{\\operatorname*{\\overset{r_1}{\\operatorname*{\\operatorname*{\\overset{r_1}{\\operatorname*{\\overset{r_1}}{\\operatorname*{\\overset{r_1}{\\operatorname*{\\overset{r_1}{\\operatorname*{\\overset{r_1}{\\operatorname*{\\overset{r_1}{\\operatorname*{\\overset{r_1}{\\operatorname*{\\overset{r_1}{\\operatorname*{\\overset{r_1}{\\operatorname*{\\overset{r_1}{\\operatorname*{\\overset{r_1}{\\operatorname*{\\overset{r_1}{\\operatorname*{\\overset{r_1}{\\operatorname*{\\overset{r_1}{\\operatorname*{\\overset{r_1}{\\operatorname*{\\overset{r_1}{\\operatorname*{\\overset{r_1}{\\operatorname*{\\overset{r_1}{\\operatorname*{\\operatorname*{\\overset{r_1}{\\operatorname*{\\overset{r_1}{\\operatorname*{\\operatorname*{\\overset{\\operatorname*{\\operatorname*{\\operatorname*{\\overset{\\operatorname*{\\operatorname*{\\operatorname*{\\operatorname*{\\overset{}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}",
+        "B": "\\overset{v}{\\operatorname*{\\underset{0}{\\operatorname*{\\overset{t_{1}}{\\operatorname*{\\overset{t_{1}}{\\operatorname*{\\overset{t_{1}}{\\operatorname*{\\overset{t_{1}}{\\operatorname*{\\overset{t_{1}}{\\operatorname*{\\overset{t_{1}}{\\operatorname*{\\overset{t_{1}}{\\operatorname*{\\overset{t_{1}}{\\operatorname*{\\overset{t_{1}}}{\\operatorname*{\\overset{t_{1}}{\\operatorname*{\\overset{t_{1}}}{\\operatorname*{\\overset{t_{1}}{\\operatorname*{\\overset{t_{1}}}{\\operatorname*{\\overset{t_{1}}{\\operatorname*{\\overset{t_{1}}}{\\operatorname*{\\overset{t_{1}}}{\\operatorname*{\\overset{t_{1}}}{\\operatorname*{\\overset{t_{1}}}{\\operatorname*{\\overset{t_{1}}}}{\\operatorname*{\\overset{t_{1}}{\\operatorname*{\\overset{t_{1}}}}{\\operatorname*{\\overset{t_{1}}}{\\operatorname*{\\overset{t_{1}}}}{\\operatorname*{\\overset{t_{1}}{\\operatorname*{\\overset{t_{1}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}.}}.}.}.}.}}}}",
+        "C": "\\int_{0}^{v}\\int_{\\frac{t_{1}}{t_{1}}}^{v}",
+        "D": "\\frac{a^{d}\\boxed{\\quad}_{b}^{c}}{0^{\\begin{array}{ccc}{*}&{*}&{*}\\\\{*}&{*}&{B}&{*}\\\\{*}&{*}&{B}&{*}\\\\{*}&{*}&{*}\\\\{*}&{*}&{*}\\\\{*}&{*}&{*}\\\\{*}&{*}&{*}\\\\{*}&{*}&{*}\\\\{*}&{*}&{*}\\\\{*}&{*}&{*}\\\\{*}&{*}\\\\{*}&{*}&{*}\\\\{*}&{*}\\\\{*}&{*}\\\\{*}&{*}\\\\{*}&{*}\\\\{*}&{*}\\\\{*}\\\\{*}\\\\{*}\\\\{*}\\\\{*}\\\\{*}\\\\{*}\\\\{*}\\\\{*}\\\\{*}\\\\{*}\\\\{*}\\\\{*}\\\\{*}\\\\{*}\\\\{*}\\\\{*}\\\\{*}\\\\{*}\\\\{*}\\\\{*}\\\\{*}\\\\{*}\\\\{*}\\\\{*}\\\\{*}\\\\{*}\\\\{*}\\\\{*}\\\\{*}\\\\{*}\\\\{*}\\\\{*}\\\\{*}\\\\{*}\\\\{*}\\\\{*}\\\\{*}\\\\{*}\\\\{*}\\\\{*}\\\\{*}\\\\{*}\\\\{*}\\\\{*}\\\\{*}\\\\{*}\\\\{*}\\\\{*}\\\\{*}\\\\{*}\\\\{*}\\\\{*}\\\\{*}\\\\{*}\\\\{*}\\\\{*}\\\\{*}\\\\{*}\\\\{*}\\\\{*}\\\\{*}\\\\{*}\\\\{*}\\\\{*}\\\\{*}\\\\{*}\\\\{*}\\\\{*}\\\\{*}\\\\{*}\\\\{*}\\\\{*}\\\\{*}\\\\{*}\\\\{*}\\\\{*}\\\\{*}\\\\{*}\\\\{*}\\\\{*}\\\\{*}\\\\{*}\\\\{*}\\\\{*}\\\\{*}\\\\{*}\\\\{*}\\\\{*}\\\\{*}\\\\{*}\\\\{*}\\\\{*}\\\\{*}\\\\{*}\\\\{*}\\\\{*}\\\\{*}\\\\{*}\\\\{*}\\\\{*}\\\\{*}\\\\{*}\\\\{*}\\\\{*}\\\\{*}\\\\{*}\\\\{*}\\\\{*}\\\\{*}\\\\{*}\\\\{*}\\\\{*}\\\\{*}\\\\{*}\\\\{*}\\\\{*}\\\\{*}\\\\{*}\\\\{*}\\\\{*}\\\\{*}\\\\{*}\\\\{*}\\\\{*}\\\\{*}\\\\{*}\\\\{*}\\\\{*}\\\\{*}\\\\{*}\\\\{*}\\\\{*}\\\\{*}\\\\{*}\\\\{*}\\\\{*}\\\\{*}\\\\{*}\\\\{*}\\\\{*}\\\\{*}\\\\{*}\\\\{*}\\\\{*}\\\\{*}\\\\{*}\\\\{*}\\\\{*}\\\\{*}\\\\{*}\\\\{*}\\\\{*}\\\\{*}\\\\{*}\\\\{*}\\\\{*}\\\\{*}\\\\{*}\\\\{*}\\\\{*}\\\\{*}\\\\{*}\\\\{*}\\\\{*}\\\\{*}\\\\{*}\\\\{*}\\\\{*}\\\\{*}\\\\{*}\\\\{*}\\\\{*}\\\\{*}\\\\{*}\\\\{*}\\\\{*}\\\\{*}\\\\{*}\\\\{*}\\\\{*}\\\\{*}\\\\{*}\\\\{*}\\\\{*}\\\\{*}\\\\{*}\\\\{*}\\\\{*}\\\\{*}\\\\{*}\\\\{*}\\\\{*}\\\\{*}\\\\{*}\\\\{*}\\\\{*}\\\\{*}\\\\{*}\\\\{*}\\\\{*}\\overbrace{\\frac{t_1}{t_1}}^{v}",
         "index": "18",
         "answer": "A",
         "exam": "2013高考福建卷理综物理部分(含答案)"
     },
     {
-        "question": "29．[物理-选修3-3]（本题共有两小题，每小题6分，共12分。每小题只有一个选项符合题意）\n(1)下列四﹣中，能正确反映分子间作用力f和分子势能E_P随分子间距离r变化关系的图线是     。（填选图下方的字母）\n\n(2)某自行车轮胎的容积为V．里面已有压强为P_0的空气，现在要使轮胎内的气压增大到P，设充气过程为等温过程，空气可看作理想气体，轮胎容积保持不变，则还要向轮胎充入温度相同，压强也是P_0，体积为\n      的空气。（填选项前的字母）\n",
+        "question": "29．[物理-选修3-3]（本题共有两小题，每小题6分，共12分。每小题只有一个选项符合题意）(1)下列四﹣中，能正确反映分子间作用力f和分子势能E_P随分子间距离r变化关系的图线是。（填选图下方的字母） \\overset{E_p,f}{\\operatorname*{\\longrightarrow}}\\overset{E_p}{\\operatorname*{\\longrightarrow}}\\overset{E_p}{\\operatorname*{\\longrightarrow}}\\overset{E_p,f}{\\operatorname*{\\longrightarrow}}\\overset{E_p,f}{\\operatorname*{\\longrightarrow}}\\overset{E_p,f}{\\operatorname*{\\longrightarrow}}\\overset{E_p,f}{\\operatorname*{\\longrightarrow}}\\overset{E_p,f}{\\operatorname*{\\longrightarrow}}\\overset{E_p,f}{\\operatorname*{\\longrightarrow}}\\overset{E_p,f}{\\operatorname*{\\longrightarrow}} (2)某自行车轮胎的容积为V．里面已有压强为P_0的空气，现在要使轮胎内的气压增大到P，设充气过程为等温过程，空气可看作理想气体，轮胎容积保持不变，则还要向轮胎充入温度相同，压强也是P_0，体积为的空气。（填选项前的字母）",
         "A": "\\frac{P_0}PV",
         "B": "\\frac{P}{P_{0}}V",
-        "C": "\\left(\\frac P{P_0}-1\\right)V",
-        "D": "\\left(\\frac P{P_0}+1\\right)V",
+        "C": "\\Bigg(\\frac{P}{P_0}-1\\Bigg)V",
+        "D": "\\Bigg(\\frac{P}{P_0}+1\\Bigg)V",
         "index": "29",
         "exam": "2013高考福建卷理综物理部分(含答案)"
     },
     {
-        "question": "30.[物趣建修3-5](本题共有两小题，每小题6分，共12分。每小题只有一个符合题意)\n(1)在卢瑟福粒子散射实验中，金箔中的原子核可以看作静止不动，下列各图画出的是其中两个粒子经历金箔散射过程的径迹，其中正确的是____。（填选图下方的字母）\n\n(2)将静置在地面上，质量为M（含燃料）的火箭模型点火升空，在及短时间内以相对地面的速度v_0竖直向下喷出质量为m的炽热气体。忽略喷气过程重力和空气阻力的影响，则喷气结束时火箭模型获得的速度大小是      。（填选项前的事母）\n",
+        "question": "30.[物趣建修3-5](本题共有两小题，每小题6分，共12分。每小题只有一个符合题意)(1)在卢瑟福 \\boldsymbol{\\alpha} 粒子散射实验中，金箔中的原子核可以看作静止不动，下列各图画出的是其中两个 \\boldsymbol{\\alpha} 粒子经历金箔散射过程的径迹，其中正确的是____。（填选图下方的字母）(2)将静置在地面上，质量为M（含燃料）的火箭模型点火升空，在及短时间内以相对地面的速度v_0竖直向下喷出质量为m的炽热气体。忽略喷气过程重力和空气阻力的影响，则喷气结束时火箭模型获得的速度大小是。（填选项前的事母）",
         "A": "\\frac mMV_0",
         "B": "\\frac MmV_0",
         "C": "\\frac M{M-m}v_0",

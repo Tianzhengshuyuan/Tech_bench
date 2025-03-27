@@ -202,6 +202,11 @@ python bert_classifier.py
 python postprocess.py
 ```
 
+去除包含“图”关键词的题目
+```bash
+python exclude_pictures.py --input_file=phy_only.json --output_file=phy_no_picture.json
+```
+
 ## 一个完整的工作流程belike:
 在windows中完成doc->docx的转换，传到linux
 ```bash
@@ -275,12 +280,12 @@ python postprocess.py
 ![答案8](./images/答案8.png) （2012高考福建卷理综物理部分(含答案)）
 ![答案9](./images/答案9.png) （2011年高考贵州理综物理试卷(含答案)）
 ![答案17](./images/答案17.png) （2011广东高考物理试卷(及答案)）
-前一半检查完了
+前一半检查完了/4673
 
 ## 选项解析问题
 -  例如：“2015高考安徽物理试卷及答案” 解析内容为空
     - 原因是A、B、C、D是表格中的单元格，但是其他文档都不是这样的，放弃处理此文档
-检查到613行
+检查到613/3180
 
 ## 题目解析问题
 - 题目中的公式如何识别？
@@ -290,31 +295,31 @@ python postprocess.py
 
 ## word文档中换行符不是段落结束符，影响解析
 ![换行符](./images/line.png) （1994年新疆高考物理真题及答案）
-```bash
-from docx import Document
-
-def replace_line_breaks_with_paragraphs(file_path, output_path):
-    # 打开 Word 文档
-    doc = Document(file_path)
-    for paragraph in doc.paragraphs:
-        # 替换每个段落中的换行符（\n）为段落结束符
-        if '\n' in paragraph.text:
-            lines = paragraph.text.split('\n')
-            for i, line in enumerate(lines):
-                if i == 0:
-                    paragraph.text = line
-                else:
-                    # 添加新段落
-                    doc.add_paragraph(line)
-
-    # 保存修改后的文档
-    doc.save(output_path)
-
-# 输入和输出文件路径
-input_file = "input.docx"
-output_file = "output.docx"
-replace_line_breaks_with_paragraphs(input_file, output_file)
+Alt+F11，插入-模块-粘贴下面的内容-保存-关闭
+```vba
+Sub ReplaceSoftBreaksWithParagraphs()
+    ' 启动查找和替换功能
+    With Selection.Find
+        .ClearFormatting
+        .Replacement.ClearFormatting
+        ' 查找软换行符（向下箭头）
+        .Text = "^l"
+        ' 替换为段落标记（硬换行符）
+        .Replacement.Text = "^p"
+        .Forward = True
+        .Wrap = wdFindContinue
+        .Format = False
+        .MatchCase = False
+        .MatchWholeWord = False
+        .MatchWildcards = False
+        .MatchSoundsLike = False
+        .MatchAllWordForms = False
+        ' 执行替换操作
+        .Execute Replace:=wdReplaceAll
+    End With
+End Sub
 ```
+在要转换的文档中按Alt+F8，运行ReplaceSoftBreaksWithParagraphs
 
 ## 如何在理综试卷中区分物理、化学、生物？
     - 人工区分？工作量大
