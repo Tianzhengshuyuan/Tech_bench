@@ -82,53 +82,53 @@ print(classification_report(y_test, y_pred, target_names=["生物", "化学", "�
 # 打印准确率
 print("准确率：", accuracy_score(y_test, y_pred))
 
-# # 8. 使用训练好的模型对新数据分类
-# def classify_and_append(file_to_classify, bio_file, che_file, phy_file):
-#     # 加载需要分类的数据
-#     with open(file_to_classify, "r", encoding="utf-8") as file:
-#         data_to_classify = json.load(file)
+# 8. 使用训练好的模型对新数据分类
+def classify_and_append(file_to_classify, bio_file, che_file, phy_file):
+    # 加载需要分类的数据
+    with open(file_to_classify, "r", encoding="utf-8") as file:
+        data_to_classify = json.load(file)
     
-#     # 加载现有的分类文件
-#     with open(bio_file, "r", encoding="utf-8") as file:
-#         bio_data = json.load(file)
-#     with open(che_file, "r", encoding="utf-8") as file:
-#         che_data = json.load(file)
-#     with open(phy_file, "r", encoding="utf-8") as file:
-#         phy_data = json.load(file)
+    # 加载现有的分类文件
+    with open(bio_file, "r", encoding="utf-8") as file:
+        bio_data = json.load(file)
+    with open(che_file, "r", encoding="utf-8") as file:
+        che_data = json.load(file)
+    with open(phy_file, "r", encoding="utf-8") as file:
+        phy_data = json.load(file)
 
-#     # 分类数据
-#     for item in data_to_classify:
-#         # 合并题干和选项
-#         question = f"{item['question']} {item['A']} {item['B']} {item['C']} {item['D']}"
-#         # 对问题进行分词
-#         tokenized_question = tokenize(question)
-#         # 转换为 TF-IDF 特征向量
-#         vectorized_question = vectorizer.transform([tokenized_question])
-#         # 预测类别
-#         predicted_label = model.predict(vectorized_question)[0]
+    # 分类数据
+    for item in data_to_classify:
+        # 合并题干和选项
+        question = f"{item['question']} {item['A']} {item['B']} {item['C']} {item['D']}"
+        # 对问题进行分词
+        tokenized_question = tokenize(question)
+        # 转换为 TF-IDF 特征向量
+        vectorized_question = vectorizer.transform([tokenized_question])
+        # 预测类别
+        predicted_label = model.predict(vectorized_question)[0]
 
-#         # 根据类别追加到对应的文件
-#         if predicted_label == 0:
-#             bio_data.append(item)
-#         elif predicted_label == 1:
-#             che_data.append(item)
-#         elif predicted_label == 2:
-#             phy_data.append(item)
+        # 根据类别追加到对应的文件
+        if predicted_label == 0:
+            bio_data.append(item)
+        elif predicted_label == 1:
+            che_data.append(item)
+        elif predicted_label == 2:
+            phy_data.append(item)
 
-#     # 将更新后的数据写回文件
-#     with open(bio_file, "w", encoding="utf-8") as file:
-#         json.dump(bio_data, file, ensure_ascii=False, indent=4)
-#     with open(che_file, "w", encoding="utf-8") as file:
-#         json.dump(che_data, file, ensure_ascii=False, indent=4)
-#     with open(phy_file, "w", encoding="utf-8") as file:
-#         json.dump(phy_data, file, ensure_ascii=False, indent=4)
+    # 将更新后的数据写回文件
+    with open(bio_file, "w", encoding="utf-8") as file:
+        json.dump(bio_data, file, ensure_ascii=False, indent=4)
+    with open(che_file, "w", encoding="utf-8") as file:
+        json.dump(che_data, file, ensure_ascii=False, indent=4)
+    with open(phy_file, "w", encoding="utf-8") as file:
+        json.dump(phy_data, file, ensure_ascii=False, indent=4)
 
-# # 调用分类并追加的函数
-# classify_and_append(
-#     file_to_classify="conprehensive_questions.json",
-#     bio_file="bio_only.json",
-#     che_file="che_only.json",
-#     phy_file="phy_only.json"
-# )
+# 调用分类并追加的函数
+classify_and_append(
+    file_to_classify="conprehensive_questions.json",
+    bio_file="bio_only.json",
+    che_file="che_only.json",
+    phy_file="phy_only.json"
+)
 
-# print("分类完成，数据已追加到对应的文件中！")
+print("分类完成，数据已追加到对应的文件中！")

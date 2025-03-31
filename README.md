@@ -145,7 +145,7 @@ python remove_smartTag.py  --docx_name=2004年云南高考理科综合真题及�
 ./run_one.sh 2004年云南高考理科综合真题及答案 off > log.txt
 ```
 
-使用.sh脚本，执行一个文件夹里的所有文件从.docx到.json的转换
+使用.sh脚本，执行一个文件夹里的所有文件从.docx到.json的转换（开启公式识别将近6小时）
 ```bash
 ./run_all.sh GAOKAO off > log.txt
 ```
@@ -205,6 +205,11 @@ python postprocess.py
 去除包含“图”关键词的题目
 ```bash
 python exclude_pictures.py --input_file=phy_only.json --output_file=phy_no_picture.json
+```
+
+识别可以通过数字扩展的题目
+```bash
+python find_questions_with_number.py --train_file=labeled_questions --test_file=phy_no_picture
 ```
 
 ## 一个完整的工作流程belike:

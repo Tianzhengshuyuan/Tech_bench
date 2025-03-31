@@ -571,7 +571,7 @@ def extract_questions_and_answer_from_docx(docx_path, output_json_path):
                         else:
                             question_text += run.text
                             minus = 0
-                        if run.text == "﹣":
+                        if run.text == "﹣" or run.text == "－":
                             minus = 1
                     elif run.font.subscript:  # 如果是下标
                         if minus == 0:
@@ -579,7 +579,7 @@ def extract_questions_and_answer_from_docx(docx_path, output_json_path):
                         else:
                             question_text += run.text
                             minus = 0
-                        if run.text == "﹣":
+                        if run.text == "﹣" or run.text == "－":
                             minus = 1
                     else:
                         question_text += run.text  # 普通文本直接添加
@@ -646,7 +646,7 @@ def extract_questions_and_answer_from_docx(docx_path, output_json_path):
                         else:
                             result = run.text
                             minus = 0
-                        if run.text == "﹣":
+                        if run.text == "﹣" or run.text == "－":
                             minus = 1
                     elif run.font.subscript:  # 如果是下标
                         if minus == 0:
@@ -654,7 +654,7 @@ def extract_questions_and_answer_from_docx(docx_path, output_json_path):
                         else:
                             result = run.text
                             minus = 0
-                        if run.text == "﹣":
+                        if run.text == "﹣" or run.text == "－":
                             minus = 1
                     else:
                         result = run.text.lstrip("．.、\t")  # 普通文本直接添加
@@ -681,7 +681,7 @@ def extract_questions_and_answer_from_docx(docx_path, output_json_path):
                         else:
                             result = run.text
                             minus = 0
-                        if run.text == "﹣":
+                        if run.text == "﹣" or run.text == "－":
                             minus = 1
                     elif run.font.subscript:  # 如果是下标
                         if minus == 0:
@@ -689,7 +689,7 @@ def extract_questions_and_answer_from_docx(docx_path, output_json_path):
                         else:
                             result = run.text
                             minus = 0
-                        if run.text == "﹣":
+                        if run.text == "﹣" or run.text == "－":
                             minus = 1
                     else:
                         result = run.text.lstrip("．.、\t")  # 普通文本直接添加
@@ -715,7 +715,7 @@ def extract_questions_and_answer_from_docx(docx_path, output_json_path):
                         else:
                             result = run.text
                             minus = 0
-                        if run.text == "﹣":
+                        if run.text == "﹣" or run.text == "－":
                             minus = 1
                     elif run.font.subscript:  # 如果是下标
                         if minus == 0:
@@ -723,7 +723,7 @@ def extract_questions_and_answer_from_docx(docx_path, output_json_path):
                         else:
                             result = run.text
                             minus = 0
-                        if run.text == "﹣":
+                        if run.text == "﹣" or run.text == "－":
                             minus = 1
                     else:
                         result = run.text.lstrip("．.、\t")  # 普通文本直接添加
@@ -749,7 +749,7 @@ def extract_questions_and_answer_from_docx(docx_path, output_json_path):
                         else:
                             result = run.text
                             minus = 0
-                        if run.text == "﹣":
+                        if run.text == "﹣" or run.text == "－":
                             minus = 1
                     elif run.font.subscript:  # 如果是下标
                         if minus == 0:
@@ -757,7 +757,7 @@ def extract_questions_and_answer_from_docx(docx_path, output_json_path):
                         else:
                             result = run.text
                             minus = 0
-                        if run.text == "﹣":
+                        if run.text == "﹣" or run.text == "－":
                             minus = 1
                     else:
                         result = run.text.lstrip("．.、\t")  # 普通文本直接添加
@@ -787,7 +787,7 @@ def extract_questions_and_answer_from_docx(docx_path, output_json_path):
                         else:
                             result = run.text
                             minus = 0
-                        if run.text == "﹣":
+                        if run.text == "﹣" or run.text == "－":
                             minus = 1
                     elif run.font.subscript:  # 如果是下标
                         if minus == 0:
@@ -795,7 +795,7 @@ def extract_questions_and_answer_from_docx(docx_path, output_json_path):
                         else:
                             result = run.text
                             minus = 0
-                        if run.text == "﹣":
+                        if run.text == "﹣" or run.text == "－":
                             minus = 1
                     else:
                         result = run.text.lstrip("．.、\t")  # 普通文本直接添加
@@ -963,7 +963,7 @@ def extract_questions_and_answer_from_docx(docx_path, output_json_path):
                         else:
                             result = run.text
                             minus = 0
-                        if run.text == "﹣":
+                        if run.text == "﹣" or run.text == "－":
                             minus = 1
                     elif run.font.subscript:  # 如果是下标
                         if minus == 0:
@@ -971,7 +971,7 @@ def extract_questions_and_answer_from_docx(docx_path, output_json_path):
                         else:
                             result = run.text
                             minus = 0
-                        if run.text == "﹣":
+                        if run.text == "﹣" or run.text == "－":
                             minus = 1
                     else:
                         result = run.text.lstrip("．.、\t") # 普通文本直接添加
