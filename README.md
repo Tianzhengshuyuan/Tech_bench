@@ -207,11 +207,6 @@ python postprocess.py
 python exclude_pictures.py --input_file=phy_only.json --output_file=phy_no_picture.json
 ```
 
-识别可以通过数字扩展的题目
-```bash
-python find_questions_with_number.py --train_file=labeled_questions --test_file=phy_no_picture
-```
-
 ## 一个完整的工作流程belike:
 在windows中完成doc->docx的转换，传到linux
 ```bash
@@ -222,6 +217,27 @@ rsync -av --progress --partial -e "ssh"  /mnt/c/Tech_bench/docx root@192.168.2.6
 ./run_all.sh 物理_docx2 off
 python postprocess.py
 ```
+
+识别可以通过数字扩展的题目
+```bash
+python find_questions_with_number.py --train_file=labeled_questions --test_file=phy_no_picture
+```
+
+word2vec环境配置
+```bash
+conda create -yn word2vec python=3.10
+conda activate word2vec
+pip install spacy==3.5.0
+pip install gensim
+python -m spacy download zh_core_web_sm 
+ python word2vec_paraphrase.py
+```
+word2vec 预训练模型下载：
+https://github.com/to-shimo/chinese-word2vec
+https://github.com/Embedding/Chinese-Word-Vectors
+
+
+bert
 
 # 已解决的问题
 - 【ok】删除目录里的A3 word版
@@ -253,6 +269,15 @@ python postprocess.py
 - 【ok】处理答案形式：
 ![答案11](./images/答案11.png)（2003年黑龙江高考理综真题及答案 同 2003年新疆高考理综真题及答案）
 ![答案6](./images/答案6.png)（2002年陕西高考理科综合真题及答案 同 2002年西藏高考理科综合真题及答案）
+
+- 【ok】如何在理综试卷中区分物理、化学、生物？
+    - 人工区分？工作量大
+    - 使用关键词区分？
+    - 在线大语言模型？尝试了gpt-4o、kimi、deepseek，准确性好，但是无法批量处理，只能返回一小部分结果
+    - 本地部署开源大语言模型？
+    - 聚类？k-means分类完全不准确
+    - 支持向量机、逻辑回归、朴素贝叶斯？https://blog.csdn.net/haha0332/article/details/112575122
+    - bert模型
 
 # 待解决的问题
 ## 答案解析问题
@@ -326,15 +351,6 @@ End Sub
 ```
 在要转换的文档中按Alt+F8，运行ReplaceSoftBreaksWithParagraphs
 
-## 如何在理综试卷中区分物理、化学、生物？
-    - 人工区分？工作量大
-    - 使用关键词区分？
-    - 在线大语言模型？尝试了gpt-4o、kimi、deepseek，准确性好，但是无法批量处理，只能返回一小部分结果
-    - 本地部署开源大语言模型？
-    - 聚类？k-means分类完全不准确
-    - 支持向量机、逻辑回归、朴素贝叶斯？https://blog.csdn.net/haha0332/article/details/112575122
-    - bert
-
 ## 如何处理有图的情况
 -图片无法使用脚本提取，因为是根据位置决定和哪一道题绑定在一起，可能会被绑定到相邻的题目里
 -rId和image的对应关系在\word\_rels\document.xml.rels中
@@ -398,6 +414,10 @@ End Sub
         "exam": "2019年北京市高考物理试卷"
     },
 ```
+近义词替换：
+- word2vec
+- bert
+- 是否需要一个同义词列表？？
 
 # 无法解决的问题：
 1. Simpletex无法正确识别λ，尝试裁剪图片只保留公式部分，但并没有用
