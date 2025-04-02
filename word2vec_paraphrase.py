@@ -4,8 +4,8 @@ import spacy
 import argparse
 import numpy as np
 from tqdm import tqdm
-from gensim.models import KeyedVectors
 from gensim.models import Word2Vec
+from gensim.models import KeyedVectors
 
 # 加载 spacy 的中文模型
 print("加载 spacy 的中文模型")
@@ -117,9 +117,9 @@ def replace_with_similar(sentence, word2vec_model):
     if subject:
         subject_similar = find_similar_word(subject, word2vec_model)
         sentence = sentence.replace(subject, subject_similar, 1)
-    if predicate:
-        predicate_similar = find_similar_word(predicate, word2vec_model)
-        sentence = sentence.replace(predicate, predicate_similar, 1)
+    if obj:
+        obj_similar = find_similar_word(obj, word2vec_model)
+        sentence = sentence.replace(obj, obj_similar, 1)
     return sentence
 
 def do_paraphrase(word2vec_model):

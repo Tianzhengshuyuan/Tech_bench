@@ -230,7 +230,7 @@ conda activate word2vec
 pip install spacy==3.5.0
 pip install gensim
 python -m spacy download zh_core_web_sm 
- python word2vec_paraphrase.py
+python word2vec_paraphrase.py
 ```
 word2vec 预训练模型下载：
 https://github.com/to-shimo/chinese-word2vec
@@ -238,6 +238,18 @@ https://github.com/Embedding/Chinese-Word-Vectors
 
 
 bert
+```bash
+conda create -yn bert python=3.10
+conda activate bert
+pip install spacy==3.5.0
+pip install torch
+pip install numpy==1.26.4 
+pip install transformers
+pip install scikit-learn
+python -m spacy download zh_core_web_sm 
+pip install datasets 
+pip install 'accelerate>=0.26.0'
+```
 
 # 已解决的问题
 - 【ok】删除目录里的A3 word版
@@ -418,6 +430,7 @@ End Sub
 - word2vec
 - bert
 - 是否需要一个同义词列表？？
+- 只选择top1吗？
 
 # 无法解决的问题：
 1. Simpletex无法正确识别λ，尝试裁剪图片只保留公式部分，但并没有用
