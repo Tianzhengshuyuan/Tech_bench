@@ -4,3 +4,5 @@ gaokao/
 物理_docx/
 物理_docx2/
 word2vec/
+fine_tuned_bert/
+vocab_embeddings.pkl
