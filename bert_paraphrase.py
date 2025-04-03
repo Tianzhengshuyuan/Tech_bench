@@ -20,115 +20,96 @@ bert_model = None  # 模型将在程序启动时加载
 vocab = None  # BERT 的词汇表
 vocab_embeddings = None  # 将在程序启动时加载或生成
 
-def get_token_embedding(token):
-    # 将 token 转换为模型输入的 ID
-    token_id = tokenizer.convert_tokens_to_ids(token)
-    if token_id is None:
-        raise ValueError(f"Token '{token}' not found in the tokenizer vocabulary.")
-    token_tensor = torch.tensor([[token_id]])
-    with torch.no_grad():
-        outputs = bert_model(input_ids=token_tensor)
+def find_similar_word_bert(word, sentence, topn=1):
+    """
+    使用 BERT 模型根据上下文找到指定单词的同义词。
+    :param word: 需要替换的完整词语（例如“半衰期”）
+    :param sentence: 包含上下文的原句子
+    :param topn: 返回最相似词的数量
+    :return: 替换后的同义词
+    """
+    # 将句子标记化
+    inputs = tokenizer(sentence, return_tensors="pt")
+    input_ids = inputs["input_ids"]
+    token_type_ids = inputs["token_type_ids"]
+    attention_mask = inputs["attention_mask"]
 
-    # 获取最后一层的输出，取该 token 的 embedding
-    embedding = outputs.last_hidden_state.squeeze(0).squeeze(0).numpy()
-    return embedding
+    # 获取分词后的 token 列表
+    tokenized_words = tokenizer.convert_ids_to_tokens(input_ids[0])
+    
+    # 在 tokenized_words 中找到 word 的起始索引和长度
+    word_start_idx = None
+    word_length = 0
+    for i in range(len(tokenized_words)):
+        reconstructed_word = ""
+        word_length = 0
+        for j in range(i, len(tokenized_words)):
+            token = tokenized_words[j]
+            if token.startswith("##"):
+                reconstructed_word += token[2:]
+            else:
+                reconstructed_word += token
+            word_length += 1
+            if reconstructed_word == word:
+                word_start_idx = i
+                break
+        if word_start_idx is not None:
+            break
 
-def get_word_embeddings(word):
-    # 对输入的单词进行分词并生成对应的张量
-    tokens = tokenizer(word, return_tensors="pt", padding=True, truncation=True)
-    input_ids = tokens["input_ids"].squeeze(0).tolist()  # 获取 token IDs
-    token_strings = tokenizer.convert_ids_to_tokens(input_ids)  # 将 token IDs 转为字符串
-    print(f"Tokens for '{word}': {token_strings}")  # 打印 token 字符串
-    with torch.no_grad():
-        # 使用 BERT 模型进行前向传播
-        outputs = bert_model(**tokens)
-    # 获取最后一层的输出，每个 token 的 embedding
-    embeddings = outputs.last_hidden_state.squeeze(0).numpy()
-    # 返回一个列表，其中每个元素是一个 token 的 embedding
-    return embeddings.tolist()
+    if word_start_idx is None:
+        print(f"Word '{word}' not found in tokenized sentence.")
+        return word  # 如果找不到，返回原单词
 
-# 预计算并缓存词汇表嵌入
-def generate_vocab_embeddings(cache_file="vocab_embeddings.pkl"):
-    global vocab_embeddings, vocab
+    # 替换 word 的每个 token 为 [MASK]，逐个预测
+    predicted_tokens = []
+    for idx in range(word_start_idx, word_start_idx + word_length):
+        masked_input_ids = input_ids.clone()
+        masked_input_ids[0, idx] = tokenizer.mask_token_id
 
-    if os.path.exists(cache_file):
-        print(f"从缓存文件 {cache_file} 加载词汇表嵌入...")
-        with open(cache_file, "rb") as f:
-            vocab_embeddings = pickle.load(f)
-    else:
-        print("计算 BERT 词汇表的嵌入向量...")
-        vocab = list(tokenizer.vocab.keys())
-        
-        vocab_embeddings = []
-        for vocab_word in tqdm(vocab, desc="Processing vocab embeddings"):
-            vocab_embedding = get_token_embedding(vocab_word)
-            vocab_embeddings.append(vocab_embedding)
-        vocab_embeddings = np.array(vocab_embeddings)  # 转为 NumPy 数组
+        # 通过模型计算 [MASK] 的预测分布
+        with torch.no_grad():
+            outputs = bert_model(masked_input_ids, attention_mask=attention_mask, token_type_ids=token_type_ids)
+            predictions = outputs.logits
 
-        # 缓存到文件中
-        print(f"保存词汇表嵌入到缓存文件 {cache_file}...")
-        with open(cache_file, "wb") as f:
-            pickle.dump(vocab_embeddings, f)
-    print(list(tokenizer.vocab.keys()))
+        # 找到 [MASK] 的预测向量
+        mask_logits = predictions[0, idx]
+        probs = torch.softmax(mask_logits, dim=-1)
 
-# 使用 BERT 找相似词的函数（从缓存的词汇表嵌入中寻找）
-def find_similar_word_bert(word, topn=1):
-    try:
-        # 获取目标词的嵌入列表（每个 token 的 embedding）
-        word_embeddings = get_word_embeddings(word)  # 确保调用的是返回 embedding 列表的函数
-        print(len(word_embeddings))
-        similar_words = []  # 用于存储每个 token 的最相似词
+        # 获取概率最高的词
+        topk_indices = torch.topk(probs, topn).indices
+        similar_token = tokenizer.convert_ids_to_tokens(topk_indices[0].item())
+        predicted_tokens.append(similar_token)
 
-        # 遍历每个 token 的 embedding
-        for i, token_embedding in enumerate(word_embeddings):
-            if i == 0 or i == len(word_embeddings)-1:
-                continue
-            # 计算当前 token 与词汇表中所有词的余弦相似度
-            similarities = cosine_similarity([token_embedding], vocab_embeddings)[0]
-            # 找到相似度最高的词
-            top_indices = np.argsort(similarities)[::-1]  # 按相似度从高到低排序
-            
-            for idx in top_indices:
-                similar_word = vocab[idx]
-                if similar_word != word:  # 确保返回的词与输入词不同
-                    similar_words.append(similar_word)  # 添加到相似词列表
-                    print(similar_word)
-                    break  # 找到第一个不同的相似词后跳出循环
-
-        # 将所有相似词拼接成一个字符串
-        result = "".join(similar_words)
-        return result
-
-    except Exception as e:
-        print(f"Error finding similar word for '{word}': {e}")
-        return word  # 如果出错，返回原词
-
+    # 拼接预测的 token，生成替换后的完整词语
+    similar_word = "".join([t if not t.startswith("##") else t[2:] for t in predicted_tokens])
+    # 返回拼接后的相似词
+    return similar_word
 
 # 提取主语、谓语、宾语的函数
 def extract_svo(sentence):
     doc = nlp(sentence)
-    subject, predicate, obj = None, None, None
+    sub, pred, obj = None, None, None
 
     for token in doc:
         if "nsubj" in token.dep_:
-            subject = token.text
+            sub = token.text
         if "ROOT" in token.dep_:
-            predicate = token.text
+            pred = token.text
         if "obj" in token.dep_:
             obj = token.text
 
-    return subject, predicate, obj
+    return sub, pred, obj
 
 # 替换主语和谓语的函数
 def replace_with_similar(sentence):
-    subject, predicate, obj = extract_svo(sentence)
-    if subject:
-        subject_similar = find_similar_word_bert(subject, topn=1)
-        print("subject is: "+subject)
-        print("subject_similar is: "+subject_similar)
-        sentence = sentence.replace(subject, subject_similar, 1)
+    sub, pred, obj = extract_svo(sentence)
+    if sub:
+        sub_similar = find_similar_word_bert(sub, sentence, topn=1)
+        print("subject is: "+sub)
+        print("subject_similar is: "+sub_similar)
+        sentence = sentence.replace(sub, sub_similar, 1)
     if obj:
-        obj_similar = find_similar_word_bert(obj, topn=1)
+        obj_similar = find_similar_word_bert(obj, sentence, topn=1)
         print("object is: "+obj)
         print("object_similar is: "+obj_similar)
         sentence = sentence.replace(obj, obj_similar, 1)
@@ -203,10 +184,11 @@ def do_paraphrase():
         data = json.load(f)
 
     # 遍历数据并替换内容
+    count=0
     for item in tqdm(data, desc="Processing items"):
+        print("question "+str(count))
+        count+=1
         item["question"] = replace_with_similar(item["question"])
-        for option in ["A", "B", "C", "D"]:
-            item[option] = replace_with_similar(item[option])
 
     # 将修改后的数据写入新的 JSON 文件
     with open(args.output_file, "w", encoding="utf-8") as f:
@@ -229,17 +211,14 @@ if __name__ == "__main__":
         print("使用微调 bert 模型")
         bert_model = BertForMaskedLM.from_pretrained(bert_model_name)
         fine_tune_bert(args.fine_tune_data, args.fine_tune_output)
-        bert_model = BertModel.from_pretrained(args.fine_tune_output)
+        bert_model = BertForMaskedLM.from_pretrained(args.fine_tune_output)
     else:
         print("使用预训练 bert 模型")
-        bert_model = BertModel.from_pretrained(bert_model_name)
+        bert_model = BertForMaskedLM.from_pretrained(bert_model_name)
 
     # 加载分词器和词汇表
     tokenizer = BertTokenizer.from_pretrained(args.fine_tune_output if args.fine_tune else bert_model_name)
     vocab = list(tokenizer.vocab.keys())
-
-    # 预计算或加载词汇表嵌入
-    generate_vocab_embeddings(args.cache_file)
 
     # 使用 BERT 进行近义词替换
     do_paraphrase()
