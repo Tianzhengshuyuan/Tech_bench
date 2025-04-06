@@ -1,0 +1,272 @@
+加载 spacy 的中文模型
+使用词粒度 bert 模型
+subject is: 柴油
+subject_similar is: 汽油
+object is: 过程
+object_similar is: 因素
+subject is: 2
+subject_similar is: 1
+Word '运动' not found in tokenized sentence.
+object is: 运动
+object_similar is: 运动
+subject is: 说法
+subject_similar is: 不
+subject is: 温度
+subject_similar is: 它
+object is: 程度
+object_similar is: 变化
+subject is: 运动
+subject_similar is: 体
+subject is: 动能
+subject_similar is: 体积
+subject is: 动能
+subject_similar is: 质量
+Word '波形' not found in tokenized sentence.
+subject is: 波形
+subject_similar is: 波形
+subject is: 加速度
+subject_similar is: 距离
+subject is: 速度
+subject_similar is: 速度
+object is: 方向
+object_similar is: 向
+subject is: a
+subject_similar is: b
+Word '位置' not found in tokenized sentence.
+object is: 位置
+object_similar is: 位置
+Word '电势' not found in tokenized sentence.
+subject is: 电势
+subject_similar is: 电势
+Word '电势' not found in tokenized sentence.
+subject is: 电势
+subject_similar is: 电势
+subject is: 方向
+subject_similar is: 变化
+Word '电势' not found in tokenized sentence.
+subject is: 电势
+subject_similar is: 电势
+object is: θ
+object_similar is: 45
+Word '折射率' not found in tokenized sentence.
+subject is: 折射率
+subject_similar is: 折射率
+Word '单色' not found in tokenized sentence.
+subject is: 单色
+subject_similar is: 单色
+Word '(c' not found in tokenized sentence.
+object is: (c
+object_similar is: (c
+subject is: 波长
+subject_similar is: 长度
+subject is: 频率
+subject_similar is: 速率
+Word 'sinθ倍' not found in tokenized sentence.
+object is: sinθ倍
+object_similar is: sinθ倍
+subject is: 粒子
+subject_similar is: 原子
+object is: 运动
+object_similar is: 移动
+Word '若速率' not found in tokenized sentence.
+subject is: 若速率
+subject_similar is: 若速率
+subject is: 质量
+subject_similar is: 能量
+subject is: 大小
+subject_similar is: 数
+Word '若动' not found in tokenized sentence.
+subject is: 若动
+subject_similar is: 若动
+subject is: 过程
+subject_similar is: 瞬间
+Word '泥潭' not found in tokenized sentence.
+object is: 泥潭
+object_similar is: 泥潭
+Word '改变量' not found in tokenized sentence.
+subject is: 改变量
+subject_similar is: 改变量
+Word '冲量' not found in tokenized sentence.
+object is: 冲量
+object_similar is: 冲量
+subject is: 重力
+subject_similar is: 的
+Word '钢珠' not found in tokenized sentence.
+subject is: 钢珠
+subject_similar is: 钢珠
+object is: 过程
+object_similar is: 方程
+Word '钢珠' not found in tokenized sentence.
+subject is: 钢珠
+subject_similar is: 钢珠
+subject is: 周期
+subject_similar is: 波长
+Word 'T' not found in tokenized sentence.
+object is: T
+object_similar is: T
+Word '△t' not found in tokenized sentence.
+subject is: △t
+subject_similar is: △t
+Word '△t' not found in tokenized sentence.
+subject is: △t
+subject_similar is: △t
+Word 'T' not found in tokenized sentence.
+object is: T
+object_similar is: T
+Word '=T' not found in tokenized sentence.
+object is: =T
+object_similar is: =T
+subject is: 半径
+subject_similar is: 距离
+object is: 卫星
+object_similar is: 之间
+subject is: 周期
+subject_similar is: 噪音
+subject is: 周期
+subject_similar is: 压力
+subject is: 周期
+subject_similar is: 噪音
+subject is: 周期
+subject_similar is: 威力
+Word '合外力' not found in tokenized sentence.
+subject is: 合外力
+subject_similar is: 合外力
+subject is: 动能
+subject_similar is: 性质
+subject is: 动量
+subject_similar is: 性质
+subject is: 加速度
+subject_similar is: 尺寸
+subject is: 方向
+subject_similar is: 方向
+subject is: 说法
+subject_similar is: 表述
+subject is: 周期
+subject_similar is: 频率
+subject is: 速度
+subject_similar is: 频率
+object is: 振动
+object_similar is: 运动
+Word '振幅' not found in tokenized sentence.
+object is: 振幅
+object_similar is: 振幅
+subject is: 地面
+subject_similar is: 月球
+object is: 卫星
+object_similar is: 星
+Word '速度' not found in tokenized sentence.
+subject is: 速度
+subject_similar is: 速度
+Word '速度' not found in tokenized sentence.
+object is: 速度
+object_similar is: 速度
+subject is: 地球
+subject_similar is: 地球
+Word '角速' not found in tokenized sentence.
+object is: 角速
+object_similar is: 角速
+object is: 加速度
+object_similar is: 率
+subject is: 电流
+subject_similar is: 电压
+Word 'U' not found in tokenized sentence.
+object is: U
+object_similar is: U
+subject is: \
+subject_similar is: <
+Word 'R' not found in tokenized sentence.
+object is: R
+object_similar is: R
+subject is: \
+subject_similar is: &
+subject is: \
+subject_similar is: <
+subject is: 粒子
+subject_similar is: 原子
+Word '半径为R' not found in tokenized sentence.
+object is: 半径为R
+object_similar is: 半径为R
+subject is: 方程
+subject_similar is: 值
+object is: 为
+object_similar is: ：
+Word '结合' not found in tokenized sentence.
+subject is: 结合
+subject_similar is: 结合
+subject is: 半径
+subject_similar is: 速度
+Word 'R' not found in tokenized sentence.
+object is: R
+object_similar is: R
+subject is: 动能
+subject_similar is: 函数
+subject is: 说法
+subject_similar is: 表述
+subject is: 分子
+subject_similar is: 因
+object is: 微粒
+object_similar is: 颗粒
+subject is: 动能
+subject_similar is: 体积
+subject is: 总和
+subject_similar is: 能量
+object is: 内
+object_similar is: 动
+object is: 内
+object_similar is: 热
+subject is: 大小
+subject_similar is: 小
+Word 'E' not found in tokenized sentence.
+object is: E
+object_similar is: E
+subject is: 方程
+subject_similar is: 过程
+Word '原子核Y' not found in tokenized sentence.
+object is: 原子核Y
+object_similar is: 原子核Y
+Word '电荷数' not found in tokenized sentence.
+subject is: 电荷数
+subject_similar is: 电荷数
+subject is: 体积
+subject_similar is: 密度
+subject is: 动能
+subject_similar is: 体积
+subject is: 动能
+subject_similar is: 体积
+subject is: 动能
+subject_similar is: 质量
+subject is: 分子
+subject_similar is: 中
+object is: 变化
+object_similar is: 性质
+subject is: 距离
+subject_similar is: 距离
+object is: 距离
+object_similar is: 距离
+Word '小' not found in tokenized sentence.
+subject is: 小
+subject_similar is: 小
+subject is: 说法
+subject_similar is: 判断
+Word '钍核' not found in tokenized sentence.
+object is: 钍核
+object_similar is: 钍核
+subject is: 动能
+subject_similar is: 能量
+object is: 粒子
+object_similar is: 原子
+subject is: 大小
+subject_similar is: 大约
+object is: 大小
+object_similar is: .
+subject is: 其
+subject_similar is: 铀
+object is: 时间
+object_similar is: 。
+Word '铀核' not found in tokenized sentence.
+object is: 铀核
+object_similar is: 铀核
+subject is: 物理量
+subject_similar is: 公式
+object is: 距离
+object_similar is: 体积

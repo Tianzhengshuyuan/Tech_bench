@@ -1,10 +1,13 @@
 import os
 import json
+import jieba
 import spacy
 import torch
 import argparse
 import numpy as np
 from tqdm import tqdm
+from wobert import WoBertTokenizer
+from transformers import AutoTokenizer, AutoModel, AutoModelForMaskedLM
 from transformers import BertTokenizer, BertModel, BertForMaskedLM, DataCollatorForLanguageModeling, Trainer, TrainingArguments
 from sklearn.metrics.pairwise import cosine_similarity
 import pickle  # 用于缓存词汇表嵌入
@@ -23,66 +26,95 @@ vocab_embeddings = None  # 将在程序启动时加载或生成
 def find_similar_word_bert(word, sentence, topn=1):
     """
     使用 BERT 模型根据上下文找到指定单词的同义词。
-    :param word: 需要替换的完整词语（例如“半衰期”）
-    :param sentence: 包含上下文的原句子
-    :param topn: 返回最相似词的数量
-    :return: 替换后的同义词
     """
     # 将句子标记化
     inputs = tokenizer(sentence, return_tensors="pt")
-    input_ids = inputs["input_ids"]
-    token_type_ids = inputs["token_type_ids"]
-    attention_mask = inputs["attention_mask"]
+    input_ids = inputs["input_ids"] # token的 ID
+    token_type_ids = inputs["token_type_ids"] # 用于区分属于句子对里的哪一个句子
+    attention_mask = inputs["attention_mask"] # 标记有效的token
 
     # 获取分词后的 token 列表
     tokenized_words = tokenizer.convert_ids_to_tokens(input_ids[0])
     
-    # 在 tokenized_words 中找到 word 的起始索引和长度
-    word_start_idx = None
-    word_length = 0
-    for i in range(len(tokenized_words)):
-        reconstructed_word = ""
-        word_length = 0
-        for j in range(i, len(tokenized_words)):
-            token = tokenized_words[j]
-            if token.startswith("##"):
-                reconstructed_word += token[2:]
-            else:
-                reconstructed_word += token
-            word_length += 1
-            if reconstructed_word == word:
+    if args.wobert: # 使用词粒度 bert 模型
+        word_start_idx = None
+        for i in range(len(tokenized_words)):
+            token = tokenized_words[i]
+            if token == word:
                 word_start_idx = i
                 break
-        if word_start_idx is not None:
-            break
-
-    if word_start_idx is None:
-        print(f"Word '{word}' not found in tokenized sentence.")
-        return word  # 如果找不到，返回原单词
-
-    # 替换 word 的每个 token 为 [MASK]，逐个预测
-    predicted_tokens = []
-    for idx in range(word_start_idx, word_start_idx + word_length):
+        if word_start_idx is None:
+            print(f"Word '{word}' not found in tokenized sentence.")
+            return word  # 如果找不到，返回原单词
+        
         masked_input_ids = input_ids.clone()
-        masked_input_ids[0, idx] = tokenizer.mask_token_id
+        # masked_input_ids 中第 0 个句子的第 idx 位置的 token ID 替换为 mask的ID
+        masked_input_ids[0, word_start_idx] = tokenizer.mask_token_id
 
         # 通过模型计算 [MASK] 的预测分布
         with torch.no_grad():
             outputs = bert_model(masked_input_ids, attention_mask=attention_mask, token_type_ids=token_type_ids)
+            # outputs.logits的形状为(batch_size, sequence_length, vocab_size)
+            # batch_size是输入的批大小，sequence_length是每个输入序列的长度，vocab_size是模型词汇表大小
             predictions = outputs.logits
 
         # 找到 [MASK] 的预测向量
-        mask_logits = predictions[0, idx]
+        mask_logits = predictions[0, word_start_idx]
         probs = torch.softmax(mask_logits, dim=-1)
 
         # 获取概率最高的词
-        topk_indices = torch.topk(probs, topn).indices
-        similar_token = tokenizer.convert_ids_to_tokens(topk_indices[0].item())
-        predicted_tokens.append(similar_token)
+        topk_indices = torch.topk(probs, 2).indices # 概率最高的 topn 个词在词汇表中的索引
+        similar_word = tokenizer.convert_ids_to_tokens(topk_indices[1].item()) # 如果是获取概率第二高则使用topk_indices[1].item()
+    else:
+        # 在 tokenized_words 中找到 word 的起始索引和长度
+        word_start_idx = None
+        word_length = 0
+        for i in range(len(tokenized_words)):
+            reconstructed_word = ""
+            word_length = 0
+            for j in range(i, len(tokenized_words)):
+                token = tokenized_words[j]
+                if token.startswith("##"):
+                    reconstructed_word += token[2:]
+                else:
+                    reconstructed_word += token
+                word_length += 1
+                if reconstructed_word == word:
+                    break
+            if word_start_idx is not None:
+                break
 
-    # 拼接预测的 token，生成替换后的完整词语
-    similar_word = "".join([t if not t.startswith("##") else t[2:] for t in predicted_tokens])
+        if word_start_idx is None:
+            print(f"Word '{word}' not found in tokenized sentence.")
+            return word  # 如果找不到，返回原单词
+
+        # 替换 word 的每个 token 为 [MASK]，逐个预测
+        predicted_tokens = []
+        for idx in range(word_start_idx, word_start_idx + word_length):
+            masked_input_ids = input_ids.clone()
+            # masked_input_ids 中第 0 个句子的第 idx 位置的 token ID 替换为 mask的ID
+            masked_input_ids[0, idx] = tokenizer.mask_token_id
+
+            # 通过模型计算 [MASK] 的预测分布
+            with torch.no_grad():
+                outputs = bert_model(masked_input_ids, attention_mask=attention_mask, token_type_ids=token_type_ids)
+                # outputs.logits的形状为(batch_size, sequence_length, vocab_size)
+                # batch_size是输入的批大小，sequence_length是每个输入序列的长度，vocab_size是模型词汇表大小
+                predictions = outputs.logits
+
+            # 找到 [MASK] 的预测向量
+            mask_logits = predictions[0, idx]
+            probs = torch.softmax(mask_logits, dim=-1)
+
+            # 获取概率最高的词
+            topk_indices = torch.topk(probs, topn).indices # 概率最高的 topn 个词在词汇表中的索引
+            similar_token = tokenizer.convert_ids_to_tokens(topk_indices[0].item()) # 如果是获取概率第二高则使用topk_indices[1].item()
+            predicted_tokens.append(similar_token)
+
+        # 拼接预测的 token，生成替换后的完整词语
+        similar_word = "".join([t if not t.startswith("##") else t[2:] for t in predicted_tokens])
     # 返回拼接后的相似词
+    # print("word is: "+word+", sim word is: "+similar_word)
     return similar_word
 
 # 提取主语、谓语、宾语的函数
@@ -100,6 +132,18 @@ def extract_svo(sentence):
 
     return sub, pred, obj
 
+# 提取名词的函数
+def extract_nouns(sentence):
+    doc = nlp(sentence)
+    nouns = []
+
+    for token in doc:
+        # 判断 token 是否为普通名词 (NOUN) 或专有名词 (PROPN)
+        if token.pos_ in ["NOUN", "PROPN"]:
+            nouns.append(token.text)
+    print(nouns)
+    return nouns
+
 # 替换主语和谓语的函数
 def replace_with_similar(sentence):
     sub, pred, obj = extract_svo(sentence)
@@ -113,7 +157,13 @@ def replace_with_similar(sentence):
         print("object is: "+obj)
         print("object_similar is: "+obj_similar)
         sentence = sentence.replace(obj, obj_similar, 1)
-    return sentence
+        
+    # nouns = extract_nouns(sentence)
+    # for noun in nouns:
+    #     noun_similar = find_similar_word_bert(noun, sentence, topn=1)
+    #     print("noun is: "+noun+" similar is: "+noun_similar)
+    #     sentence = sentence.replace(noun, noun_similar, 1)
+    # return sentence
 
 # 微调 BERT 模型
 def fine_tune_bert(data_file, output_dir, num_train_epochs=3, batch_size=8):
@@ -177,7 +227,6 @@ def fine_tune_bert(data_file, output_dir, num_train_epochs=3, batch_size=8):
     bert_model.save_pretrained(output_dir)
     tokenizer.save_pretrained(output_dir)
 
-
 def do_paraphrase():
     # 读取 JSON 文件
     with open(args.input_file, "r", encoding="utf-8") as f:
@@ -186,9 +235,9 @@ def do_paraphrase():
     # 遍历数据并替换内容
     count=0
     for item in tqdm(data, desc="Processing items"):
-        print("question "+str(count))
-        count+=1
         item["question"] = replace_with_similar(item["question"])
+        for option in ["A", "B", "C", "D"]:
+            item[option] = replace_with_similar(item[option])
 
     # 将修改后的数据写入新的 JSON 文件
     with open(args.output_file, "w", encoding="utf-8") as f:
@@ -202,6 +251,8 @@ if __name__ == "__main__":
     parser.add_argument("--output_file", type=str, default="paraphrased_labeled_questions.json", help="进行同义词替换后的 JSON 文件")
     parser.add_argument("--cache_file", type=str, default="vocab_embeddings.pkl", help="词汇表嵌入的缓存文件")
     parser.add_argument("--fine_tune", action="store_true", help="是否对 BERT 模型进行微调")
+    parser.add_argument("--physbert", action="store_true", help="是否使用针对物理领域的 bert 模型")
+    parser.add_argument("--wobert", action="store_true", help="是否使用词粒度的 bert 模型")
     parser.add_argument("--fine_tune_data", type=str, default="phy_only.json", help="用于微调的数据文件")
     parser.add_argument("--fine_tune_output", type=str, default="./fine_tuned_bert", help="微调后模型的保存路径")
     args = parser.parse_args()
@@ -212,12 +263,21 @@ if __name__ == "__main__":
         bert_model = BertForMaskedLM.from_pretrained(bert_model_name)
         fine_tune_bert(args.fine_tune_data, args.fine_tune_output)
         bert_model = BertForMaskedLM.from_pretrained(args.fine_tune_output)
+        tokenizer = BertTokenizer.from_pretrained(args.fine_tune_output)
+    elif args.physbert:
+        print("使用物理领域 bert 模型")
+        bert_model = AutoModelForMaskedLM.from_pretrained("thellert/physbert_cased") 
+        tokenizer = AutoTokenizer.from_pretrained("thellert/physbert_cased")
+    elif args.wobert:
+        print("使用词粒度 bert 模型")
+        bert_model = BertForMaskedLM.from_pretrained("junnyu/wobert_chinese_base")        
+        tokenizer = WoBertTokenizer.from_pretrained("junnyu/wobert_chinese_base")
     else:
         print("使用预训练 bert 模型")
         bert_model = BertForMaskedLM.from_pretrained(bert_model_name)
+        tokenizer = BertTokenizer.from_pretrained(bert_model_name)
 
-    # 加载分词器和词汇表
-    tokenizer = BertTokenizer.from_pretrained(args.fine_tune_output if args.fine_tune else bert_model_name)
+    # 加载词汇表
     vocab = list(tokenizer.vocab.keys())
 
     # 使用 BERT 进行近义词替换

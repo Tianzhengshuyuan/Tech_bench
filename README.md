@@ -232,6 +232,7 @@ pip install gensim
 python -m spacy download zh_core_web_sm 
 python word2vec_paraphrase.py
 ```
+
 word2vec 预训练模型下载：
 https://github.com/to-shimo/chinese-word2vec
 https://github.com/Embedding/Chinese-Word-Vectors
@@ -248,7 +249,12 @@ pip install transformers
 pip install scikit-learn
 python -m spacy download zh_core_web_sm 
 pip install datasets 
-pip install 'accelerate>=0.26.0'
+pip install 'accelerate>=0.26.0' 
+```
+```bash
+python bert_paraphrase.py 
+python bert_paraphrase.py --physbert 
+python bert_paraphrase.py --fine_tune 
 ```
 
 # 已解决的问题
@@ -426,11 +432,19 @@ End Sub
         "exam": "2019年北京市高考物理试卷"
     },
 ```
-近义词替换：
+近义词替换方法：
 - word2vec
 - bert
 - 是否需要一个同义词列表？？
 - 只选择top1吗？
+
+word2vec替换效果：
+- 正常：柴油->汽油 温度->环境温度 程度->程度较高 动能->能量 折射率->折光率 泥潭->泥沼 卫星->同步卫星 动量->动量定理 微粒->粒子 总和->之和 方程->方程组 波长->光波长 频率->frequency 结合->相结合
+- 怪异：过程->N点 运动->N点 说法->幅图 波形->整形电路 加速度->大小为g 重力->大小为g 速度->度a 方向->沿x a->b T->P △t->{a 位置->0时 电势->电偶层 单色->CMY 粒子->质心系 质量->电荷量 大小->安培力 冲量->惯性力 钢珠->焦桃 周期->质量为M 半径->质量为M 振动->简谐 振幅->波腹 地面->A点 地球->球绕 电流->示数 半径为R->质量为M 分子->质子转移 内->银面 电荷数->正下 距离->O点 小->大 物理量->谐振子
+
+bert替换效果:
+- 正常：波形->波长 粒子->电子 地面->地球 方程->过程 说法->方法 电势->电场 加速度->加速有 说法->说明 振动->移动 动能->势量 分子->粒子 内->动 
+- 怪异：1->2 4->5 合外力->紫力力 小->大 程度->程。 a->b 位置->点。 单色->蓝位 (c->(这 sinθ倍->m的两s 若速度->若曲度 若动->若不 改变量->不变 冲量->动。重力->阻力 钢珠->弹铁 动能->功作 动量->质作 结合->化构 
 
 # 无法解决的问题：
 1. Simpletex无法正确识别λ，尝试裁剪图片只保留公式部分，但并没有用

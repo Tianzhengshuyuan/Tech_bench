@@ -5,4 +5,5 @@ gaokao/
 物理_docx2/
 word2vec/
 fine_tuned_bert/
+chinese_wobert_L-12_H-768_A-12/
 vocab_embeddings.pkl

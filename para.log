@@ -1,200 +1,102 @@
 加载 spacy 的中文模型
 使用预训练 bert 模型
 question 0
-subject is: 半衰期
-subject_similar is: 半衰期
-object is: 半衰期
-object_similar is: 半衰期
-question 1
-subject is: 样品
-subject_similar is: 样品
-object is: 半衰期
-object_similar is: 半衰期
-question 2
-object is: 频率
-object_similar is: 功率
-question 3
-subject is: 比
-subject_similar is: 比
-Word 'P' not found in tokenized sentence.
-object is: P
-object_similar is: P
-question 4
-subject is: 数
-subject_similar is: 数
-Word '铝核Al' not found in tokenized sentence.
-object is: 铝核Al
-object_similar is: 铝核Al
-question 5
-subject is: 速率
-subject_similar is: 速率
-object is: 时速率
-object_similar is: 时速率
-question 6
-subject is: 示数
-subject_similar is: 示数
-object is: 表接
-object_similar is: 表接
-question 7
-subject is: 比
-subject_similar is: 比
-Word 'TA∶TB=' not found in tokenized sentence.
-object is: TA∶TB=
-object_similar is: TA∶TB=
-question 8
-subject is: 2.9
-subject_similar is: 1.6
-object is: 反应
-object_similar is: 反应
-question 9
-subject is: 电压
-subject_similar is: 电磁
-object is: 影响
-object_similar is: 影响
-question 10
-subject is: 质量
-subject_similar is: 重量
-object is: 运动员
-object_similar is: 运动员
-question 11
-subject is: 办法
-subject_similar is: 方法
-object is: 电功率
-object_similar is: 电阻率
-question 12
-subject is: 0
-subject_similar is: 0
-object is: 正电
-object_similar is: 静电
-question 13
-subject is: 质量
-subject_similar is: 重量
-object is: m
-object_similar is: m
-question 14
-subject is: 说法
-subject_similar is: 方法
-Word 'C' not found in tokenized sentence.
-object is: C
-object_similar is: C
-question 15
-subject is: 一系
-subject_similar is: 一次
-object is: ^{
-object_similar is: ^{
-question 16
-subject is: 原子
-subject_similar is: 原子
-object is: 能量
-object_similar is: 能量
-question 17
-Word 'E2' not found in tokenized sentence.
-subject is: E2
-subject_similar is: E2
-object is: r2＝2
-object_similar is: r−1
-question 18
-subject is: 2.9
-subject_similar is: 1.6
-object is: 反应
-object_similar is: 反应
-question 19
 subject is: 柴油
 subject_similar is: 柴油
 object is: 过程
 object_similar is: 过程
-question 20
+question 1
 subject is: 2
 subject_similar is: 2
 object is: 运动
 object_similar is: 运动
-question 21
+question 2
 subject is: 说法
 subject_similar is: 说法
-question 22
+question 3
 subject is: 波形
 subject_similar is: 波长
-question 23
-question 24
+question 4
+question 5
 object is: θ
 object_similar is: 0
-question 25
+question 6
 subject is: 粒子
 subject_similar is: 电子
 object is: 运动
 object_similar is: 运动
-question 26
+question 7
 subject is: 过程
 subject_similar is: 过程
 object is: 泥潭
 object_similar is: 泥潭
-question 27
+question 8
 subject is: 周期
 subject_similar is: 周期
 Word 'T' not found in tokenized sentence.
 object is: T
 object_similar is: T
-question 28
+question 9
 subject is: 半径
 subject_similar is: 半径
 object is: 卫星
 object_similar is: 卫星
-question 29
+question 10
 subject is: 合外力
 subject_similar is: 紫力力
-question 30
+question 11
 subject is: 说法
 subject_similar is: 说明
-question 31
+question 12
 subject is: 地面
 subject_similar is: 地球
 object is: 卫星
 object_similar is: 卫星
-question 32
+question 13
 subject is: 电流
 subject_similar is: 电流
 Word 'U' not found in tokenized sentence.
 object is: U
 object_similar is: U
-question 33
+question 14
 subject is: 粒子
 subject_similar is: 粒子
 Word '半径为R' not found in tokenized sentence.
 object is: 半径为R
 object_similar is: 半径为R
-question 34
+question 15
 subject is: 说法
 subject_similar is: 说法
-question 35
+question 16
 subject is: 大小
 subject_similar is: 大小
 Word 'E' not found in tokenized sentence.
 object is: E
 object_similar is: E
-question 36
+question 17
 subject is: 方程
 subject_similar is: 过程
 Word '原子核Y' not found in tokenized sentence.
 object is: 原子核Y
 object_similar is: 原子核Y
-question 37
+question 18
 subject is: 体积
 subject_similar is: 体积
-question 38
+question 19
 subject is: 距离
 subject_similar is: 距离
 object is: 距离
 object_similar is: 距离
-question 39
+question 20
 subject is: 小
 subject_similar is: 大
-question 40
+question 21
 subject is: 说法
 subject_similar is: 方法
 Word '钍核' not found in tokenized sentence.
 object is: 钍核
 object_similar is: 钍核
-question 41
+question 22
 subject is: 物理量
 subject_similar is: 物理量
 object is: 距离

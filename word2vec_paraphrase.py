@@ -101,9 +101,6 @@ def train_word2vec_on_custom_data():
 def find_similar_word(word, word2vec_model):
     try:
         similar_words = word2vec_model.wv.most_similar(word, topn=1)
-        print("word is: "+word)
-        print("similar word is: ", end="")
-        print(similar_words)
         if similar_words:
             return similar_words[0][0]
     except KeyError:
@@ -113,12 +110,19 @@ def find_similar_word(word, word2vec_model):
 
 # 替换主语和谓语的函数
 def replace_with_similar(sentence, word2vec_model):
-    subject, predicate, obj = extract_svo(sentence)
-    if subject:
-        subject_similar = find_similar_word(subject, word2vec_model)
-        sentence = sentence.replace(subject, subject_similar, 1)
+    sub, pred, obj = extract_svo(sentence)
+    print("sentence is: "+sentence)
+    if sub:
+        sub_similar = find_similar_word(sub, word2vec_model)
+        print("sub is: "+sub)
+        print("similar sub is: ", end="")
+        print(sub_similar)
+        sentence = sentence.replace(sub, sub_similar, 1)
     if obj:
         obj_similar = find_similar_word(obj, word2vec_model)
+        print("obj is: "+obj)
+        print("similar ojb is: ", end="")
+        print(obj_similar)
         sentence = sentence.replace(obj, obj_similar, 1)
     return sentence
 
