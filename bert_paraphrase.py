@@ -35,7 +35,7 @@ def find_similar_word_bert(word, sentence, topn=1):
 
     # 获取分词后的 token 列表
     tokenized_words = tokenizer.convert_ids_to_tokens(input_ids[0])
-    
+    print(f"分词后的句子：{tokenized_words} ")
     if args.wobert: # 使用词粒度 bert 模型
         word_start_idx = None
         for i in range(len(tokenized_words)):
@@ -44,7 +44,7 @@ def find_similar_word_bert(word, sentence, topn=1):
                 word_start_idx = i
                 break
         if word_start_idx is None:
-            print(f"Word '{word}' not found in tokenized sentence.")
+            print(f"在分词后的句子中没有找到'{word}'")
             return word  # 如果找不到，返回原单词
         
         masked_input_ids = input_ids.clone()
@@ -270,8 +270,10 @@ if __name__ == "__main__":
         tokenizer = AutoTokenizer.from_pretrained("thellert/physbert_cased")
     elif args.wobert:
         print("使用词粒度 bert 模型")
-        bert_model = BertForMaskedLM.from_pretrained("junnyu/wobert_chinese_base")        
-        tokenizer = WoBertTokenizer.from_pretrained("junnyu/wobert_chinese_base")
+        # bert_model = BertForMaskedLM.from_pretrained("junnyu/wobert_chinese_base")        
+        # tokenizer = WoBertTokenizer.from_pretrained("junnyu/wobert_chinese_base")
+        bert_model = BertForMaskedLM.from_pretrained("junnyu/wobert_chinese_plus_base")        
+        tokenizer = WoBertTokenizer.from_pretrained("junnyu/wobert_chinese_plus_base")
     else:
         print("使用预训练 bert 模型")
         bert_model = BertForMaskedLM.from_pretrained(bert_model_name)

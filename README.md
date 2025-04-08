@@ -207,7 +207,7 @@ python postprocess.py
 python exclude_pictures.py --input_file=phy_only.json --output_file=phy_no_picture.json
 ```
 
-## 一个完整的工作流程belike:
+- 一个完整的工作流程belike:
 在windows中完成doc->docx的转换，传到linux
 ```bash
 rsync -av --progress --partial -e "ssh"  /mnt/c/Tech_bench/docx root@192.168.2.65:~/tech_bench/物理_docx
@@ -238,7 +238,8 @@ https://github.com/to-shimo/chinese-word2vec
 https://github.com/Embedding/Chinese-Word-Vectors
 
 
-bert
+使用bert做近义词替换
+环境配置：
 ```bash
 conda create -yn bert python=3.10
 conda activate bert
@@ -251,10 +252,26 @@ python -m spacy download zh_core_web_sm
 pip install datasets 
 pip install 'accelerate>=0.26.0' 
 ```
+运行命令：
 ```bash
 python bert_paraphrase.py 
 python bert_paraphrase.py --physbert 
 python bert_paraphrase.py --fine_tune 
+```
+微调bert模型
+环境配置(参考[bert4keras | github](https://github.com/bojone/bert4keras?tab=readme-ov-file))：
+```bash
+conda create -yn bert_train python=3.7
+conda activate bert_train
+pip install tensorflow==1.14.0
+pip install keras==2.3.1
+pip install bert4keras
+pip install protobuf==3.20.0
+pip install jieba
+```
+训练命令(代码参考 [WoBERT | github](https://github.com/ZhuiyiTechnology/WoBERT))：
+```bash
+python bert_train.py
 ```
 
 # 已解决的问题
