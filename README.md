@@ -259,6 +259,7 @@ python bert_paraphrase.py --physbert
 python bert_paraphrase.py --fine_tune 
 ```
 微调bert模型
+- cpu 环境
 环境配置(参考[bert4keras | github](https://github.com/bojone/bert4keras?tab=readme-ov-file))：
 ```bash
 conda create -yn bert_train python=3.7
@@ -272,6 +273,62 @@ pip install jieba
 训练命令(代码参考 [WoBERT | github](https://github.com/ZhuiyiTechnology/WoBERT))：
 ```bash
 python bert_train.py
+```
+
+- gpu 环境
+环境配置
+ubuntu18.04
+从[这里][(https://developer.nvidia.com/cuda-10.0-download-archive?target_os=Linux&target_arch=x86_64&target_distro=Ubuntu&target_version=1804&target_type=runfilelocal)下载cuda 10.0，
+从[这里](https://developer.nvidia.com/rdp/cudnn-archive)下载cuDNN v7.4.1(Nov 8, 2018), for CUDA 10.0，包括三部分：
+1. cuDNN Runtime Library for Ubuntu18.04 (Deb)
+2. cuDNN Developer Library for Ubuntu18.04 (Deb)
+3. cuDNN Code Samples and User Guide for Ubuntu18.04 (Deb)
+全部传到目标主机
+安装cuda 10.0命令如下
+```bash
+sudo sh cuda_10.0.130_410.48_linux.run
+```
+在~/.zshrc中添加
+```bash
+# added by cuda 10.0 installer
+export PATH="/usr/local/cuda-10.0/bin:$PATH"
+export LD_LIBRARY_PATH="/usr/local/cuda-10.0/lib64:$LD_LIBRARY_PATH"
+```
+然后
+```bash
+source ~/.zshrc
+```
+
+使用下面命令查看是否安装成功
+```bash
+nvidia-smi
+nvcc -V
+cd /usr/local/cuda-10.0/samples/1_Utilities/deviceQuery
+sudo make && ./deviceQuery
+```
+
+安装 cuDNN 7.4.1 按顺序使用下面命令
+```bash
+sudo dpkg -i libcudnn7_7.4.1.5-1+cuda10.0_amd64.deb
+sudo dpkg -i libcudnn7-dev_7.4.1.5-1+cuda10.0_amd64.deb
+sudo dpkg -i libcudnn7-doc_7.4.1.5-1+cuda10.0_amd64.deb
+sudo cp /usr/include/cudnn.h /usr/local/cuda/include
+sudo chmod a+x /usr/local/cuda/include/cudnn.h
+```
+使用下面命令检查是否安装成功
+```bash
+cat /usr/local/cuda/include/cudnn.h | grep CUDNN_MAJOR -A 2
+```
+
+最后配置 conda 环境
+```bash
+conda create -yn bert_train python=3.7
+conda activate bert_train
+pip install tensorflow-gpu==1.14.0
+pip install keras==2.3.1
+pip install bert4keras
+pip install protobuf==3.20.0
+pip install jieba
 ```
 
 # 已解决的问题
