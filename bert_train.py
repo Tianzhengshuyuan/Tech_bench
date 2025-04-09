@@ -3,8 +3,10 @@
 # MLM任务
 
 import jieba
+import shutil
 import os, json
 import numpy as np
+import tensorflow as tf
 from bert4keras.backend import keras, K
 from bert4keras.layers import Loss
 from bert4keras.models import build_transformer_model
@@ -58,53 +60,39 @@ def text_process(text):
         yield result
 
 # 词汇表是chinese_roberta_wwm_ext精简版 加上 jieba词汇表中出现频率最高的2万个中文词汇
-if os.path.exists('tokenizer_config.json'):
-    token_dict, keep_tokens, compound_tokens = json.load(
-        open('tokenizer_config.json')
-    )
-else:
-    # 加载并精简词表
-    token_dict, keep_tokens = load_vocab(
-        dict_path=dict_path,
-        simplified=True,
-        startswith=['[PAD]', '[UNK]', '[CLS]', '[SEP]', '[MASK]'],
-    )
-    print(keep_tokens)
-    pure_tokenizer = Tokenizer(token_dict.copy(), do_lower_case=True)
+# 加载并精简词表
+token_dict = load_vocab(
+    dict_path=dict_path,
+    simplified=False
+)
+keep_tokens = list(token_dict.values())
 
-    # 从 jieba 词频表中选择最高的2万个词
-    user_dict = []
-    for w, _ in sorted(jieba.dt.FREQ.items(), key=lambda s: -s[1]):
-        if w not in token_dict:
-            token_dict[w] = len(token_dict)
-            user_dict.append(w)
-        if len(user_dict) == num_words:
-            break
+pure_tokenizer = Tokenizer(token_dict.copy(), do_lower_case=True)
 
-    # 从 new_word.txt 加载物理专业词汇
-    with open('new_word.txt', 'r', encoding='utf-8') as f:
-        new_words = set(f.read().strip().splitlines())
+# 从 new_word.txt 加载物理专业词汇
+with open('new_word.txt', 'r', encoding='utf-8') as f:
+    new_words = set(f.read().strip().splitlines())
 
-    # 将物理专业词汇添加到词汇表
-    new_words_added = []
-    for w in new_words:
-        if w not in token_dict:
-            token_dict[w] = len(token_dict)
-            new_words_added.append(w)
+# 将物理专业词汇添加到词汇表
+new_words_added = []
+for w in new_words:
+    if w not in token_dict:
+        token_dict[w] = len(token_dict)
+        new_words_added.append(w)
 
-    # 创建 compound_tokens，用于初始化新词的 embedding
-    compound_tokens = [pure_tokenizer.encode(w)[0][1:-1] for w in user_dict + new_words_added]
+# 创建 compound_tokens，用于初始化新词的 embedding
+compound_tokens = [pure_tokenizer.encode(w)[0][1:-1] for w in new_words_added]
 
-    # 保存更新后的词汇表配置
-    json.dump([token_dict, keep_tokens, compound_tokens],
-              open('tokenizer_config.json', 'w', encoding='utf-8'))
+# 将原始词汇表和新增词汇写入 new_vocab.txt
+with open('new_vocab.txt', 'w', encoding='utf-8') as f:
+    for token in token_dict.keys():
+        f.write(token + '\n')
 
 tokenizer = Tokenizer(
     token_dict,
     do_lower_case=True,
     pre_tokenize=lambda s: jieba.cut(s, HMM=False)
 )
-
 
 def random_masking(token_ids):
     """
@@ -201,9 +189,8 @@ class Evaluator(keras.callbacks.Callback):
     def on_epoch_end(self, epoch, logs=None):
         model.save_weights('bert_model.weights')  # 在每个 epoch 结束时保存模型
 
-
+        
 if __name__ == '__main__':
-
     # 启动训练
     evaluator = Evaluator()
     train_generator = data_generator(corpus(), batch_size, 10**5)
@@ -214,5 +201,4 @@ if __name__ == '__main__':
         epochs=epochs,
         callbacks=[evaluator]
     )
-else:
-    model.load_weights('bert_model.weights')
+
