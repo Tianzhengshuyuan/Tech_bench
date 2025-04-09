@@ -2,6 +2,7 @@
 # 词级别的中文BERT预训练
 # MLM任务
 
+import glob
 import jieba
 import shutil
 import os, json
@@ -26,7 +27,7 @@ jieba.initialize()
 # 基本参数
 maxlen = 512
 batch_size = 16
-epochs = 1000
+epochs = 3
 num_words = 20000
 
 # bert配置
@@ -184,10 +185,45 @@ train_model.summary()
 
 class Evaluator(keras.callbacks.Callback):
     """
-    训练回调
+    训练回调：在每个 epoch 结束时保存模型，并删除旧的 checkpoint 文件
     """
+    def __init__(self, checkpoint_dir='./tf_checkpoints'):
+        super().__init__()
+        self.checkpoint_dir = checkpoint_dir  # 保存路径
+        self.saver = tf.train.Saver()  # 定义 Saver 对象
+        self.last_checkpoint = None  # 记录上一个 checkpoint 的路径
+
+    def delete_old_checkpoints(self):
+        """
+        删除旧的 checkpoint 文件
+        """
+        if self.last_checkpoint:
+            # 获取所有与上一个 checkpoint 相关的文件
+            for file in glob.glob(f"{self.last_checkpoint}*"):
+                if os.path.exists(file):
+                    os.remove(file)
+            print(f"已删除旧的 checkpoint 文件：{self.last_checkpoint}")
+
     def on_epoch_end(self, epoch, logs=None):
-        model.save_weights('bert_model.weights')  # 在每个 epoch 结束时保存模型
+        # 获取当前的 TensorFlow 会话
+        sess = K.get_session()
+
+        # 创建保存目录
+        if not os.path.exists(self.checkpoint_dir):
+            os.makedirs(self.checkpoint_dir)
+
+        # 保存 checkpoint 的路径
+        save_path = os.path.join(self.checkpoint_dir, f'bert_model_epoch_{epoch}.ckpt')
+
+        # 删除旧的 checkpoint 文件
+        self.delete_old_checkpoints()
+
+        # 保存新的 checkpoint
+        self.saver.save(sess, save_path)
+        print(f"模型已保存至 {save_path}")
+
+        # 更新 last_checkpoint 路径
+        self.last_checkpoint = save_path
 
         
 if __name__ == '__main__':
