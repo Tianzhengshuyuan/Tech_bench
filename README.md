@@ -258,7 +258,7 @@ python bert_paraphrase.py --physbert
 python bert_paraphrase.py --fine_tune 
 ```
 微调bert模型
-- cpu 环境
+- cpu 环境  
 环境配置(参考[bert4keras | github](https://github.com/bojone/bert4keras?tab=readme-ov-file))：
 ```bash
 conda create -yn bert_train python=3.7
@@ -274,23 +274,21 @@ pip install jieba
 python bert_train.py
 ```
 
-- gpu 环境
-
-环境配置
-
-ubuntu18.04
-从[这里][(https://developer.nvidia.com/cuda-10.0-download-archive?target_os=Linux&target_arch=x86_64&target_distro=Ubuntu&target_version=1804&target_type=runfilelocal)下载cuda 10.0，
-
-从[这里](https://developer.nvidia.com/rdp/cudnn-archive)下载cuDNN v7.4.1(Nov 8, 2018), for CUDA 10.0，包括三部分：
+- gpu 环境  
+环境配置  
+ubuntu18.04  
+从[这里][(https://developer.nvidia.com/cuda-10.0-download-archive?target_os=Linux&target_arch=x86_64&target_distro=Ubuntu&target_version=1804&target_type=runfilelocal)下载cuda 10.0，   
+从[这里](https://developer.nvidia.com/rdp/cudnn-archive)下载cuDNN v7.4.1(Nov 8, 2018), for CUDA 10.0，包括三部分：  
 1. cuDNN Runtime Library for Ubuntu18.04 (Deb)
 2. cuDNN Developer Library for Ubuntu18.04 (Deb)
-3. cuDNN Code Samples and User Guide for Ubuntu18.04 (Deb)
+3. cuDNN Code Samples and User Guide for Ubuntu18.04 (Deb)  
 全部传到目标主机
 
-安装cuda 10.0命令如下
+安装cuda 10.0命令如下，除了xconfig都选yes或默认
 ```bash
 sudo sh cuda_10.0.130_410.48_linux.run
 ```
+
 在~/.zshrc中添加
 ```bash
 # added by cuda 10.0 installer

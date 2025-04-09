@@ -1,28 +1,10 @@
-from transformers import BertConfig, BertForMaskedLM, load_tf_weights_in_bert
-import torch
+from transformers.models.bert.convert_bert_original_tf_checkpoint_to_pytorch import convert_tf_checkpoint_to_pytorch
+# chinese_wobert_plus
+path = "/root/tech_bench/chinese_wobert_L-12_H-768_A-12"
+tf_checkpoint_path = path + "/bert_model.ckpt"
+bert_config_file = path + "/bert_config.json"
+pytorch_dump_path = "wo_phy/pytorch_model.bin"
 
-# 1. 配置文件路径
-config_path = "./new_bert_config.json"
-vocab_path = "./new_vocab.txt"
-tf_checkpoint_path = "./bert_model.weights"  # 微调后保存的 TensorFlow 权重
-output_dir = "./converted_model"  # 转换后 PyTorch 模型的保存路径
+convert_tf_checkpoint_to_pytorch(tf_checkpoint_path, bert_config_file,
+                                 pytorch_dump_path)
 
-# 2. 加载配置文件
-config = BertConfig.from_json_file(config_path)
-
-# 3. 初始化 Hugging Face 的 Bert 模型
-model = BertForMaskedLM(config)
-
-# 4. 加载 TensorFlow 权重到 Hugging Face 的 PyTorch 模型
-model = load_tf_weights_in_bert(model, config, tf_checkpoint_path)
-
-# 5. 保存转换后的 PyTorch 模型
-model.save_pretrained(output_dir)
-
-# 6. 保存词表
-with open(vocab_path, "r", encoding="utf-8") as f:
-    vocab = f.read()
-with open(f"{output_dir}/vocab.txt", "w", encoding="utf-8") as f:
-    f.write(vocab)
-
-print(f"转换成功！模型已保存到 {output_dir}")
