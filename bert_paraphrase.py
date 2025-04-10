@@ -253,6 +253,7 @@ if __name__ == "__main__":
     parser.add_argument("--fine_tune", action="store_true", help="是否对 BERT 模型进行微调")
     parser.add_argument("--physbert", action="store_true", help="是否使用针对物理领域的 bert 模型")
     parser.add_argument("--wobert", action="store_true", help="是否使用词粒度的 bert 模型")
+    parser.add_argument("--wo_phy", action="store_true", help="是否使用物理领域词粒度的 bert 模型")
     parser.add_argument("--fine_tune_data", type=str, default="phy_only.json", help="用于微调的数据文件")
     parser.add_argument("--fine_tune_output", type=str, default="./fine_tuned_bert", help="微调后模型的保存路径")
     args = parser.parse_args()
@@ -274,6 +275,10 @@ if __name__ == "__main__":
         # tokenizer = WoBertTokenizer.from_pretrained("junnyu/wobert_chinese_base")
         bert_model = BertForMaskedLM.from_pretrained("junnyu/wobert_chinese_plus_base")        
         tokenizer = WoBertTokenizer.from_pretrained("junnyu/wobert_chinese_plus_base")
+    elif args.wo_phy:
+        print("使用物理领域词粒度 bert 模型")
+        bert_model = BertForMaskedLM.from_pretrained("./wo_phy")        
+        tokenizer = WoBertTokenizer.from_pretrained("./wo_phy")        
     else:
         print("使用预训练 bert 模型")
         bert_model = BertForMaskedLM.from_pretrained(bert_model_name)

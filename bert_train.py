@@ -27,7 +27,7 @@ jieba.initialize()
 # 基本参数
 maxlen = 512
 batch_size = 16
-epochs = 3
+epochs = 1
 num_words = 20000
 
 # bert配置
@@ -160,14 +160,20 @@ class CrossEntropy(Loss):
 model = build_transformer_model(
     config_path,
     checkpoint_path,
+    model='bert',
     with_mlm='linear',
     keep_tokens=keep_tokens,  # 只保留keep_tokens中的字，精简原字表
     compound_tokens=compound_tokens,  # 增加词，用字平均来初始化
+    return_keras_model=False 
 )
-
+# model.name = "bert"
+print(type(model))
+# for var in model.trainable_variables:
+#     print(var.name)
+# model.summary()
 # 训练用模型
 y_in = keras.layers.Input(shape=(None,))
-outputs = CrossEntropy(1)([y_in, model.output])
+outputs = CrossEntropy(1)([y_in, model.output]) # y_in是真实标签，model.output是模型预测的结果
 
 train_model = keras.models.Model(model.inputs + [y_in], outputs)
 
@@ -179,18 +185,17 @@ optimizer = AdamWG(
     exclude_from_weight_decay=['Norm', 'bias'],
     grad_accum_steps=16,
 )
-train_model.compile(optimizer=optimizer)
-train_model.summary()
-
+train_model.compile(optimizer=optimizer) # 配置模型的训练过程，指定优化器、损失函数和评估指标
+train_model.summary() # 打印模型结构
 
 class Evaluator(keras.callbacks.Callback):
     """
     训练回调：在每个 epoch 结束时保存模型，并删除旧的 checkpoint 文件
     """
-    def __init__(self, checkpoint_dir='./tf_checkpoints'):
+    def __init__(self, model, checkpoint_dir='./tf_checkpoints'):
         super().__init__()
+        self.model = model  # 需要保存的基础模型
         self.checkpoint_dir = checkpoint_dir  # 保存路径
-        self.saver = tf.train.Saver()  # 定义 Saver 对象
         self.last_checkpoint = None  # 记录上一个 checkpoint 的路径
 
     def delete_old_checkpoints(self):
@@ -205,9 +210,9 @@ class Evaluator(keras.callbacks.Callback):
             print(f"已删除旧的 checkpoint 文件：{self.last_checkpoint}")
 
     def on_epoch_end(self, epoch, logs=None):
-        # 获取当前的 TensorFlow 会话
-        sess = K.get_session()
-
+        """
+        每个 epoch 结束时保存模型
+        """
         # 创建保存目录
         if not os.path.exists(self.checkpoint_dir):
             os.makedirs(self.checkpoint_dir)
@@ -218,19 +223,21 @@ class Evaluator(keras.callbacks.Callback):
         # 删除旧的 checkpoint 文件
         self.delete_old_checkpoints()
 
-        # 保存新的 checkpoint
-        self.saver.save(sess, save_path)
+        # 保存模型权重（仅保存基础模型）
+        saver = tf.compat.v1.train.Saver(var_list=self.model.weights)
+        sess = K.get_session()
+        saver.save(sess, save_path)
         print(f"模型已保存至 {save_path}")
 
         # 更新 last_checkpoint 路径
         self.last_checkpoint = save_path
-
         
 if __name__ == '__main__':
     # 启动训练
-    evaluator = Evaluator()
+    evaluator = Evaluator(model=model, checkpoint_dir='./tf_checkpoints')
     train_generator = data_generator(corpus(), batch_size, 10**5)
 
+    # fit_generator 是 Keras 中用于训练模型的方法，适合处理通过生成器动态生成的数据
     train_model.fit_generator(
         train_generator.forfit(),
         steps_per_epoch=120,

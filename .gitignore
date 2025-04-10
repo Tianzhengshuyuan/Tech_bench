@@ -8,3 +8,5 @@ fine_tuned_bert/
 chinese_wobert_L-12_H-768_A-12/
 vocab_embeddings.pkl
 bert_model.weights
+tf_checkpoints/
+wo_phy/

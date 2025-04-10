@@ -1,10 +1,20 @@
 from transformers.models.bert.convert_bert_original_tf_checkpoint_to_pytorch import convert_tf_checkpoint_to_pytorch
-# chinese_wobert_plus
-path = "/root/tech_bench/chinese_wobert_L-12_H-768_A-12"
-tf_checkpoint_path = path + "/bert_model.ckpt"
+
+path = "/root/tech_bench/tf_checkpoints"
+tf_checkpoint_path = path + "/bert_model_epoch_0.ckpt"
 bert_config_file = path + "/bert_config.json"
 pytorch_dump_path = "wo_phy/pytorch_model.bin"
 
 convert_tf_checkpoint_to_pytorch(tf_checkpoint_path, bert_config_file,
                                  pytorch_dump_path)
+
+# from transformers.models.bert.convert_bert_original_tf_checkpoint_to_pytorch import convert_tf_checkpoint_to_pytorch
+
+# path = "/root/tech_bench/chinese_wobert_L-12_H-768_A-12"
+# tf_checkpoint_path = path + "/bert_model.ckpt"
+# bert_config_file = path + "/bert_config.json"
+# pytorch_dump_path = "wo_phy/pytorch_model.bin"
+
+# convert_tf_checkpoint_to_pytorch(tf_checkpoint_path, bert_config_file,
+#                                  pytorch_dump_path)
 
