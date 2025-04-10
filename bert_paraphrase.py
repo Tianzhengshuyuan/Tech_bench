@@ -36,7 +36,7 @@ def find_similar_word_bert(word, sentence, topn=1):
     # 获取分词后的 token 列表
     tokenized_words = tokenizer.convert_ids_to_tokens(input_ids[0])
     print(f"分词后的句子：{tokenized_words} ")
-    if args.wobert: # 使用词粒度 bert 模型
+    if args.wobert or args.wo_phy: # 使用词粒度 bert 模型
         word_start_idx = None
         for i in range(len(tokenized_words)):
             token = tokenized_words[i]
@@ -277,8 +277,8 @@ if __name__ == "__main__":
         tokenizer = WoBertTokenizer.from_pretrained("junnyu/wobert_chinese_plus_base")
     elif args.wo_phy:
         print("使用物理领域词粒度 bert 模型")
-        bert_model = BertForMaskedLM.from_pretrained("./wo_phy")        
-        tokenizer = WoBertTokenizer.from_pretrained("./wo_phy")        
+        bert_model = BertForMaskedLM.from_pretrained("./wo_phy_pytorch")        
+        tokenizer = WoBertTokenizer.from_pretrained("./wo_phy_pytorch")        
     else:
         print("使用预训练 bert 模型")
         bert_model = BertForMaskedLM.from_pretrained(bert_model_name)

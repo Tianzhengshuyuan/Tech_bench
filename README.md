@@ -250,12 +250,18 @@ pip install scikit-learn
 python -m spacy download zh_core_web_sm 
 pip install datasets 
 pip install 'accelerate>=0.26.0' 
+pip install jieba
+```
+wobert还需安装
+```bash
+pip install git+https://github.com/JunnYu/WoBERT_pytorch.git
 ```
 运行命令：
 ```bash
 python bert_paraphrase.py 
 python bert_paraphrase.py --physbert 
 python bert_paraphrase.py --fine_tune 
+python bert_paraphrase.py --wobert
 ```
 微调bert模型
 - cpu 环境  

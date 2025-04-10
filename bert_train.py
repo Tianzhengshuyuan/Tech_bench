@@ -157,7 +157,7 @@ class CrossEntropy(Loss):
         return loss
 
 
-model = build_transformer_model(
+bert = build_transformer_model(
     config_path,
     checkpoint_path,
     model='bert',
@@ -166,11 +166,8 @@ model = build_transformer_model(
     compound_tokens=compound_tokens,  # 增加词，用字平均来初始化
     return_keras_model=False 
 )
-# model.name = "bert"
-print(type(model))
-# for var in model.trainable_variables:
-#     print(var.name)
-# model.summary()
+
+model = bert.model
 # 训练用模型
 y_in = keras.layers.Input(shape=(None,))
 outputs = CrossEntropy(1)([y_in, model.output]) # y_in是真实标签，model.output是模型预测的结果
@@ -192,49 +189,12 @@ class Evaluator(keras.callbacks.Callback):
     """
     训练回调：在每个 epoch 结束时保存模型，并删除旧的 checkpoint 文件
     """
-    def __init__(self, model, checkpoint_dir='./tf_checkpoints'):
-        super().__init__()
-        self.model = model  # 需要保存的基础模型
-        self.checkpoint_dir = checkpoint_dir  # 保存路径
-        self.last_checkpoint = None  # 记录上一个 checkpoint 的路径
-
-    def delete_old_checkpoints(self):
-        """
-        删除旧的 checkpoint 文件
-        """
-        if self.last_checkpoint:
-            # 获取所有与上一个 checkpoint 相关的文件
-            for file in glob.glob(f"{self.last_checkpoint}*"):
-                if os.path.exists(file):
-                    os.remove(file)
-            print(f"已删除旧的 checkpoint 文件：{self.last_checkpoint}")
-
     def on_epoch_end(self, epoch, logs=None):
-        """
-        每个 epoch 结束时保存模型
-        """
-        # 创建保存目录
-        if not os.path.exists(self.checkpoint_dir):
-            os.makedirs(self.checkpoint_dir)
-
-        # 保存 checkpoint 的路径
-        save_path = os.path.join(self.checkpoint_dir, f'bert_model_epoch_{epoch}.ckpt')
-
-        # 删除旧的 checkpoint 文件
-        self.delete_old_checkpoints()
-
-        # 保存模型权重（仅保存基础模型）
-        saver = tf.compat.v1.train.Saver(var_list=self.model.weights)
-        sess = K.get_session()
-        saver.save(sess, save_path)
-        print(f"模型已保存至 {save_path}")
-
-        # 更新 last_checkpoint 路径
-        self.last_checkpoint = save_path
+        bert.save_weights_as_checkpoint('./wo_phy/wo_phy_model')  # 保存模型
         
 if __name__ == '__main__':
     # 启动训练
-    evaluator = Evaluator(model=model, checkpoint_dir='./tf_checkpoints')
+    evaluator = Evaluator()
     train_generator = data_generator(corpus(), batch_size, 10**5)
 
     # fit_generator 是 Keras 中用于训练模型的方法，适合处理通过生成器动态生成的数据
