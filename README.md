@@ -252,7 +252,7 @@ pip install datasets
 pip install 'accelerate>=0.26.0' 
 pip install jieba
 ```
-wobert还需安装
+wobert或wo_phy还需安装
 ```bash
 pip install git+https://github.com/JunnYu/WoBERT_pytorch.git
 ```
@@ -275,9 +275,17 @@ pip install bert4keras
 pip install protobuf==3.20.0
 pip install jieba
 ```
-训练命令(代码参考 [WoBERT | github](https://github.com/ZhuiyiTechnology/WoBERT))：
+训练命令(代码参考 [WoBERT | github](https://github.com/ZhuiyiTechnology/WoBERT)和[Nezha的增量预训练探索(基于bert4keras)](https://zhuanlan.zhihu.com/p/500437589))：
 ```bash
 python bert_train.py
+```
+得到文件夹wo_phy，包含checkpoint、wo_phy_model.data-00000-of-00001、wo_phy_model.index、wo_phy_model.meta四个文件，复制tech_bench/chinese_wobert_L-12_H-768_A-12中的bert_config.json以及训练得到的new_vocab.txt到wo_phy中，修改bert_config.json中vocab_size大小，然后使用下面命令将tensorflow模型转换为pytorch：
+```bash
+python tf2pt.py
+```
+上述指令将得到wo_phy_pytorch文件夹，包含pytorch_model.bin，复制bert_config.json和vocab.txt到这个文件夹中，bert_config.json改名config.json，之后可以使用下面命令做同义词替换：
+```bash
+python bert_paraphrase.py --wo_phy
 ```
 
 - gpu 环境  
