@@ -7,11 +7,13 @@ import argparse
 import numpy as np
 from tqdm import tqdm
 from wobert import WoBertTokenizer
+from wobert_phy import WoBertPhyTokenizer
 from transformers import AutoTokenizer, AutoModel, AutoModelForMaskedLM
 from transformers import BertTokenizer, BertModel, BertForMaskedLM, DataCollatorForLanguageModeling, Trainer, TrainingArguments
 from sklearn.metrics.pairwise import cosine_similarity
 import pickle  # 用于缓存词汇表嵌入
 
+jieba.load_userdict("new_word.txt")
 # 加载 spacy 的中文模型
 print("加载 spacy 的中文模型")
 nlp = spacy.load("zh_core_web_sm")
@@ -118,19 +120,31 @@ def find_similar_word_bert(word, sentence, topn=1):
     return similar_word
 
 # 提取主语、谓语、宾语的函数
-def extract_svo(sentence):
-    doc = nlp(sentence)
-    sub, pred, obj = None, None, None
+def extract_svo(text):
+    doc = nlp(text)  # 使用 spaCy 对文本进行分析
+    all_svo = []  # 用于存储所有 SVO
 
-    for token in doc:
-        if "nsubj" in token.dep_:
-            sub = token.text
-        if "ROOT" in token.dep_:
-            pred = token.text
-        if "obj" in token.dep_:
-            obj = token.text
+    for sent in doc.sents:  # 自动分割句子
+        sub, pred, obj = None, None, None
+        print("sent is: "+str(sent))
+        # 遍历句子中的每个词
+        for token in sent:
+            # 主语：依存关系中包含 nsubj
+            if "nsubj" in token.dep_:
+                sub = token.text
+            # 谓语：依存关系是句子的 ROOT
+            if "ROOT" in token.dep_:
+                pred = token.text
+            # 宾语：依存关系中包含 obj
+            if "obj" in token.dep_:
+                obj = token.text
 
-    return sub, pred, obj
+
+        all_svo.append((sub, pred, obj))
+        print("SVO is: ", end="")
+        print(sub, pred, obj)
+
+    return all_svo
 
 # 提取名词的函数
 def extract_nouns(sentence):
@@ -146,18 +160,23 @@ def extract_nouns(sentence):
 
 # 替换主语和谓语的函数
 def replace_with_similar(sentence):
-    sub, pred, obj = extract_svo(sentence)
-    if sub:
-        sub_similar = find_similar_word_bert(sub, sentence, topn=1)
-        print("subject is: "+sub)
-        print("subject_similar is: "+sub_similar)
-        sentence = sentence.replace(sub, sub_similar, 1)
-    if obj:
-        obj_similar = find_similar_word_bert(obj, sentence, topn=1)
-        print("object is: "+obj)
-        print("object_similar is: "+obj_similar)
-        sentence = sentence.replace(obj, obj_similar, 1)
-        
+    all_svo = extract_svo(sentence)
+    if not all_svo:
+        print(f"No SVO found in sentence {sentence}")
+        return sentence 
+    for sub, pred, obj in all_svo:   
+        if sub:
+            sub_similar = find_similar_word_bert(sub, sentence, topn=1)
+            print("subject is: "+sub)
+            print("subject_similar is: "+sub_similar)
+            sentence = sentence.replace(sub, sub_similar, 1)
+        if obj:
+            obj_similar = find_similar_word_bert(obj, sentence, topn=1)
+            print("object is: "+obj)
+            print("object_similar is: "+obj_similar)
+            sentence = sentence.replace(obj, obj_similar, 1)
+    return sentence  
+
     # nouns = extract_nouns(sentence)
     # for noun in nouns:
     #     noun_similar = find_similar_word_bert(noun, sentence, topn=1)
@@ -278,7 +297,7 @@ if __name__ == "__main__":
     elif args.wo_phy:
         print("使用物理领域词粒度 bert 模型")
         bert_model = BertForMaskedLM.from_pretrained("./wo_phy_pytorch")        
-        tokenizer = WoBertTokenizer.from_pretrained("./wo_phy_pytorch")        
+        tokenizer = WoBertPhyTokenizer.from_pretrained("./wo_phy_pytorch", custom_word_dict="new_word.txt")        
     else:
         print("使用预训练 bert 模型")
         bert_model = BertForMaskedLM.from_pretrained(bert_model_name)

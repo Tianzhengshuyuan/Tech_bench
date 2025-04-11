@@ -22,12 +22,11 @@ from tensorflow.python.client import device_lib
 
 print(device_lib.list_local_devices())
 jieba.initialize()
-# os.environ["TF_KERAS"] = "1"  # 强制 bert4keras 使用 tf.keras
 
 # 基本参数
 maxlen = 512
 batch_size = 16
-epochs = 1
+epochs = 100
 num_words = 20000
 
 # bert配置
@@ -60,7 +59,6 @@ def text_process(text):
     if result:
         yield result
 
-# 词汇表是chinese_roberta_wwm_ext精简版 加上 jieba词汇表中出现频率最高的2万个中文词汇
 # 加载并精简词表
 token_dict = load_vocab(
     dict_path=dict_path,
