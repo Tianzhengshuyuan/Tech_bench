@@ -3,20 +3,37 @@ import json
 import jieba
 import spacy
 import torch
+import stanza
 import argparse
 import numpy as np
 from tqdm import tqdm
+from spacy.lang.zh import Chinese
+from spacy.tokenizer import Tokenizer
 from wobert import WoBertTokenizer
 from wobert_phy import WoBertPhyTokenizer
 from transformers import AutoTokenizer, AutoModel, AutoModelForMaskedLM
 from transformers import BertTokenizer, BertModel, BertForMaskedLM, DataCollatorForLanguageModeling, Trainer, TrainingArguments
 from sklearn.metrics.pairwise import cosine_similarity
-import pickle  # 用于缓存词汇表嵌入
 
-jieba.load_userdict("new_word.txt")
 # 加载 spacy 的中文模型
 print("加载 spacy 的中文模型")
 nlp = spacy.load("zh_core_web_sm")
+# 自定义分词器（使用 Jieba）
+def custom_tokenizer(nlp):
+    def tokenizer(text):
+        # 使用 Jieba 分词
+        words = list(jieba.cut(text, cut_all=False))
+        return spacy.tokens.Doc(nlp.vocab, words)
+    return tokenizer
+
+# 替换 spaCy 默认分词器
+nlp.tokenizer = custom_tokenizer(nlp)
+jieba.load_userdict("new_word.txt")
+
+# # 加载 stanza 的中文模型
+# print("加载 stanza 的中文模型")
+# stanza.download("zh")
+# nlp = stanza.Pipeline("zh")
 
 # 全局变量，用于缓存词汇表和嵌入
 bert_model_name = "bert-base-chinese"  # 使用中文 BERT 模型
@@ -71,6 +88,7 @@ def find_similar_word_bert(word, sentence, topn=1):
         # 在 tokenized_words 中找到 word 的起始索引和长度
         word_start_idx = None
         word_length = 0
+        # print("word is: "+word)
         for i in range(len(tokenized_words)):
             reconstructed_word = ""
             word_length = 0
@@ -82,6 +100,7 @@ def find_similar_word_bert(word, sentence, topn=1):
                     reconstructed_word += token
                 word_length += 1
                 if reconstructed_word == word:
+                    word_start_idx = i
                     break
             if word_start_idx is not None:
                 break
@@ -109,8 +128,8 @@ def find_similar_word_bert(word, sentence, topn=1):
             probs = torch.softmax(mask_logits, dim=-1)
 
             # 获取概率最高的词
-            topk_indices = torch.topk(probs, topn).indices # 概率最高的 topn 个词在词汇表中的索引
-            similar_token = tokenizer.convert_ids_to_tokens(topk_indices[0].item()) # 如果是获取概率第二高则使用topk_indices[1].item()
+            topk_indices = torch.topk(probs, 2).indices # 概率最高的 topn 个词在词汇表中的索引
+            similar_token = tokenizer.convert_ids_to_tokens(topk_indices[1].item()) # 如果是获取概率第二高则使用topk_indices[1].item()
             predicted_tokens.append(similar_token)
 
         # 拼接预测的 token，生成替换后的完整词语
@@ -119,8 +138,8 @@ def find_similar_word_bert(word, sentence, topn=1):
     # print("word is: "+word+", sim word is: "+similar_word)
     return similar_word
 
-# 提取主语、谓语、宾语的函数
-def extract_svo(text):
+# 使用 spacy 提取主语、谓语、宾语的函数
+def extract_svo_spacy(text):
     doc = nlp(text)  # 使用 spaCy 对文本进行分析
     all_svo = []  # 用于存储所有 SVO
 
@@ -139,13 +158,36 @@ def extract_svo(text):
             if "obj" in token.dep_:
                 obj = token.text
 
-
         all_svo.append((sub, pred, obj))
         print("SVO is: ", end="")
         print(sub, pred, obj)
 
     return all_svo
 
+# 使用 stanza 提取主语、谓语和宾语的函数
+def extract_svo_stanza(text):
+    doc = nlp(text)  # 使用 Stanza 对文本进行分析
+    all_svo = []  # 用于存储所有 SVO
+
+    for sentence in doc.sentences:  # 遍历每个句子
+        sub, pred, obj = None, None, None
+        print("Sentence: ", sentence.text)
+        
+        for word in sentence.words:  # 遍历句子中的每个词
+            # 主语：依存关系是 nsubj
+            if word.deprel == "nsubj":
+                sub = word.text
+            # 谓语：依存关系是 ROOT
+            if word.head == 0:  # Stanza 的 ROOT 的 head 是 0
+                pred = word.text
+            # 宾语：依存关系是 obj
+            if "obj" in word.deprel:
+                obj = word.text
+        
+        all_svo.append((sub, pred, obj))
+        print("SVO: ", sub, pred, obj)
+
+    return all_svo
 # 提取名词的函数
 def extract_nouns(sentence):
     doc = nlp(sentence)
@@ -160,29 +202,30 @@ def extract_nouns(sentence):
 
 # 替换主语和谓语的函数
 def replace_with_similar(sentence):
-    all_svo = extract_svo(sentence)
-    if not all_svo:
-        print(f"No SVO found in sentence {sentence}")
-        return sentence 
-    for sub, pred, obj in all_svo:   
-        if sub:
-            sub_similar = find_similar_word_bert(sub, sentence, topn=1)
-            print("subject is: "+sub)
-            print("subject_similar is: "+sub_similar)
-            sentence = sentence.replace(sub, sub_similar, 1)
-        if obj:
-            obj_similar = find_similar_word_bert(obj, sentence, topn=1)
-            print("object is: "+obj)
-            print("object_similar is: "+obj_similar)
-            sentence = sentence.replace(obj, obj_similar, 1)
-    return sentence  
+    # all_svo = extract_svo_spacy(sentence)
+    # if not all_svo:
+    #     print(f"No SVO found in sentence {sentence}")
+    #     return sentence 
+    # for sub, pred, obj in all_svo:   
+    #     if sub:
+    #         sub_similar = find_similar_word_bert(sub, sentence, topn=1)
+    #         print("subject is: "+sub)
+    #         print("subject_similar is: "+sub_similar)
+    #         sentence = sentence.replace(sub, sub_similar, 1)
+    #     if obj:
+    #         obj_similar = find_similar_word_bert(obj, sentence, topn=1)
+    #         print("object is: "+obj)
+    #         print("object_similar is: "+obj_similar)
+    #         sentence = sentence.replace(obj, obj_similar, 1)
+    # return sentence  
 
-    # nouns = extract_nouns(sentence)
-    # for noun in nouns:
-    #     noun_similar = find_similar_word_bert(noun, sentence, topn=1)
-    #     print("noun is: "+noun+" similar is: "+noun_similar)
-    #     sentence = sentence.replace(noun, noun_similar, 1)
-    # return sentence
+    nouns = extract_nouns(sentence)
+    print(sentence)
+    for noun in nouns:
+        noun_similar = find_similar_word_bert(noun, sentence, topn=1)
+        print("noun is: "+noun+" similar is: "+noun_similar)
+        sentence = sentence.replace(noun, noun_similar, 1)
+    return sentence
 
 # 微调 BERT 模型
 def fine_tune_bert(data_file, output_dir, num_train_epochs=3, batch_size=8):

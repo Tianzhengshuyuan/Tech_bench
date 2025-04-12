@@ -2,7 +2,7 @@ import json
 import jieba
 from tqdm import tqdm
 
-jieba.load_userdict("jieba_user_dict.txt")
+# jieba.load_userdict("jieba_user_dict.txt")
 # 读取 JSON 文件
 with open("phy_only.json", "r", encoding="utf-8") as f:
     data = json.load(f)
