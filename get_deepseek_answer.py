@@ -29,9 +29,9 @@ def call_deepseek_api(question):
         return "API 调用失败"
 
 
-def process_questions(input_file_1, input_file_2, output_file):
+def process_questions(input_file_1, input_file_2, output_file, all_new=False):
     """
-    随机从两个 JSON 文件中选题，调用 DeepSeek API 获取答案，并统计结果。
+    随机从两个 JSON 文件中选题，或者全部从 input_file_2 中选题，调用 DeepSeek API 获取答案，并统计结果。
     """
     try:
         # 读取两个输入文件
@@ -40,7 +40,7 @@ def process_questions(input_file_1, input_file_2, output_file):
             data2 = json.load(f2)
 
         # 确保两个文件的题目数量一致
-        if len(data1) != len(data2):
+        if not all_new and len(data1) != len(data2):
             print("两个文件的题目数量不一致，请检查输入文件！")
             return
 
@@ -58,11 +58,55 @@ def process_questions(input_file_1, input_file_2, output_file):
         file2_count = 0
         file2_you_count = 0
 
-        for i in tqdm(range(len(data1)), desc="Deepseek 处理问题进度"):
-            # 随机选择一个文件
-            if random.choice([True, False]):
-                # 从 原题 中选择
-                item = data1[i]
+        # 确定处理的数据源
+        data_source = data2 if all_new else zip(data1, data2)
+
+        # 遍历数据并处理
+        for i, item in tqdm(enumerate(data_source), desc="Deepseek 处理问题进度", total=len(data2), dynamic_ncols=True, mininterval=0.1):
+            if all_new or (not all_new and random.choice([True, False])):
+                # 从更改后的题目中选择
+                if not all_new:
+                    item = item[1]  # 如果不是 all_new，从 data2 中取题目
+                question = item.get("question", "").strip()
+                options = {
+                    "A": item.get("A", "").strip(),
+                    "B": item.get("B", "").strip(),
+                    "C": item.get("C", "").strip(),
+                    "D": item.get("D", "").strip(),
+                }
+                correct_answer = item.get("answer", "").strip()
+                
+                # 拼接完整问题
+                full_question = f"{question}\nA. {options['A']}\nB. {options['B']}\nC. {options['C']}\nD. {options['D']}\n"
+                full_question += "上面的题目逻辑和表述是否合理，有什么问题吗？有的话请回复“有问题”并分析存在的问题，没问题的话请回复“没问题，正确答案是”并给出正确答案，不用解释"
+
+                # 调用 DeepSeek API
+                answer = call_deepseek_api(full_question)
+
+                # 统计 metrics
+                file2_count += 1
+                if "有问题" in answer:
+                    file2_you_count += 1
+                else:
+                    new_but_meiyou.append({
+                        "source": "新题",
+                        "full_question": full_question,
+                        "deepseek_answer": answer,
+                        "true_answer": correct_answer,
+                        "回复是否包含“有问题”": "有问题" in answer,
+                    })
+
+                # 保存结果
+                results.append({
+                    "source": "新题",
+                    "full_question": full_question,
+                    "deepseek_answer": answer,
+                    "true_answer": correct_answer,
+                    "回复是否包含“有问题”": "有问题" in answer,
+                })
+            else:
+                # 从原题中选择
+                item = item[0]  # 从 data1 中取题目
                 question = item.get("question", "").strip()
                 options = {
                     "A": item.get("A", "").strip(),
@@ -113,53 +157,13 @@ def process_questions(input_file_1, input_file_2, output_file):
                     "回复是否包含“没问题”": "没问题" in answer,
                     "大模型回复是否正确": correct_answer in answer,
                 })
-            else:
-                # 从 更改后的题目 中选择
-                item = data2[i]
-                question = item.get("question", "").strip()
-                options = {
-                    "A": item.get("A", "").strip(),
-                    "B": item.get("B", "").strip(),
-                    "C": item.get("C", "").strip(),
-                    "D": item.get("D", "").strip(),
-                }
-                correct_answer = item.get("answer", "").strip()
-                
-                # 拼接完整问题
-                full_question = f"{question}\nA. {options['A']}\nB. {options['B']}\nC. {options['C']}\nD. {options['D']}\n"
-                full_question += "上面的题目逻辑和表述是否合理，有什么问题吗？有的话请回复“有问题”并分析存在的问题，没问题的话请回复“没问题，正确答案是”并给出正确答案，不用解释"
-
-                # 调用 DeepSeek API
-                answer = call_deepseek_api(full_question)
-
-                # 统计 metrics
-                file2_count += 1
-                if "有问题" in answer:
-                    file2_you_count += 1
-                else:
-                    new_but_meiyou.append({
-                        "source": "新题",
-                        "full_question": full_question,
-                        "deepseek_answer": answer,
-                        "true_answer": correct_answer,
-                        "回复是否包含“有问题”": "有问题" in answer,
-                    })
-
-                # 保存结果
-                results.append({
-                    "source": "新题",
-                    "full_question": full_question,
-                    "deepseek_answer": answer,
-                    "true_answer": correct_answer,
-                    "回复是否包含“有问题”": "有问题" in answer,
-                })
 
         # 计算比例
         file1_meiyou_ratio = (
             file1_meiyou_count / file1_count if file1_count > 0 else 0
         )
         file1_correct_answer_ratio = (
-            file1_correct_count / file1_meiyou_count if file1_count > 0 else 0
+            file1_correct_count / file1_meiyou_count if file1_meiyou_count > 0 else 0
         )
         file2_you_ratio = (
             file2_you_count / file2_count if file2_count > 0 else 0
@@ -191,5 +195,6 @@ if __name__ == "__main__":
     parser.add_argument("--input_file1", type=str, default="selected_questions.json", help="输入的 JSON 文件路径")
     parser.add_argument("--input_file2", type=str, default="paraphrased_labeled_questions.json", help="输入的 JSON 文件路径")
     parser.add_argument("--output_file", type=str, default="answers_with_validation.json", help="输出的 JSON 文件路径")
+    parser.add_argument("--all_new", action="store_true", help="是否全部从 input_file2 中选择题目")
     args = parser.parse_args()
-    process_questions(args.input_file1, args.input_file2, args.output_file)
+    process_questions(args.input_file1, args.input_file2, args.output_file, args.all_new)
