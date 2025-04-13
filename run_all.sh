@@ -5,7 +5,7 @@ rm output.json
 rm log.txt
 
 # 将所有输出重定向到 run.log
-exec >run.log 2>&1
+exec >log/run.log 2>&1
 
 # 从命令行获取参数
 DIR_NAME=$1  # 第一个参数是文件夹名

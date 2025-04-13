@@ -10,3 +10,5 @@ vocab_embeddings.pkl
 bert_model.weights
 tf_checkpoints/
 wo_phy/
+wo_phy_pytorch/
+log/

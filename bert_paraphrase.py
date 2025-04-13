@@ -296,7 +296,7 @@ def do_paraphrase():
 
     # 遍历数据并替换内容
     count=0
-    for item in tqdm(data, desc="Processing items"):
+    for item in tqdm(data, desc="使用 BERT 进行同义词替换进度"):
         item["question"] = replace_with_similar(item["question"])
         for option in ["A", "B", "C", "D"]:
             item[option] = replace_with_similar(item[option])
