@@ -17,7 +17,7 @@ for entry in data:
         unique_entries.append(entry)
 
 # 将去重后的数据保存到新文件
-with open("output_deduplicated.json", "w", encoding="utf-8") as file:
+with open("json/output_deduplicated.json", "w", encoding="utf-8") as file:
     json.dump(unique_entries, file, ensure_ascii=False, indent=4)
         
         
@@ -64,9 +64,9 @@ print(f"不完整条目数：{empty_value_count}"+" 比例为："+str(rate_value
 print(f"选项不完整条目数：{empty_ABCD_count}"+" 比例为："+str(rate_ABCD)+"%")
 print(f"答案不完整条目数：{empty_answer_count}"+" 比例为："+str(rate_answer)+"%")
     
-with open("empty_ABCD.json", "w", encoding="utf-8") as output_file:
+with open("json/empty_ABCD.json", "w", encoding="utf-8") as output_file:
     json.dump(empty_ABCD, output_file, ensure_ascii=False, indent=4)
     
-with open("empty_answer.json", "w", encoding="utf-8") as output_file:
+with open("json/empty_answer.json", "w", encoding="utf-8") as output_file:
     json.dump(empty_answer, output_file, ensure_ascii=False, indent=4)
     

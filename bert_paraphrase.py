@@ -3,6 +3,7 @@ import json
 import jieba
 import spacy
 import torch
+import random
 import stanza
 import argparse
 import numpy as np
@@ -221,7 +222,12 @@ def replace_with_similar(sentence):
 
     nouns = extract_nouns(sentence)
     print(sentence)
-    for noun in nouns:
+    if not nouns:
+        return sentence  # 如果没有名词，直接返回原句
+    # 根据指定的比例随机选择名词进行替换
+    num_to_replace = max(1, int(len(nouns) * args.ratio))
+    nouns_to_replace = random.sample(nouns, num_to_replace)
+    for noun in nouns_to_replace:
         noun_similar = find_similar_word_bert(noun, sentence, topn=1)
         print("noun is: "+noun+" similar is: "+noun_similar)
         sentence = sentence.replace(noun, noun_similar, 1)
@@ -309,15 +315,16 @@ def do_paraphrase():
 if __name__ == "__main__":
     # 解析命令行参数
     parser = argparse.ArgumentParser(description="将题目中的关键词进行同义词替换")
-    parser.add_argument("--input_file", type=str, default="labeled_questions.json", help="原始 JSON 文件")
-    parser.add_argument("--output_file", type=str, default="paraphrased_labeled_questions.json", help="进行同义词替换后的 JSON 文件")
+    parser.add_argument("--input_file", type=str, default="json/labeled_questions.json", help="原始 JSON 文件")
+    parser.add_argument("--output_file", type=str, default="json/paraphrased_labeled_questions.json", help="进行同义词替换后的 JSON 文件")
     parser.add_argument("--cache_file", type=str, default="vocab_embeddings.pkl", help="词汇表嵌入的缓存文件")
     parser.add_argument("--fine_tune", action="store_true", help="是否对 BERT 模型进行微调")
     parser.add_argument("--physbert", action="store_true", help="是否使用针对物理领域的 bert 模型")
     parser.add_argument("--wobert", action="store_true", help="是否使用词粒度的 bert 模型")
     parser.add_argument("--wo_phy", action="store_true", help="是否使用物理领域词粒度的 bert 模型")
-    parser.add_argument("--fine_tune_data", type=str, default="phy_only.json", help="用于微调的数据文件")
+    parser.add_argument("--fine_tune_data", type=str, default="json/phy_only.json", help="用于微调的数据文件")
     parser.add_argument("--fine_tune_output", type=str, default="./fine_tuned_bert", help="微调后模型的保存路径")
+    parser.add_argument("--ratio", type=float, default=1.0, help="替换名词的比例，范围为 0 到 1")
     args = parser.parse_args()
 
     # 加载或微调模型

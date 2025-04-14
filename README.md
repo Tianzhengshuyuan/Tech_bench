@@ -170,13 +170,13 @@ python ml_classifier.py logistic将分类好的题目附加到对应的学科的
 ```bash
 ./preprocess.sh ./物理_docx ./物理_docx2
 ./run_all.sh 物理_docx2 off
-mv output.json output_phy.json
+mv json/output.json json/output_phy.json
 ./preprocess.sh ./化学_docx ./化学_docx2
 ./run_all.sh 化学_docx2 off
-mv output.json output_che.json
+mv json/output.json json/output_che.json
 ./preprocess.sh ./生物_docx ./生物_docx2
 ./run_all.sh 生物_docx2 off
-mv output.json output_bio.json
+mv json/output.json json/output_bio.json
 python extract_train_data.py
 python extract_Comprehensive_questions.py
 python ml_classifier.py logistic
@@ -204,7 +204,7 @@ python postprocess.py
 
 去除包含“图”关键词的题目
 ```bash
-python exclude_pictures.py --input_file=phy_only.json --output_file=phy_no_picture.json
+python exclude_pictures.py --input_file=json/phy_only.json --output_file=json/phy_no_picture.json
 ```
 
 - 一个完整的工作流程belike:
@@ -220,7 +220,7 @@ python postprocess.py
 
 识别可以通过数字扩展的题目
 ```bash
-python find_questions_with_number.py --train_file=labeled_questions --test_file=phy_no_picture
+python find_questions_with_number.py --train_file=json/labeled_questions.json --test_file=json/phy_no_picture.json
 ```
 
 word2vec环境配置
@@ -355,6 +355,33 @@ pip install keras==2.3.1
 pip install bert4keras
 pip install protobuf==3.20.0
 pip install jieba
+```
+
+调用大模型的api接口，测试做原题的正确率以及是否能识别同义词替换后的题的逻辑错误
+调用deepseek api接口（all_new代表只测试新题）：
+```bash
+python get_deepseek_answer.py
+python get_deepseek_answer.py --all_new 
+```
+随机选择100题，做同义词替换，然后从原题和该题中随机选题目测试：
+下面指令中100代表采样的题目数，all_new代表是否全使用新题，random代表随机选出来100题还是取某文件的前100题
+```bash
+./right_or_not.sh 100 all_new random
+```
+
+调用 gpt api接口
+修改openai的连接规则为使用美丽国节点
+```yaml
+- { name: '🧲 OpenAI', type: select, proxies: [🇺🇸US丨芝加哥, 🇺🇸US丨洛杉矶, 🇬🇧GB丨伦敦, 🇩🇪DE丨法兰克福] }
+```
+然后开启clash并export
+```bash
+export http_proxy=http://127.0.0.1:7890
+export https_proxy=http://127.0.0.1:7890
+```
+```bash
+export OPENAI_API_KEY=sk......
+python get_openai_answer.py 
 ```
 
 # 已解决的问题

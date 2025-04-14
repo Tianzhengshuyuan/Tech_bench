@@ -5,7 +5,7 @@ from sklearn.cluster import KMeans
 import pandas as pd
 
 # 读取 JSON 文件
-with open("conprehensive_questions.json", "r", encoding="utf-8") as file:
+with open("json/conprehensive_questions.json", "r", encoding="utf-8") as file:
     data = json.load(file)
 
 # 提取题目及选项文本
@@ -44,7 +44,7 @@ for i, item in enumerate(data):
 # 6. 将每个聚类保存为单独的文件
 for cluster_id in range(n_clusters):
     cluster_items = [item for item in data if item["cluster"] == cluster_id]
-    with open(f"cluster_{cluster_id}.json", "w", encoding="utf-8") as file:
+    with open(f"json/cluster_{cluster_id}.json", "w", encoding="utf-8") as file:
         json.dump(cluster_items, file, ensure_ascii=False, indent=4)
 
 print("聚类完成！每个聚类已保存为单独的文件。")

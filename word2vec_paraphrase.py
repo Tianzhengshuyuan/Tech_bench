@@ -65,7 +65,7 @@ def train_word2vec_on_custom_data():
     word2vec_model.wv.key_to_index = pretrained_model.key_to_index
 
     # 从 JSON 文件加载训练数据
-    train_file = "./phy_only.json"
+    train_file = "./json/phy_only.json"
     print(f"从{train_file}中加载微调word2vec模型的数据...")
     with open(train_file, "r", encoding="utf-8") as f:
         data = json.load(f)

@@ -21,9 +21,9 @@ def load_data(file_path, label):
     ]
 
 # 加载三个学科的数据
-physics_data = load_data("phy_only.json", label=2)  # 物理
-chemistry_data = load_data("che_only.json", label=1)  # 化学
-biology_data = load_data("bio_only.json", label=0)  # 生物
+physics_data = load_data("json/phy_only.json", label=2)  # 物理
+chemistry_data = load_data("json/che_only.json", label=1)  # 化学
+biology_data = load_data("json/bio_only.json", label=0)  # 生物
 
 # 合并数据集
 all_data = physics_data + chemistry_data + biology_data

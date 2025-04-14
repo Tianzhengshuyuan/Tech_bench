@@ -1,7 +1,7 @@
 import json
 
 # 假设 JSON 文件名为 questions.json
-with open("conprehensive_questions.json", "r", encoding="utf-8") as file:
+with open("json/conprehensive_questions.json", "r", encoding="utf-8") as file:
     data = json.load(file)
 
 # 初始化分类字典
@@ -50,16 +50,16 @@ for item in data:
         unknown_questions.append(item)
 
 # 将分类结果保存到文件
-with open("physics_questions.json", "w", encoding="utf-8") as file:
+with open("json/physics_questions.json", "w", encoding="utf-8") as file:
     json.dump(physics_questions, file, ensure_ascii=False, indent=4)
 
-with open("chemistry_questions.json", "w", encoding="utf-8") as file:
+with open("json/chemistry_questions.json", "w", encoding="utf-8") as file:
     json.dump(chemistry_questions, file, ensure_ascii=False, indent=4)
 
-with open("biology_questions.json", "w", encoding="utf-8") as file:
+with open("json/biology_questions.json", "w", encoding="utf-8") as file:
     json.dump(biology_questions, file, ensure_ascii=False, indent=4)
     
-with open("unknown_questions.json", "w", encoding="utf-8") as file:
+with open("json/unknown_questions.json", "w", encoding="utf-8") as file:
     json.dump(unknown_questions, file, ensure_ascii=False, indent=4)
 
 print("分类完成！")

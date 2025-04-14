@@ -22,9 +22,9 @@ def load_data(file_path, label):
     ]
 
 # 加载三个学科的数据
-physics_data = load_data("phy_only.json", label=2)  # 物理
-chemistry_data = load_data("che_only.json", label=1)  # 化学
-biology_data = load_data("bio_only.json", label=0)  # 生物
+physics_data = load_data("json/phy_only.json", label=2)  # 物理
+chemistry_data = load_data("json/che_only.json", label=1)  # 化学
+biology_data = load_data("json/bio_only.json", label=0)  # 生物
 
 # 合并数据集
 all_data = physics_data + chemistry_data + biology_data
@@ -125,10 +125,10 @@ def classify_and_append(file_to_classify, bio_file, che_file, phy_file):
 
 # 调用分类并追加的函数
 classify_and_append(
-    file_to_classify="conprehensive_questions.json",
-    bio_file="bio_only.json",
-    che_file="che_only.json",
-    phy_file="phy_only.json"
+    file_to_classify="json/conprehensive_questions.json",
+    bio_file="json/bio_only.json",
+    che_file="json/che_only.json",
+    phy_file="json/phy_only.json"
 )
 
 print("分类完成，数据已追加到对应的文件中！")

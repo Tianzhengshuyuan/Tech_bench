@@ -13,7 +13,6 @@ def load_data(file_path):
     """
     从文件中加载 JSON 数据
     """
-    file_path += ".json"
     with open(file_path, "r", encoding="utf-8") as f:
         return json.load(f)
 
@@ -163,7 +162,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="筛选并标注符合规律的题目条目")
     parser.add_argument("--train_file", type=str, required=True, help="用于训练模型的 JSON 文件")
     parser.add_argument("--test_file", type=str, required=True, help="需要标注的 JSON 文件")
-    parser.add_argument("--output_file", type=str, default="labeled_test_data.json", help="标注结果输出文件")
+    parser.add_argument("--output_file", type=str, default="json/labeled_test_data.json", help="标注结果输出文件")
     args = parser.parse_args()
 
     train_and_label_test_data()

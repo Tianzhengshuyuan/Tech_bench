@@ -71,8 +71,8 @@ def main(input_file, output_file, use_random, num_questions):
 if __name__ == "__main__":
     # 设置命令行参数解析
     parser = argparse.ArgumentParser(description="从 JSON 文件中随机提取符合条件的题目")
-    parser.add_argument("--input_file", type=str, default="phy_only.json", help="输入的 JSON 文件路径")
-    parser.add_argument("--output_file", type=str, default="selected_questions.json", help="输出的 JSON 文件路径")
+    parser.add_argument("--input_file", type=str, default="json/phy_only.json", help="输入的 JSON 文件路径")
+    parser.add_argument("--output_file", type=str, default="json/selected_questions.json", help="输出的 JSON 文件路径")
     parser.add_argument("--random", type=bool, default=True, help="是否随机提取题目")
     parser.add_argument("--num_questions", type=int, default=100, help="随机提取的题目数量")
     args = parser.parse_args()

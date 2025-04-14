@@ -17,7 +17,7 @@ def call_gpt_api(question):
     try:
         openai.api_key = os.getenv("OPENAI_API_KEY")
         response = openai.chat.completions.create(
-            model="gpt-3.5-turbo",
+            model="gpt-4o",
             messages=[
                 {"role": "system", "content": "You are a helpful assistant."},
                 {"role": "user", "content": question},
@@ -83,7 +83,6 @@ def process_questions(input_file_1, input_file_2, output_file, all_new=False):
 
                 # 调用 gpt API
                 answer = call_gpt_api(full_question)
-                print(answer)
 
                 # 统计 metrics
                 file2_count += 1
@@ -180,9 +179,9 @@ def process_questions(input_file_1, input_file_2, output_file, all_new=False):
         # 将结果保存到输出文件
         with open(output_file, "w", encoding="utf-8") as f:
             json.dump(results, f, ensure_ascii=False, indent=4)
-        with open("wrong_results.json", "w", encoding="utf-8") as f:
+        with open("json/wrong_results.json", "w", encoding="utf-8") as f:
             json.dump(wrong_results, f, ensure_ascii=False, indent=4)
-        with open("new_but_meiyou.json", "w", encoding="utf-8") as f:
+        with open("json/new_but_meiyou.json", "w", encoding="utf-8") as f:
             json.dump(new_but_meiyou, f, ensure_ascii=False, indent=4)
             
         print(f"处理完成，结果已保存到文件: {output_file}")
@@ -194,9 +193,9 @@ def process_questions(input_file_1, input_file_2, output_file, all_new=False):
 # 主函数
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="获得 gpt 的答案并验证结果")
-    parser.add_argument("--input_file1", type=str, default="selected_questions.json", help="输入的 JSON 文件路径")
-    parser.add_argument("--input_file2", type=str, default="paraphrased_labeled_questions.json", help="输入的 JSON 文件路径")
-    parser.add_argument("--output_file", type=str, default="answers_with_validation.json", help="输出的 JSON 文件路径")
+    parser.add_argument("--input_file1", type=str, default="json/selected_questions.json", help="输入的 JSON 文件路径")
+    parser.add_argument("--input_file2", type=str, default="json/paraphrased_labeled_questions.json", help="输入的 JSON 文件路径")
+    parser.add_argument("--output_file", type=str, default="json/answers_with_validation.json", help="输出的 JSON 文件路径")
     parser.add_argument("--all_new", action="store_true", help="是否全部从 input_file2 中选择题目")
     args = parser.parse_args()
     process_questions(args.input_file1, args.input_file2, args.output_file, args.all_new)

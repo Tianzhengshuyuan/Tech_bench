@@ -4,7 +4,7 @@ from tqdm import tqdm
 
 # jieba.load_userdict("jieba_user_dict.txt")
 # 读取 JSON 文件
-with open("phy_only.json", "r", encoding="utf-8") as f:
+with open("json/phy_only.json", "r", encoding="utf-8") as f:
     data = json.load(f)
 
 # 初始化存储分词结果的列表
@@ -27,5 +27,5 @@ for item in tqdm(data, desc="Processing items"):
     })
 
 # 将修改后的数据写入新的 JSON 文件
-with open("jieba_cut_old.json", "w", encoding="utf-8") as f:
+with open("json/jieba_cut_old.json", "w", encoding="utf-8") as f:
     json.dump(jieba_cut_results, f, ensure_ascii=False, indent=4)

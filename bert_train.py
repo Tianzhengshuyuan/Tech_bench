@@ -39,7 +39,7 @@ def corpus():
     语料生成器
     """
     while True:
-        with open('./phy_only.json', 'r', encoding='utf-8') as f:
+        with open('./json/phy_only.json', 'r', encoding='utf-8') as f:
             data = json.load(f)  # 解析整个 JSON 数组
             for l in data:
                 for text in text_process(l['question']):
