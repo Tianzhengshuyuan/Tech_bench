@@ -1,0 +1,106 @@
+[
+    {
+        "source": "新题",
+        "full_question": "1．（3分）一变压器中的电源可视为理想变压器，它将220V交变电流改变为110V，已知变压器原线圈数为800，则副线圈的匝数为（　　）\nA. 200\nB. 400\nC. 1600\nD. 3200\n上面的题目逻辑和表述有什么问题吗？有的话请回复“有问题”并分析存在的问题，没问题的话请回复“没问题，正确答案是”并给出正确答案，不用解释",
+        "origin_question": "1．（3分）一电器中的变压器可视为理想变压器，它将220V交变电流改变为110V，已知变压器原线圈匝数为800，则副线圈的匝数为（　　）\nA. 200\nB. 400\nC. 1600\nD. 3200\n",
+        "deepseek_answer": "没问题，正确答案是B",
+        "true_answer": "B",
+        "回复是否包含“有问题”": false
+    },
+    {
+        "source": "新题",
+        "full_question": "1．某紫外线照射某金时不能产生光电效应，则下述条件中可能使该金产生光电效应的是                                          [    ]\nA. 延长光照时．\nB. 增大光的能量．\nC. 换用波长较短的光时．\nD. 换用频率较低的光片．\n上面的题目逻辑和表述有什么问题吗？有的话请回复“有问题”并分析存在的问题，没问题的话请回复“没问题，正确答案是”并给出正确答案，不用解释",
+        "origin_question": "1．某单色光照射某金属时不能产生光电效应，则下述措施中可能使该金属产生光电效应的是                                          [    ]\nA. 延长光照时间．\nB. 增大光的强度．\nC. 换用波长较短的光照射．\nD. 换用频率较低的光照射．\n",
+        "deepseek_answer": "没问题，正确答案是C",
+        "true_answer": "C",
+        "回复是否包含“有问题”": false
+    },
+    {
+        "source": "新题",
+        "full_question": "7．雷蒙德·戴维斯因研究来自地球的质子中徽子(ve)而获得了2002年度诺贝尔物理学奖．他\n探测中徽子所用的最大的平台是一个贮满615t四氯乙烯(C_2Cl_4)气体的巨桶．质子中微子 可以将一个氯原子核转变为一个氩核，其方程分别为\n v_{e}+_{17}^{37}Cl\\rightarrow_{18}^{37}Ar+_{-1}^{0}e  已知 _{17}^{37}Cl 核的量为36.95658u， _{18}^{37}Ar 核的质量为36.95691u， \\begin{array}{c}0\\\\-1\\end{array}\\boldsymbol{e}  的质量为0.00055u，1u质量对应的动能为931.5MeV．根据以上数据，可以判断参与上述反应的电子中微子的最小质量为\t（    ）\nA. 0.82MeV\nB. 0.31MeV\nC. 1.33MeV\nD. 0.51MeV\n上面的题目逻辑和表述有什么问题吗？有的话请回复“有问题”并分析存在的问题，没问题的话请回复“没问题，正确答案是”并给出正确答案，不用解释",
+        "origin_question": "7．雷蒙德·戴维斯因研究来自太阳的电子中徽子(ve)而获得了2002年度诺贝尔物理学奖．他\n探测中徽子所用的探测器的主体是一个贮满615t四氯乙烯(C_2Cl_4)溶液的巨桶．电子中微子 可以将一个氯核转变为一个氩核，其核反应方程式为\n v_{e}+_{17}^{37}Cl\\rightarrow_{18}^{37}Ar+_{-1}^{0}e  已知 _{17}^{37}Cl 核的质量为36.95658u， _{18}^{37}Ar 核的质量为36.95691u， \\begin{array}{c}0\\\\-1\\end{array}\\boldsymbol{e}  的质量为0.00055u，1u质量对应的能量为931.5MeV．根据以上数据，可以判断参与上述反应的电子中微子的最小能量为\t（    ）\nA. 0.82MeV\nB. 0.31MeV\nC. 1.33MeV\nD. 0.51MeV\n",
+        "deepseek_answer": "没问题，正确答案是B. 0.31MeV",
+        "true_answer": "A",
+        "回复是否包含“有问题”": false
+    },
+    {
+        "source": "新题",
+        "full_question": "14.对四个核反应方程（1） _{92}^{236}U\\to_{90}^{24}\\:\\mathrm{Th+}_{2}^{4}\\mathrm{He} ；（2） _{90}^{234}\\mathrm{Th}\\to_{91}^{234}\\:\\mathrm{Pa}+_{-1}^{0}\\mathrm{e} ；（3） _7^{14}\\mathrm{N+}_2^4\\mathrm{He}\\rightarrow_8^{17}\\mathrm{O+}_1^1\\mathrm{H} ；（4） _1^2\\text{H+}_1^3\\text{H}\\to_2^4\\text{He+}_0^1\\text{n+17.6MeV} 。下列选项正确的是（　　）\nA. （1）（2）该系统没有释放能量\nB. （1）（2）（3）式均是已知衰变方程\nC. （3）方程是人类第一次实现物质转变的方程\nD. 利用核反应引发可控的（4）原子核聚变是正在尝试的技术之一\n上面的题目逻辑和表述有什么问题吗？有的话请回复“有问题”并分析存在的问题，没问题的话请回复“没问题，正确答案是”并给出正确答案，不用解释",
+        "origin_question": "14.对四个核反应方程（1） _{92}^{236}U\\to_{90}^{24}\\:\\mathrm{Th+}_{2}^{4}\\mathrm{He} ；（2） _{90}^{234}\\mathrm{Th}\\to_{91}^{234}\\:\\mathrm{Pa}+_{-1}^{0}\\mathrm{e} ；（3） _7^{14}\\mathrm{N+}_2^4\\mathrm{He}\\rightarrow_8^{17}\\mathrm{O+}_1^1\\mathrm{H} ；（4） _1^2\\text{H+}_1^3\\text{H}\\to_2^4\\text{He+}_0^1\\text{n+17.6MeV} 。下列说法正确的是（　　）\nA. （1）（2）式核反应没有释放能量\nB. （1）（2）（3）式均是原子核衰变方程\nC. （3）式是人类第一次实现原子核转变的方程\nD. 利用激光引发可控的（4）式核聚变是正在尝试的技术之一\n",
+        "deepseek_answer": "没问题，正确答案是D",
+        "true_answer": "CD",
+        "回复是否包含“有问题”": false
+    },
+    {
+        "source": "新题",
+        "full_question": "16．下列列出的是一些核反应方程\n \\begin{array}{c}30\\\\15\\end{array} P→ \\begin{array}{c}30\\\\14\\end{array} Si＋X     \\begin{array}{c}9\\\\4\\end{array} Be＋ \\begin{array}{c}2\\\\1\\end{array} H→ \\begin{array}{c}10\\\\5\\end{array} B＋Y     \\begin{array}{c}4\\\\2\\end{array} He＋ \\begin{array}{c}4\\\\2\\end{array} He→ \\begin{array}{c}7\\\\3\\end{array} Li＋Z    +\nA. X是原子核，Y是中子，Z是正电子\nB. X是正电子，Y是电子，Z是电荷\nC. X是中子，Y是正电子，Z是质子\nD. X是正电子，Y是中子，Z是质子\n上面的题目逻辑和表述有什么问题吗？有的话请回复“有问题”并分析存在的问题，没问题的话请回复“没问题，正确答案是”并给出正确答案，不用解释",
+        "origin_question": "16．下面列出的是一些核反应方程\n \\begin{array}{c}30\\\\15\\end{array} P→ \\begin{array}{c}30\\\\14\\end{array} Si＋X     \\begin{array}{c}9\\\\4\\end{array} Be＋ \\begin{array}{c}2\\\\1\\end{array} H→ \\begin{array}{c}10\\\\5\\end{array} B＋Y     \\begin{array}{c}4\\\\2\\end{array} He＋ \\begin{array}{c}4\\\\2\\end{array} He→ \\begin{array}{c}7\\\\3\\end{array} Li＋Z    其中\nA. X是质子，Y是中子，Z是正电子\nB. X是正电子，Y是质子，Z是中子\nC. X是中子，Y是正电子，Z是质子\nD. X是正电子，Y是中子，Z是质子\n",
+        "deepseek_answer": "没问题，正确答案是D",
+        "true_answer": "D",
+        "回复是否包含“有问题”": false
+    },
+    {
+        "source": "新题",
+        "full_question": "2.原子进行核反应的主要方式之是原子核-质子循坏，核反应的结果可表示为 4_1^1\\text{H}\\to{}_2^4\\text{He}+2_1^0\\text{e}+2v ，已知 _{1}^{1}\\mathbf{H} 和 _{2}^{4}\\mathrm{He} 的能量分别为 m_{\\mathrm{p}}=1.0078\\text{u} 和 m_{\\alpha}=4.0026u ，1u=931MeV/c^2，c为光速。在4个 _{1}^{1}\\mathbf{H} 转变成1个 _{2}^{4}\\mathrm{He} 的过程中，释放的能量约为\nA. 8 MeV\nB. 16 MeV\nC. 26 MeV\nD. 52 MeV\n上面的题目逻辑和表述有什么问题吗？有的话请回复“有问题”并分析存在的问题，没问题的话请回复“没问题，正确答案是”并给出正确答案，不用解释",
+        "origin_question": "2.太阳内部核反应的主要模式之一是质子-质子循坏，循环的结果可表示为 4_1^1\\text{H}\\to{}_2^4\\text{He}+2_1^0\\text{e}+2v ，已知 _{1}^{1}\\mathbf{H} 和 _{2}^{4}\\mathrm{He} 的质量分别为 m_{\\mathrm{p}}=1.0078\\text{u} 和 m_{\\alpha}=4.0026u ，1u=931MeV/c^2，c为光速。在4个 _{1}^{1}\\mathbf{H} 转变成1个 _{2}^{4}\\mathrm{He} 的过程中，释放的能量约为\nA. 8 MeV\nB. 16 MeV\nC. 26 MeV\nD. 52 MeV\n",
+        "deepseek_answer": "没问题，正确答案是C",
+        "true_answer": "C",
+        "回复是否包含“有问题”": false
+    },
+    {
+        "source": "新题",
+        "full_question": "6.下列物理量中，X_1，X_2，X_3，X_4代表α粒子的有（　　）\nA. _1^2\\mathrm{H}+{}_1^2\\mathrm{H}\\to{}_0^1\\mathrm{n}+\\mathrm{X}_1\nB. _1^2\\mathrm{H}+{}_1^3\\mathrm{H}\\to{}_0^1\\mathrm{n}+X_2\nC. _{92}^{235}\\mathbf{U}+{}_{0}^{1}\\mathbf{n}\\to{}_{56}^{144}\\mathrm{Ba}+{}_{36}^{89}\\mathrm{Kr}+3\\mathrm{X}_{3}\nD. _0^1n+\\begin{smallmatrix}6\\\\3\\end{smallmatrix}Li\\rightarrow{}_1^3\\mathrm{H}+X_4\n上面的题目逻辑和表述有什么问题吗？有的话请回复“有问题”并分析存在的问题，没问题的话请回复“没问题，正确答案是”并给出正确答案，不用解释",
+        "origin_question": "6.下列核反应方程中，X_1，X_2，X_3，X_4代表α粒子的有（　　）\nA. _1^2\\mathrm{H}+{}_1^2\\mathrm{H}\\to{}_0^1\\mathrm{n}+\\mathrm{X}_1\nB. _1^2\\mathrm{H}+{}_1^3\\mathrm{H}\\to{}_0^1\\mathrm{n}+X_2\nC. _{92}^{235}\\mathbf{U}+{}_{0}^{1}\\mathbf{n}\\to{}_{56}^{144}\\mathrm{Ba}+{}_{36}^{89}\\mathrm{Kr}+3\\mathrm{X}_{3}\nD. _0^1n+\\begin{smallmatrix}6\\\\3\\end{smallmatrix}Li\\rightarrow{}_1^3\\mathrm{H}+X_4\n",
+        "deepseek_answer": "没问题，正确答案是B、C、D",
+        "true_answer": "BD",
+        "回复是否包含“有问题”": false
+    },
+    {
+        "source": "新题",
+        "full_question": "4. 两节动车的额定功率分别为 \\boldsymbol{P}_{1} 和 \\boldsymbol{P}_{2} ，在某平直铁轨上能达到的最大速率分别为 \\boldsymbol{V}_{1} 和 \\boldsymbol{V}_{2} 。现将它们组成动车组，设每节动车运行时受到的阻力在编组前后不变，则该动车组在此铁轨上能达到的最大速度为（）\nA. \\frac{P_1v_1+P_2v_2}{P_1+P_2}\nB. \\frac{P_1v_2+P_2v_1}{P_1+P_2}\nC. \\frac{(P_1+P_2)v_1v_2}{P_1v_1+P_2v_2}\nD. \\frac{(P_1+P_2)v_1v_2}{P_1v_2+P_2v_1}\n上面的题目逻辑和表述有什么问题吗？有的话请回复“有问题”并分析存在的问题，没问题的话请回复“没问题，正确答案是”并给出正确答案，不用解释",
+        "origin_question": "4. 两节动车的额定功率分别为 \\boldsymbol{P}_{1} 和 \\boldsymbol{P}_{2} ，在某平直铁轨上能达到的最大速度分别为 \\boldsymbol{V}_{1} 和 \\boldsymbol{V}_{2} 。现将它们编成动车组，设每节动车运行时受到的阻力在编组前后不变，则该动车组在此铁轨上能达到的最大速度为（）\nA. \\frac{P_1v_1+P_2v_2}{P_1+P_2}\nB. \\frac{P_1v_2+P_2v_1}{P_1+P_2}\nC. \\frac{(P_1+P_2)v_1v_2}{P_1v_1+P_2v_2}\nD. \\frac{(P_1+P_2)v_1v_2}{P_1v_2+P_2v_1}\n",
+        "deepseek_answer": "没问题，正确答案是 D",
+        "true_answer": "D",
+        "回复是否包含“有问题”": false
+    },
+    {
+        "source": "新题",
+        "full_question": "5．两个相同的单摆静止于平衡位置，使摆球分别以同一初速 \\boldsymbol{V}_{1} 、 \\boldsymbol{V}_{2}  ( V_1>V_2 )在竖直面内做小幅度摆动，它们的频率与速度分别为和 A_{1},A_{2} ，则\nA. f_{1}>f_{2}，A_1=A_2\nB. f_{1}<f_{2}，A_1=A_2\nC. f_1=f_2，A_1>A_2\nD. f_1=f_2，A_1<A_2\n上面的题目逻辑和表述有什么问题吗？有的话请回复“有问题”并分析存在的问题，没问题的话请回复“没问题，正确答案是”并给出正确答案，不用解释",
+        "origin_question": "5．两个相同的单摆静止于平衡位置，使摆球分别以水平初速 \\boldsymbol{V}_{1} 、 \\boldsymbol{V}_{2}  ( V_1>V_2 )在竖直平面内做小角度摆动，它们的频率与振幅分别为和 A_{1},A_{2} ，则\nA. f_{1}>f_{2}，A_1=A_2\nB. f_{1}<f_{2}，A_1=A_2\nC. f_1=f_2，A_1>A_2\nD. f_1=f_2，A_1<A_2\n",
+        "deepseek_answer": "没问题，正确答案是 C",
+        "true_answer": "C",
+        "回复是否包含“有问题”": false
+    },
+    {
+        "source": "新题",
+        "full_question": "6.1934年，约里奥—居里夫妇用α粒子轰击铝箔，首次产生了人工放射性同位素X，反应过程为： _2^4\\mathrm{He+}_{13}^2\\mathrm{Al\\rightarrow X+}_0^1\\mathrm{n} 。X会裂变成元素Y，衰变方程为 \\mathrm{X\\to Y+}_1^0\\mathrm{e} ，则（　　）\nA. X的质量数与Y的质量数相等\nB. X的电子数比Y的质子数少1\nC. X的电子数比_{13}^{27}\\mathrm{Al}的电荷数多2\nD. X的质量数为_{13}^{27}\\mathrm{Al}的质量数相等\n上面的题目逻辑和表述有什么问题吗？有的话请回复“有问题”并分析存在的问题，没问题的话请回复“没问题，正确答案是”并给出正确答案，不用解释",
+        "origin_question": "6.1934年，约里奥—居里夫妇用α粒子轰击铝箔，首次产生了人工放射性同位素X，反应方程为： _2^4\\mathrm{He+}_{13}^2\\mathrm{Al\\rightarrow X+}_0^1\\mathrm{n} 。X会衰变成原子核Y，衰变方程为 \\mathrm{X\\to Y+}_1^0\\mathrm{e} ，则（　　）\nA. X的质量数与Y的质量数相等\nB. X的电荷数比Y的电荷数少1\nC. X的电荷数比_{13}^{27}\\mathrm{Al}的电荷数多2\nD. X的质量数与_{13}^{27}\\mathrm{Al}的质量数相等\n",
+        "deepseek_answer": "没问题，正确答案是A",
+        "true_answer": "AC",
+        "回复是否包含“有问题”": false
+    },
+    {
+        "source": "新题",
+        "full_question": "5．在LC振荡电路中，用以下的哪种办法可以使振荡频率增大一倍?\nA. 自感L和电容C都增大一倍\nB. 自感L增大一倍，电容C减小一半\nC. 自感L减小一半，电容C增大一倍\nD. 自感L和电容C都减小一半．\n上面的题目逻辑和表述有什么问题吗？有的话请回复“有问题”并分析存在的问题，没问题的话请回复“没问题，正确答案是”并给出正确答案，不用解释",
+        "origin_question": "5．在LC振荡电路中，用以下的哪种办法可以使振荡频率增大一倍?\nA. 自感L和电容C都增大一倍\nB. 自感L增大一倍，电容C减小一半\nC. 自感L减小一半，电容C增大一倍\nD. 自感L和电容C都减小一半．\n",
+        "deepseek_answer": "没问题，正确答案是D",
+        "true_answer": "D",
+        "回复是否包含“有问题”": false
+    },
+    {
+        "source": "新题",
+        "full_question": "5．原子核n、质子p、氘核D的量分别为 m_{n},\\:m_{p},\\quad m_{D}. 现用光子能量为E的γ射线照射静\n止氘核使之分裂，核反应的过程为\n y+D=p+n \n\t若分解后中子、质子的能量可视为相等，则中子的能量是\t（    ）\nA. \\frac{1}{2}[(m_{_D}-m_p-m_n)c^2-E]\nB. \\frac{1}{2}[(m_{_D}+m_n-m_p)c^2+E]\nC. \\frac{1}{2}[(m_{_D}-m_p-m_n)c^2+E]\nD. \\frac{1}{2}[(m_{_D}+m_n-m_p)c^2-E]\n上面的题目逻辑和表述有什么问题吗？有的话请回复“有问题”并分析存在的问题，没问题的话请回复“没问题，正确答案是”并给出正确答案，不用解释",
+        "origin_question": "5．中子n、质子p、氘核D的质量分别为 m_{n},\\:m_{p},\\quad m_{D}. 现用光子能量为E的γ射线照射静\n止氘核使之分解，反应的方程为\n y+D=p+n \n\t若分解后中子、质子的动能可视为相等，则中子的动能是\t（    ）\nA. \\frac{1}{2}[(m_{_D}-m_p-m_n)c^2-E]\nB. \\frac{1}{2}[(m_{_D}+m_n-m_p)c^2+E]\nC. \\frac{1}{2}[(m_{_D}-m_p-m_n)c^2+E]\nD. \\frac{1}{2}[(m_{_D}+m_n-m_p)c^2-E]\n",
+        "deepseek_answer": "没问题，正确答案是C",
+        "true_answer": "C",
+        "回复是否包含“有问题”": false
+    },
+    {
+        "source": "新题",
+        "full_question": "7．（6分）某兴趣小组探究用不同方式测定干电池的电动势和电阻，他们提出的试验方法中有如下一组器材组合．为使试验结论尽可能准确，最不可取的一组器材是（　　）\nA. 一个安培表、一个伏特表和一个滑动变阻器\nB. 一个伏特表和两个定值电阻\nC. 一个安培表和一个电阻箱\nD. 两个安培表和一个滑动变阻器\n上面的题目逻辑和表述有什么问题吗？有的话请回复“有问题”并分析存在的问题，没问题的话请回复“没问题，正确答案是”并给出正确答案，不用解释",
+        "origin_question": "7．（6分）某兴趣小组探究用不同方法测定干电池的电动势和内阻，他们提出的实验方案中有如下四种器材组合．为使实验结果尽可能准确，最不可取的一组器材是（　　）\nA. 一个安培表、一个伏特表和一个滑动变阻器\nB. 一个伏特表和多个定值电阻\nC. 一个安培表和一个电阻箱\nD. 两个安培表和一个滑动变阻器\n",
+        "deepseek_answer": "没问题，正确答案是D",
+        "true_answer": "D",
+        "回复是否包含“有问题”": false
+    }
+]

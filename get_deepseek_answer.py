@@ -1,3 +1,4 @@
+import re
 import json
 import random
 import argparse
@@ -67,18 +68,28 @@ def process_questions(input_file_1, input_file_2, output_file, all_new=False):
                 if not all_new:
                     item = item[1]  # 如果不是 all_new，从 data2 中取题目
                 question = item.get("question", "").strip()
+                origin_question = data1[i].get("question", "").strip()
                 options = {
                     "A": item.get("A", "").strip(),
                     "B": item.get("B", "").strip(),
                     "C": item.get("C", "").strip(),
                     "D": item.get("D", "").strip(),
                 }
+                origin_options = {
+                    "A": data1[i].get("A", "").strip(),
+                    "B": data1[i].get("B", "").strip(),
+                    "C": data1[i].get("C", "").strip(),
+                    "D": data1[i].get("D", "").strip(),
+                }
+                
                 correct_answer = item.get("answer", "").strip()
                 
                 # 拼接完整问题
                 full_question = f"{question}\nA. {options['A']}\nB. {options['B']}\nC. {options['C']}\nD. {options['D']}\n"
                 full_question += "上面的题目逻辑和表述有什么问题吗？有的话请回复“有问题”并分析存在的问题，没问题的话请回复“没问题，正确答案是”并给出正确答案，不用解释"
 
+                origin_full_question = f"{origin_question}\nA. {origin_options['A']}\nB. {origin_options['B']}\nC. {origin_options['C']}\nD. {origin_options['D']}\n"
+                
                 # 调用 DeepSeek API
                 answer = call_deepseek_api(full_question)
 
@@ -90,6 +101,7 @@ def process_questions(input_file_1, input_file_2, output_file, all_new=False):
                     new_but_meiyou.append({
                         "source": "新题",
                         "full_question": full_question,
+                        "origin_question": origin_full_question,
                         "deepseek_answer": answer,
                         "true_answer": correct_answer,
                         "回复是否包含“有问题”": "有问题" in answer,
@@ -99,6 +111,7 @@ def process_questions(input_file_1, input_file_2, output_file, all_new=False):
                 results.append({
                     "source": "新题",
                     "full_question": full_question,
+                    "origin_question": origin_full_question,
                     "deepseek_answer": answer,
                     "true_answer": correct_answer,
                     "回复是否包含“有问题”": "有问题" in answer,
@@ -127,7 +140,7 @@ def process_questions(input_file_1, input_file_2, output_file, all_new=False):
                 if "没问题" in answer:
                     file1_meiyou_count += 1
 
-                    extracted_answer = answer.split("没问题，正确答案是")[-1].strip()  # 提取“没问题，正确答案是”后面的部分
+                    extracted_answer = re.findall(r'[A-D]', answer) 
 
                     # 分割正确答案和模型的回答，确保模型的回答严格匹配正确答案
                     correct_answer_set = set(correct_answer)  # 正确答案转为集合

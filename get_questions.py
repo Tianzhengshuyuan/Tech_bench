@@ -37,6 +37,10 @@ def filter_questions(data):
     """
     valid_questions = []
     for item in data:
+        # 检查 question 中是否包含“图”
+        if "question" in item and "图" in item["question"]:
+            continue  # 跳过包含“图”的问题
+                
         # 检查 A, B, C, D 是否为空
         if all(item.get(option, "").strip() for option in ["A", "B", "C", "D"]):
             # 检查是否存在 answer 键

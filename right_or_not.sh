@@ -30,13 +30,13 @@ fi
 eval $GET_QUESTIONS_CMD
 
 # 执行 bert_paraphrase.py，传递 RATIO_NOUNS 参数
-python bert_paraphrase.py --input_file=selected_questions.json --ratio=$RATIO_NOUNS --wo_phy > wo_phy.log
+python bert_paraphrase.py --input_file=json/selected_questions.json --ratio=$RATIO_NOUNS --wo_phy > log/wo_phy.log
 
 # 构造 get_deepseek_answer.py 的命令
 if [[ $ALL_NEW == true ]]; then
-    GET_DEEPSEEK_ANSWER_CMD="python get_deepseek_answer.py --all_new"
+    GET_DEEPSEEK_ANSWER_CMD="python get_kimi_answer.py --all_new"
 else
-    GET_DEEPSEEK_ANSWER_CMD="python get_deepseek_answer.py"
+    GET_DEEPSEEK_ANSWER_CMD="python get_kimi_answer.py"
 fi
 
 # 执行获取答案的命令

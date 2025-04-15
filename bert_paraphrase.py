@@ -201,6 +201,13 @@ def extract_nouns(sentence):
     print(nouns)
     return nouns
 
+
+def is_chinese_word(word):
+    """
+    判断一个单词是否完全由汉字组成
+    """
+    return all('\u4e00' <= char <= '\u9fff' for char in word)
+
 # 替换主语和谓语的函数
 def replace_with_similar(sentence):
     # all_svo = extract_svo_spacy(sentence)
@@ -220,17 +227,28 @@ def replace_with_similar(sentence):
     #         sentence = sentence.replace(obj, obj_similar, 1)
     # return sentence  
 
-    nouns = extract_nouns(sentence)
-    print(sentence)
+    nouns = extract_nouns(sentence)  # 提取句子中的名词
+    print("Original sentence:", sentence)
     if not nouns:
         return sentence  # 如果没有名词，直接返回原句
+    
+    # 过滤出完全由汉字组成的名词
+    chinese_nouns = [noun for noun in nouns if is_chinese_word(noun)]
+    
+    if not chinese_nouns:
+        return sentence  # 如果没有汉字名词，直接返回原句
+
     # 根据指定的比例随机选择名词进行替换
-    num_to_replace = max(1, int(len(nouns) * args.ratio))
-    nouns_to_replace = random.sample(nouns, num_to_replace)
+    num_to_replace = max(1, int(len(chinese_nouns) * args.ratio))
+    nouns_to_replace = random.sample(chinese_nouns, num_to_replace)
+
     for noun in nouns_to_replace:
+        # 使用 BERT 找到与名词相似的词
         noun_similar = find_similar_word_bert(noun, sentence, topn=1)
-        print("noun is: "+noun+" similar is: "+noun_similar)
+        print(f"Noun: {noun}, Similar: {noun_similar}")
+        # 替换句子中的名词（仅替换第一个匹配项）
         sentence = sentence.replace(noun, noun_similar, 1)
+    
     return sentence
 
 # 微调 BERT 模型
