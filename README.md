@@ -381,7 +381,14 @@ export https_proxy=http://127.0.0.1:7890
 ```
 ```bash
 export OPENAI_API_KEY=sk......
-python get_openai_answer.py 
+python get_gpt_answer.py 
+python get_gpt_answer.py --all_new
+```
+
+调用 kimi api接口
+```bash
+python get_kimi_answer.py 
+python get_kimi_answer.py --all_new
 ```
 
 # 已解决的问题

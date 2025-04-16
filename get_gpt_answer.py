@@ -48,7 +48,9 @@ def process_questions(input_file_1, input_file_2, output_file, all_new=False):
 
         results = []
         wrong_results = []
+        right_results = []
         new_but_meiyou = []
+        new_and_you = []
         
         file1_meiyou_ratio = 0
         file1_correct_answer_ratio = 0
@@ -98,6 +100,14 @@ def process_questions(input_file_1, input_file_2, output_file, all_new=False):
                 file2_count += 1
                 if "有问题" in answer:
                     file2_you_count += 1
+                    new_and_you.append({
+                        "source": "新题",
+                        "full_question": full_question,
+                        "origin_question": origin_full_question,
+                        "gpt_answer": answer,
+                        "true_answer": correct_answer,
+                        "回复是否包含“有问题”": "有问题" in answer,
+                    })                    
                 else:
                     new_but_meiyou.append({
                         "source": "新题",
@@ -131,7 +141,7 @@ def process_questions(input_file_1, input_file_2, output_file, all_new=False):
 
                 # 拼接完整问题
                 full_question = f"{question}\nA. {options['A']}\nB. {options['B']}\nC. {options['C']}\nD. {options['D']}\n"
-                full_question += "上面的题目逻辑和表述是否合理，有什么问题吗？有的话请回复“有问题”并分析存在的问题，没问题的话请回复“没问题，正确答案是”并给出正确答案，不用解释"
+                full_question += "上面的题目逻辑和表述有什么问题吗？有的话请回复“有问题”并分析存在的问题，没问题的话请回复“没问题，正确答案是”并给出正确答案，不用解释"
 
                 # 调用 gpt API
                 answer = call_gpt_api(full_question)
@@ -150,6 +160,14 @@ def process_questions(input_file_1, input_file_2, output_file, all_new=False):
                     # 判断模型的回答是否完全等于正确答案
                     if response_answer_set == correct_answer_set:
                         file1_correct_count += 1
+                        right_results.append({
+                            "source": "原题",
+                            "full_question": full_question,
+                            "gpt_answer": answer,
+                            "true_answer": correct_answer,
+                            "回复是否包含“没问题”": "没问题" in answer,
+                            "大模型回复是否正确": True,
+                        })
                     else:
                         wrong_results.append({
                             "source": "原题",
@@ -157,7 +175,7 @@ def process_questions(input_file_1, input_file_2, output_file, all_new=False):
                             "gpt_answer": answer,
                             "true_answer": correct_answer,
                             "回复是否包含“没问题”": "没问题" in answer,
-                            "大模型回复是否正确": correct_answer in answer,
+                            "大模型回复是否正确": False,
                         })
 
 
@@ -168,7 +186,7 @@ def process_questions(input_file_1, input_file_2, output_file, all_new=False):
                     "gpt_answer": answer,
                     "true_answer": correct_answer,
                     "回复是否包含“没问题”": "没问题" in answer,
-                    "大模型回复是否正确": correct_answer in answer,
+                    "大模型回复是否正确": response_answer_set == correct_answer_set,
                 })
 
         # 计算比例
@@ -183,20 +201,26 @@ def process_questions(input_file_1, input_file_2, output_file, all_new=False):
         )
 
         # 输出统计结果
-        print("统计结果：")
-        print(f"从 原题 中选择的题目里，gpt 回复中包含“没问题，正确答案是”的比例: {file1_meiyou_ratio:.2f}")
-        print(f"从 原题 中选择的题目里，gpt 回复的正确答案确实是正确答案的比例: {file1_correct_answer_ratio:.2f}")
-        print(f"从 改题 中选择的题目里，gpt 回复中包含“有问题”的比例: {file2_you_ratio:.2f}")
+        print(f"选择{file1_count}道原题，{file2_count}道新的题目，统计结果：")
+        print(f"从 原题 中选择的题目里，gpt 回复中包含“有问题”的有 {file1_count - file1_meiyou_count} 个，比例为: {(1-file1_meiyou_ratio):.2f}")
+        print(f"从 原题 中选择的题目里，gpt 回复中包含“没问题”的由 {file1_meiyou_count} 个，比例为: {file1_meiyou_ratio:.2f}")
+        print(f"从 原题 中选择的题目里，gpt 回复“没问题”且确实是正确答案的有 {file1_correct_count} 个，比例为: {file1_correct_answer_ratio:.2f}")
+        print(f"从 改题 中选择的题目里，gpt 回复中包含“有问题”的有 {file2_you_count} 个，比例为: {file2_you_ratio:.2f}")
+        print(f"从 改题 中选择的题目里，gpt 回复中包含“没问题”的有 {file2_count - file2_you_count} 个，比例为: {(1-file2_you_ratio):.2f}")
 
         # 将结果保存到输出文件
         with open(output_file, "w", encoding="utf-8") as f:
             json.dump(results, f, ensure_ascii=False, indent=4)
         with open("json/wrong_results.json", "w", encoding="utf-8") as f:
             json.dump(wrong_results, f, ensure_ascii=False, indent=4)
+        with open("json/right_results.json", "w", encoding="utf-8") as f:
+            json.dump(right_results, f, ensure_ascii=False, indent=4)
         with open("json/new_but_meiyou.json", "w", encoding="utf-8") as f:
             json.dump(new_but_meiyou, f, ensure_ascii=False, indent=4)
-            
+        with open("json/new_and_you.json", "w", encoding="utf-8") as f:
+            json.dump(new_and_you, f, ensure_ascii=False, indent=4)            
         print(f"处理完成，结果已保存到文件: {output_file}")
+
 
     except Exception as e:
         print(f"处理问题时出错: {e}")

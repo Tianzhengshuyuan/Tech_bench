@@ -1,6 +1,31 @@
 import json
 import random
 
+def add_new_item(new_question):
+        # 文件路径
+    file_path = "json/generated_questions.json"
+
+    # 检查文件是否存在
+    if os.path.exists(file_path):
+        # 如果文件存在，读取现有内容
+        with open(file_path, "r", encoding="utf-8") as f:
+            try:
+                data = json.load(f)
+                if not isinstance(data, list):
+                    data = []  # 如果文件内容不是列表，则重置为列表
+            except json.JSONDecodeError:
+                data = []  # 如果文件内容为空或解析失败，则重置为列表
+    else:
+        # 如果文件不存在，则初始化为空列表
+        data = []
+
+    # 将新的题目添加到列表中
+    data.append(new_question)
+
+    # 将更新后的列表写回文件
+    with open(file_path, "w", encoding="utf-8") as f:
+        json.dump(data, f, ensure_ascii=False, indent=4)
+        
 def generate_question():
 # 放射性元素列表（扩展为包含锂、铍、硼、碳、氮、氧、氟、钠、镁、铝、硅、氯、氩、钾）
     elements = [
@@ -75,8 +100,7 @@ def generate_question():
 
 new_question = generate_question()
 
-# 将结果写入 news.json 文件
-with open("json/news.json", "w", encoding="utf-8") as f:
-    json.dump(new_question, f, ensure_ascii=False, indent=4)
+# 将结果写入 generated_questions.json 文件
+add_new_item(new_question)
 
-print("新的题目已生成，并保存到 news.json 文件中！")
+print("新的题目已生成，并保存到 generated_questions.json 文件中！")

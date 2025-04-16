@@ -21,20 +21,20 @@ fi
 # 遍历 DIR_NAME 中的所有 .docx 文件并执行命令
 find "$DIR_NAME" -type f -name '*.docx' | while read -r DOCX_FILE; do
   echo "Processing file: $DOCX_FILE"
-  FILE_NAME="${DOCX_FILE%.docx}"
+  # FILE_NAME="${DOCX_FILE%.docx}"
 
-  # 执行 remove_smartTag.py
-  python remove_smartTag.py --docx_name="$FILE_NAME"
+  # # 执行 remove_smartTag.py
+  # python remove_smartTag.py --docx_name="$FILE_NAME"
 
-  CMD="python docx_to_json.py --docx_name=\"$FILE_NAME\" --json_name=\"output\" --new=\"off\" --latex=\"$LATEX_OPTION\""
-  eval $CMD >> log.txt 2>&1
-  if [ $? -ne 0 ]; then
-    echo "Error occurred while executing: $CMD"
-    echo "Skipping file: $DOCX_FILE"
+  # CMD="python docx_to_json.py --docx_name=\"$FILE_NAME\" --json_name=\"output\" --new=\"off\" --latex=\"$LATEX_OPTION\""
+  # eval $CMD >> log.txt 2>&1
+  # if [ $? -ne 0 ]; then
+  #   echo "Error occurred while executing: $CMD"
+  #   echo "Skipping file: $DOCX_FILE"
 
-    # 打印具体的错误原因（从日志最后一部分提取）
-    echo "Last 10 lines of log:" | tee -a log.txt
-    tail -n 10 log.txt
-    continue
-  fi
+  #   # 打印具体的错误原因（从日志最后一部分提取）
+  #   echo "Last 10 lines of log:" | tee -a log.txt
+  #   tail -n 10 log.txt
+  #   continue
+  # fi
 done
