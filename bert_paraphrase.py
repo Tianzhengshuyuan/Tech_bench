@@ -189,6 +189,7 @@ def extract_svo_stanza(text):
         print("SVO: ", sub, pred, obj)
 
     return all_svo
+
 # 提取名词的函数
 def extract_nouns(sentence):
     doc = nlp(sentence)
@@ -198,9 +199,26 @@ def extract_nouns(sentence):
         # 判断 token 是否为普通名词 (NOUN) 或专有名词 (PROPN)
         if token.pos_ in ["NOUN", "PROPN"]:
             nouns.append(token.text)
+            
+    print("nouns are: ",end="")
     print(nouns)
+    
     return nouns
 
+# 提取动词的函数
+def extract_verbs(sentence):
+    doc = nlp(sentence)
+    verbs = []
+
+    for token in doc:
+        # 判断 token 是否为动词 (VERB)
+        if token.pos_ == "VERB":
+            verbs.append(token.text)
+            
+    print("verbs are: ", end="")
+    print(verbs)
+    
+    return verbs
 
 def is_chinese_word(word):
     """
@@ -227,7 +245,7 @@ def replace_with_similar(sentence):
     #         sentence = sentence.replace(obj, obj_similar, 1)
     # return sentence  
 
-    nouns = extract_nouns(sentence)  # 提取句子中的名词
+    nouns = extract_verbs(sentence)  # 提取句子中的名词
     print("Original sentence:", sentence)
     if not nouns:
         return sentence  # 如果没有名词，直接返回原句
@@ -343,6 +361,7 @@ if __name__ == "__main__":
     parser.add_argument("--fine_tune_data", type=str, default="json/phy_only.json", help="用于微调的数据文件")
     parser.add_argument("--fine_tune_output", type=str, default="./fine_tuned_bert", help="微调后模型的保存路径")
     parser.add_argument("--ratio", type=float, default=1.0, help="替换名词的比例，范围为 0 到 1")
+    parser.add_argument("--method", type=str, default="noun", help="替换方法，支持 'noun'、'verb'、'space_svo'、'stanza_svo'")
     args = parser.parse_args()
 
     # 加载或微调模型

@@ -2,7 +2,7 @@ import json
 import random
 
 def add_new_item(new_question):
-        # 文件路径
+    # 文件路径
     file_path = "json/generated_questions.json"
 
     # 检查文件是否存在
