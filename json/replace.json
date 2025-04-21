@@ -1,0 +1,582 @@
+[
+    {
+        "origin": "剧烈",
+        "replace": "激烈"
+    },
+    {
+        "origin": "总和",
+        "replace": "总量、和"
+    },
+    {
+        "origin": "仅",
+        "replace": "仅仅"
+    },
+    {
+        "origin": "有关",
+        "replace": "相关",
+        "certainty": false
+    },
+    {
+        "origin": "较大",
+        "replace": "更大",
+        "certainty": false
+    },
+    {
+        "origin": "具有",
+        "replace": "有"
+    },
+    {
+        "origin": "膨胀",
+        "replace": "扩张"
+    },
+    {
+        "origin": "入轨",
+        "replace": "进入轨道"
+    },
+    {
+        "origin": "位于",
+        "replace": "处于、在、处在"
+    },
+    {
+        "origin": "利用",
+        "replace": "使用、用",
+        "no_after": "率"
+    },
+    {
+        "origin": "若",
+        "replace": "如果",
+        "no_after": "干"
+    },
+    {
+        "origin": "第一宇宙速度",
+        "replace": "环绕速度"
+    },
+    {
+        "origin": "第二宇宙速度",
+        "replace": "逃逸速度"
+    },
+    {
+        "origin": "装置",
+        "replace": "设备"
+    },
+    {
+        "origin": "形成",
+        "replace": "产生"
+    },
+    {
+        "origin": "材质",
+        "replace": "材料"
+    },
+    {
+        "origin": "人工放射性核素",
+        "replace": "人工放射性同位素"
+    },
+    {
+        "origin": "人工放射性同位素",
+        "replace": "人工放射性核素"
+    },
+    {
+        "origin": "轰击",
+        "replace": "撞击"
+    },
+    {
+        "origin": "原子序数",
+        "replace": "质子数、核电荷数"
+    },
+    {
+        "origin": "之比",
+        "replace": "的比值"
+    },
+    {
+        "origin": "质量数",
+        "replace": "核子数"
+    },
+    {
+        "origin": "核子数",
+        "replace": "质量数"
+    },
+    {
+        "origin": "预计",
+        "replace": "计划"
+    },
+    {
+        "origin": "顶端",
+        "replace": "顶部、最上端"
+    },
+    {
+        "origin": "速率",
+        "replace": "速度大小"
+    },
+    {
+        "origin": "狭缝",
+        "replace": "窄缝"
+    },
+    {
+        "origin": "估算",
+        "replace": "估计、推算、计算"
+    },
+    {
+        "origin": "每个",
+        "replace": "每一个"
+    },
+    {
+        "origin": "每一个",
+        "replace": "每个"
+    },
+    {
+        "origin": "办法",
+        "replace": "方法"
+    },
+    {
+        "origin": "增大一倍",
+        "replace": "加倍"
+    },
+    {
+        "origin": "减小一半",
+        "replace": "减半"
+    },
+    {
+        "origin": "伏",
+        "replace": "伏特",
+        "no_after": "特、加"
+    },
+    {
+        "origin": "自感",
+        "replace": "电感"
+    },
+    {
+        "origin": "示数",
+        "replace": "读数"
+    },
+    {
+        "origin": "读数",
+        "replace": "示数"
+    },
+    {
+        "origin": "直流电源",
+        "replace": "DC电源"
+    },
+    {
+        "origin": "串联",
+        "replace": "串接"
+    },
+    {
+        "origin": "定值电阻",
+        "replace": "固定电阻、恒定电阻、恒阻器"
+    },
+    {
+        "origin": "两端",
+        "replace": "两侧"
+    },
+    {
+        "origin": "人造卫星",
+        "replace": "卫星、人造地球卫星、地球卫星"
+    },
+    {
+        "origin": "人造地球卫星",
+        "replace": "卫星、人造卫星、地球卫星"
+    },
+    {
+        "origin": "列举",
+        "replace": "列出、给出"
+    },
+    {
+        "origin": "国际单位制",
+        "replace": "SI"
+    },
+    {
+        "origin": "波的传播方向",
+        "replace": "波矢方向"
+    },
+    {
+        "origin": "波传播的方向",
+        "replace": "波矢方向"
+    },
+    {
+        "origin": "电场强度",
+        "replace": "场强"
+    },
+    {
+        "origin": "电势",
+        "replace": "电位",
+        "no_after": "能"
+    },
+    {
+        "origin": "带电量",
+        "replace": "电荷量"
+    },
+    {
+        "origin": "匀强磁场",
+        "replace": "均匀磁场"
+    },
+    {
+        "origin": "动量",
+        "replace": "线动量",
+        "no_before": "角"
+    },
+    {
+        "origin": "钢珠",
+        "replace": "钢球"
+    },
+    {
+        "origin": "自由下落",
+        "replace": "自由落体"
+    },
+    {
+        "origin": "改变量",
+        "replace": "改变、变化"
+    },
+    {
+        "origin": "简谐运动",
+        "replace": "简谐振动"
+    },
+    {
+        "origin": "简谐振动",
+        "replace": "简谐运动"
+    },
+    {
+        "origin": "圆轨道",
+        "replace": "圆形轨道"
+    },
+    {
+        "origin": "圆形轨道",
+        "replace": "圆轨道"
+    },
+    {
+        "origin": "引力常量",
+        "replace": "万有引力常量",
+        "no_before": "万有"
+    },
+    {
+        "origin": "氘核",
+        "replace": "氘原子核、重氢核"
+    },
+    {
+        "origin": "特高压",
+        "replace": "UHV"
+    },
+    {
+        "origin": "超高压",
+        "replace": "EHV"
+    },
+    {
+        "origin": "损失",
+        "replace": "损耗"
+    },
+    {
+        "origin": "损耗",
+        "replace": "损失"
+    },
+    {
+        "origin": "物块",
+        "replace": "物体"
+    },
+    {
+        "origin": "不计",
+        "replace": "不考虑"
+    },
+    {
+        "origin": "追上",
+        "replace": "追及"
+    },
+    {
+        "origin": "运动轨迹",
+        "replace": "运动路径"
+    },
+    {
+        "origin": "媒质",
+        "replace": "介质"
+    },
+    {
+        "origin": "抛出",
+        "replace": "扔出"
+    },
+    {
+        "origin": "相符",
+        "replace": "符合"
+    },
+    {
+        "origin": "陈述",
+        "replace": "描述"
+    },
+    {
+        "origin": "测定",
+        "replace": "测量"
+    },
+    {
+        "origin": "向心加速度",
+        "replace": "法向加速度"
+    },
+    {
+        "origin": "地面的重力加速度",
+        "replace": "重力常量"
+    },
+    {
+        "origin": "小电珠",
+        "replace": "钨丝灯泡"
+    },
+    {
+        "origin": "癌细胞",
+        "replace": "肿瘤细胞"
+    },
+    {
+        "origin": "场强",
+        "replace": "电场强度",
+        "no_after": "度",
+        "no_before": "电"
+    },
+    {
+        "origin": "直线加速器",
+        "replace": "线性粒子加速器"
+    },
+    {
+        "origin": "遏止电压",
+        "replace": "截止电压"
+    },
+    {
+        "origin": "观察到",
+        "replace": "看到"
+    },
+    {
+        "origin": "条纹间距",
+        "replace": "条纹间隔"
+    },
+    {
+        "origin": "α衰变",
+        "replace": "阿尔法衰变"
+    },
+    {
+        "origin": "β衰变",
+        "replace": "贝塔衰变"
+    },
+    {
+        "origin": "α粒子",
+        "replace": "阿尔法粒子、氦核"
+    },
+    {
+        "origin": "衰变后变成新原子核",
+        "replace": "衰变后变成子核"
+    },
+    {
+        "origin": "撞击",
+        "replace": "碰撞"
+    },
+    {
+        "origin": "传热",
+        "replace": "热传递"
+    },
+    {
+        "origin": "论断",
+        "replace": "判断"
+    },
+    {
+        "origin": "铅核",
+        "replace": "铅原子核"
+    },
+    {
+        "origin": "钍核",
+        "replace": "钍原子核"
+    },
+    {
+        "origin": "基态",
+        "replace": "最低能级"
+    },
+    {
+        "origin": "单色光束",
+        "replace": "单色光"
+    },
+    {
+        "origin": "光滑",
+        "replace": "无摩擦"
+    },
+    {
+        "origin": "必有",
+        "replace": "肯定有、一定有、一定满足"
+    },
+    {
+        "origin": "绕月球",
+        "replace": "绕月"
+    },
+    {
+        "origin": "探测器",
+        "replace": "探测装置"
+    },
+    {
+        "origin": "月球背面",
+        "replace": "月背"
+    },
+    {
+        "origin": "月背",
+        "replace": "月球背面"
+    },
+    {
+        "origin": "地球表面重力加速度",
+        "replace": "重力常量"
+    },
+    {
+        "origin": "首次",
+        "replace": "第一次"
+    },
+    {
+        "origin": "铝箔",
+        "replace": "铝金属薄片"
+    },
+    {
+        "origin": "人工放射性",
+        "replace": "人造放射性"
+    },
+    {
+        "origin": "反应方程",
+        "replace": "反应式"
+    },
+    {
+        "origin": "铀核",
+        "replace": "铀原子核"
+    },
+    {
+        "origin": "之和",
+        "replace": "的和"
+    },
+    {
+        "origin": "动量大小",
+        "replace": "动量绝对值"
+    },
+    {
+        "origin": "核聚变",
+        "replace": "核融合",
+        "no_after": "反应"
+    },
+    {
+        "origin": "核聚变反应",
+        "replace": "融合反应、热核反应",
+        "no_before": "氚、氘"
+    },
+    {
+        "origin": "释放能量",
+        "replace": "放出能量、产生能量"
+    },
+    {
+        "origin": "质量亏损",
+        "replace": "质量损耗、质量损失"
+    },
+    {
+        "origin": "硅光电池",
+        "replace": "硅太阳能电池"
+    },
+    {
+        "origin": "网络容载能力",
+        "replace": "网络容量"
+    },
+    {
+        "origin": "衍射",
+        "replace": "绕射"
+    },
+    {
+        "origin": "吸收",
+        "replace": "获取"
+    },
+    {
+        "origin": "地球表面的重力加速度",
+        "replace": "重力常量"
+    },
+    {
+        "origin": "电池两级",
+        "replace": "电池正负极"
+    },
+    {
+        "origin": "介于",
+        "replace": "处于"
+    },
+    {
+        "origin": "分子力",
+        "replace": "分子间作用力、范得瓦尔斯力、分子间引力、分子间力"
+    },
+    {
+        "origin": "单色光",
+        "replace": "单一波长光、单一频率光"
+    },
+    {
+        "origin": "",
+        "replace": ""
+    },
+    {
+        "origin": "",
+        "replace": ""
+    },
+    {
+        "origin": "",
+        "replace": ""
+    },
+    {
+        "origin": "",
+        "replace": ""
+    },
+    {
+        "origin": "",
+        "replace": ""
+    },
+    {
+        "origin": "",
+        "replace": ""
+    },
+    {
+        "origin": "",
+        "replace": ""
+    },
+    {
+        "origin": "",
+        "replace": ""
+    },
+    {
+        "origin": "",
+        "replace": ""
+    },
+    {
+        "origin": "",
+        "replace": ""
+    },
+    {
+        "origin": "",
+        "replace": ""
+    },
+    {
+        "origin": "",
+        "replace": ""
+    },
+    {
+        "origin": "",
+        "replace": ""
+    },
+    {
+        "origin": "",
+        "replace": ""
+    },
+    {
+        "origin": "",
+        "replace": ""
+    },
+    {
+        "origin": "",
+        "replace": ""
+    },
+    {
+        "origin": "",
+        "replace": ""
+    },
+    {
+        "origin": "",
+        "replace": ""
+    },
+    {
+        "origin": "",
+        "replace": ""
+    },
+    {
+        "origin": "",
+        "replace": ""
+    },
+    {
+        "origin": "",
+        "replace": ""
+    },
+]

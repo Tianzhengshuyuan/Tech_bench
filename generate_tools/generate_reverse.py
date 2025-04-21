@@ -14,6 +14,12 @@ antonym_dict = {
     "相等": "不相等",
     "变大": "变小",
     "变小": "变大",
+    "变高": "变低",
+    "变低": "变高",
+    "变化": "不变",
+    "更快": "更慢",
+    "更慢": "更快",
+    "不变": "变化",
     "增大": "减少",
     "减少": "增大",
     "升高": "降低",
@@ -25,12 +31,18 @@ antonym_dict = {
     "不同": "相同",
     "较多": "较少",
     "较少": "较多",
+    "越大": "越小",
+    "越小": "越大",
+    "越高": "越低",
+    "越低": "越高",
     "<": ">",
-    ">": "<"
+    ">": "<",
+    "=": "≠",
+    "≠": "="
 }
 
 # 加载 JSON 数据
-file_path = "json/questions_with_comparation_selected.json"
+file_path = "json/questions_with_comparison_selected.json"
 with open(file_path, "r", encoding="utf-8") as file:
     data = json.load(file)
 
