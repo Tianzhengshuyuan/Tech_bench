@@ -313,7 +313,11 @@
     },
     {
         "origin": "小电珠",
-        "replace": "钨丝灯泡"
+        "replace": "钨丝灯泡、白炽灯"
+    },
+    {
+        "origin": "白炽灯",
+        "replace": "钨丝灯泡、小电珠"
     },
     {
         "origin": "癌细胞",
@@ -348,6 +352,18 @@
     {
         "origin": "β衰变",
         "replace": "贝塔衰变"
+    },
+    {
+        "origin": "α射线",
+        "replace": "阿尔法射线"
+    },
+    {
+        "origin": "β射线",
+        "replace": "贝塔射线"
+    },
+    {
+        "origin": "γ射线",
+        "replace": "伽马射线"
     },
     {
         "origin": "α粒子",
@@ -415,7 +431,7 @@
     },
     {
         "origin": "首次",
-        "replace": "第一次"
+        "replace": "第一次、初次"
     },
     {
         "origin": "铝箔",
@@ -457,7 +473,7 @@
     },
     {
         "origin": "质量亏损",
-        "replace": "质量损耗、质量损失"
+        "replace": "质量损耗、质量损失、质量盈余、质量欠缺"
     },
     {
         "origin": "硅光电池",
@@ -494,6 +510,597 @@
     {
         "origin": "单色光",
         "replace": "单一波长光、单一频率光"
+    },
+    {
+        "origin": "喷射",
+        "replace": "喷出"
+    },
+    {
+        "origin": "大功率微波",
+        "replace": "高能微波"
+    },
+    {
+        "origin": "神经混乱",
+        "replace": "神经系统功能障碍"
+    },
+    {
+        "origin": "普朗克常量",
+        "replace": "普朗克常数、Planck常数、Planck常量"
+    },
+    {
+        "origin": "德布罗意波",
+        "replace": "物质波"
+    },
+    {
+        "origin": "激光引发",
+        "replace": "激光驱动"
+    },
+    {
+        "origin": "双缝干涉实验",
+        "replace": "杨氏实验、杨氏双缝实验、杨氏双缝干涉实验",
+        "no_before": "杨氏"
+    },
+    {
+        "origin": "核式结构模型",
+        "replace": "行星模型",
+        "no_before": "原子"
+    },
+    {
+        "origin": "降为",
+        "replace": "减为"
+    },
+    {
+        "origin": "n次方",
+        "replace": "n次幂"
+    },
+    {
+        "origin": "均加速",
+        "replace": "匀加速"
+    },
+    {
+        "origin": "匀加速",
+        "replace": "均加速"
+    },
+    {
+        "origin": "匀速",
+        "replace": "均速"
+    },
+    {
+        "origin": "均速",
+        "replace": "匀速"
+    },
+    {
+        "origin": "中子星合并",
+        "replace": "中子星并合、中子星碰撞"
+    },
+    {
+        "origin": "引力波",
+        "replace": "重力波"
+    },
+    {
+        "origin": "光谱",
+        "replace": "光学频谱"
+    },
+    {
+        "origin": "暗线光谱",
+        "replace": "吸收光谱"
+    },
+    {
+        "origin": "明线光谱",
+        "replace": "发射光谱"
+    },
+    {
+        "origin": "感应电流",
+        "replace": "感生电流"
+    },
+    {
+        "origin": "感应电动势",
+        "replace": "感生电动势"
+    },    
+    {
+        "origin": "感生电动势",
+        "replace": "感应电动势"
+    },
+    {
+        "origin": "感生电流",
+        "replace": "感应电流"
+    },
+    {
+        "origin": "高度变大",
+        "replace": "高度变高"
+    },
+    {
+        "origin": "多用电表",
+        "replace": "万用表、三用掉膘"
+    },
+    {
+        "origin": "电键",
+        "replace": "开关"
+    },
+    {
+        "origin": "日光灯",
+        "replace": "荧光灯、灯管、光管、荧光管"
+    },
+    {
+        "origin": "热机",
+        "replace": "热引擎"
+    },
+    {
+        "origin": "扬声器",
+        "replace": "声波发生器"
+    },
+    {
+        "origin": "紫外线",
+        "replace": "紫外光"
+    },
+    {
+        "origin": "红外线",
+        "replace": "红外光"
+    },
+    {
+        "origin": "X射线",
+        "replace": "X光、伦琴射线、伦琴光"
+    },
+    {
+        "origin": "伦琴射线",
+        "replace": "X射线、X光、伦琴光"
+    },
+    {
+        "origin": "减缓",
+        "replace": "减慢"
+    },
+    {
+        "origin": "减慢",
+        "replace": "减缓"
+    },
+    {
+        "origin": "初速",
+        "replace": "初速度",
+        "no_after": "度"
+    },
+    {
+        "origin": "初速度",
+        "replace": "初速"
+    },
+    {
+        "origin": "挡光片",
+        "replace": "遮光片"
+    },
+    {
+        "origin": "核能",
+        "replace": "核子动力、原子能"
+    },
+    {
+        "origin": "动摩擦因数",
+        "replace": "动摩擦系数、摩擦系数"
+    },
+    {
+        "origin": "等容过程",
+        "replace": "等体过程、定容过程"
+    },
+    {
+        "origin": "温度上升",
+        "replace": "温度升高"
+    },
+    {
+        "origin": "坠下",
+        "replace": "坠落"
+    },
+    {
+        "origin": "射电望远镜",
+        "replace": "电波望远镜"
+    },
+    {
+        "origin": "标量",
+        "replace": "纯量、无向量"
+    },
+    {
+        "origin": "灌满",
+        "replace": "注满"
+    },
+    {
+        "origin": "钡核",
+        "replace": "钡原子核"
+    },
+    {
+        "origin": "氪核",
+        "replace": "氪原子核"
+    },
+    {
+        "origin": "链式反应",
+        "replace": "核链式反应"
+    },
+    {
+        "origin": "引力常数",
+        "replace": "万有引力常数",
+        "no_before": "万有"
+    },
+    {
+        "origin": "电磁感应",
+        "replace": "磁电感应"
+    },
+    {
+        "origin": "无线电波",
+        "replace": "射频电波"
+    },
+    {
+        "origin": "光子",
+        "replace": "光量子",
+        "no_after": "说"
+    },
+    {
+        "origin": "全部集中",
+        "replace": "全部聚集"
+    },
+    {
+        "origin": "斥力",
+        "replace": "排斥力"
+    },
+    {
+        "origin": "光的波动理论",
+        "replace": "光的波动说"
+    },
+    {
+        "origin": "极限频率",
+        "replace": "截止频率"
+    },
+    {
+        "origin": "弹性绳",
+        "replace": "弹力绳"
+    },
+    {
+        "origin": "括弧",
+        "replace": "括号"
+    },
+    {
+        "origin": "压强传感器",
+        "replace": "压力传感器、气压传感器"
+    },
+    {
+        "origin": "计算机",
+        "replace": "电脑"
+    },
+    {
+        "origin": "大气压强",
+        "replace": "大气压"
+    },
+    {
+        "origin": "磁感应强度",
+        "replace": "磁通密度、磁通量密度"
+    },
+    {
+        "origin": "上疏下密",
+        "replace": "下密上疏"
+    },
+    {
+        "origin": "推测",
+        "replace": "推断、判断"
+    },
+    {
+        "origin": "系外行星",
+        "replace": "太阳系外行星",
+        "no_before": "太阳"
+    },
+    {
+        "origin": "分光镜",
+        "replace": "分光片、分光平片"
+    },
+    {
+        "origin": "光导纤维",
+        "replace": "光纤、光学纤维"
+    },
+    {
+        "origin": "门镜",
+        "replace": "猫眼、防盗眼、防盗镜"
+    },
+    {
+        "origin": "不间断",
+        "replace": "不停歇、不停息、不休息"
+    },
+    {
+        "origin": "环月",
+        "replace": "绕月"
+    },
+    {
+        "origin": "世锦赛",
+        "replace": "世界锦标赛"
+    },
+    {
+        "origin": "光的强度",
+        "replace": "光强、辐照度"
+    },
+    {
+        "origin": "猛推",
+        "replace": "使劲推、大力推"
+    },
+    {
+        "origin": "正功",
+        "replace": "动力功"
+    },
+    {
+        "origin": "负功",
+        "replace": "阻力功"
+    },
+    {
+        "origin": "打靶",
+        "replace": "靶击"
+    },
+    {
+        "origin": "放出的粒子",
+        "replace": "释放的粒子"
+    },
+    {
+        "origin": "俘获",
+        "replace": "捕获"
+    },
+    {
+        "origin": "谱线",
+        "replace": "原子谱线"
+    },
+    {
+        "origin": "能级",
+        "replace": "能阶"
+    },
+    {
+        "origin": "离地高度",
+        "replace": "离地距离"
+    },
+    {
+        "origin": "振幅",
+        "replace": "幅值"
+    },
+    {
+        "origin": "平方",
+        "replace": "二次方",
+        "no_after": "向"
+    },
+    {
+        "origin": "横波",
+        "replace": "凹凸波、高低波"
+    },
+    {
+        "origin": "纵波",
+        "replace": "疏密波"
+    },
+    {
+        "origin": "电流表",
+        "replace": "安培表、安培计"
+    },
+    {
+        "origin": "安培表",
+        "replace": "电流表、安培计"
+    },
+    {
+        "origin": "电压表",
+        "replace": "伏特表"
+    },
+    {
+        "origin": "笼统",
+        "replace": "粗略"
+    },
+    {
+        "origin": "相互作用",
+        "replace": "互相作用"
+    },
+    {
+        "origin": "由磁产生电",
+        "replace": "磁生电"
+    },
+    {
+        "origin": "器壁",
+        "replace": "容器壁"
+    },
+    {
+        "origin": "氦氖激光器",
+        "replace": "He-Ne激光器"
+    },
+    {
+        "origin": "黑体辐射定律",
+        "replace": "普朗克定律、普朗克黑体辐射定律"
+    },
+    {
+        "origin": "紫外灯",
+        "replace": "紫外线灯"
+    },
+    {
+        "origin": "胸片",
+        "replace": "胸部X光摄影、胸部射线照相术"
+    },
+    {
+        "origin": "彩超",
+        "replace": "彩色多普勒超声"
+    },
+    {
+        "origin": "热敏电阻",
+        "replace": "热敏感电阻、热敏感电阻器"
+    },
+    {
+        "origin": "塌缩",
+        "replace": "坍缩"
+    },
+    {
+        "origin": "原线圈",
+        "replace": "初级线圈"
+    },
+    {
+        "origin": "副线圈",
+        "replace": "次级线圈"
+    },
+    {
+        "origin": "氡核",
+        "replace": "氡原子核"
+    },
+    {
+        "origin": "钋核",
+        "replace": "钋原子核"
+    },
+    {
+        "origin": "全反射",
+        "replace": "全内反射"
+    },
+    {
+        "origin": "电场线",
+        "replace": "电力线"
+    },
+    {
+        "origin": "原出发点",
+        "replace": "出发点"
+    },
+    {
+        "origin": "适当",
+        "replace": "合适、恰当"
+    },
+    {
+        "origin": "CT",
+        "replace": "计算机断层扫描"
+    },
+    {
+        "origin": "铯原子钟",
+        "replace": "铯钟、原子铯钟"
+    },
+    {
+        "origin": "跃离",
+        "replace": "跳离"
+    },
+    {
+        "origin": "停息下来",
+        "replace": "停止下来"
+    },
+    {
+        "origin": "泊松亮斑",
+        "replace": "泊松光斑、阿拉戈光斑"
+    },
+    {
+        "origin": "悬浮粒子",
+        "replace": "悬浮颗粒"
+    },
+    {
+        "origin": "",
+        "replace": ""
+    },
+    {
+        "origin": "",
+        "replace": ""
+    },
+    {
+        "origin": "",
+        "replace": ""
+    },
+    {
+        "origin": "",
+        "replace": ""
+    },
+    {
+        "origin": "",
+        "replace": ""
+    },
+    {
+        "origin": "",
+        "replace": ""
+    },
+    {
+        "origin": "",
+        "replace": ""
+    },
+    {
+        "origin": "",
+        "replace": ""
+    },
+    {
+        "origin": "",
+        "replace": ""
+    },
+    {
+        "origin": "",
+        "replace": ""
+    },
+    {
+        "origin": "",
+        "replace": ""
+    },
+    {
+        "origin": "",
+        "replace": ""
+    },
+    {
+        "origin": "",
+        "replace": ""
+    },
+    {
+        "origin": "",
+        "replace": ""
+    },
+    {
+        "origin": "",
+        "replace": ""
+    },
+    {
+        "origin": "",
+        "replace": ""
+    },
+    {
+        "origin": "",
+        "replace": ""
+    },
+    {
+        "origin": "",
+        "replace": ""
+    },
+    {
+        "origin": "",
+        "replace": ""
+    },
+    {
+        "origin": "",
+        "replace": ""
+    },
+    {
+        "origin": "",
+        "replace": ""
+    },
+    {
+        "origin": "",
+        "replace": ""
+    },
+    {
+        "origin": "",
+        "replace": ""
+    },
+    {
+        "origin": "",
+        "replace": ""
+    },
+    {
+        "origin": "",
+        "replace": ""
+    },
+    {
+        "origin": "",
+        "replace": ""
+    },
+    {
+        "origin": "",
+        "replace": ""
+    },
+    {
+        "origin": "",
+        "replace": ""
+    },
+    {
+        "origin": "",
+        "replace": ""
+    },
+    {
+        "origin": "",
+        "replace": ""
+    },
+    {
+        "origin": "",
+        "replace": ""
+    },
+    {
+        "origin": "",
+        "replace": ""
     },
     {
         "origin": "",
