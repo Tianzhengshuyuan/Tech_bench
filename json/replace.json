@@ -224,7 +224,7 @@
     },
     {
         "origin": "改变量",
-        "replace": "改变、变化"
+        "replace": "改变、变化、变化量"
     },
     {
         "origin": "简谐运动",
@@ -473,7 +473,7 @@
     },
     {
         "origin": "质量亏损",
-        "replace": "质量损耗、质量损失、质量盈余、质量欠缺"
+        "replace": "质量损耗、质量损失、质量盈余、质量欠缺、质量亏捐"
     },
     {
         "origin": "硅光电池",
@@ -745,6 +745,10 @@
         "replace": "截止频率"
     },
     {
+        "origin": "截止频率",
+        "replace": "极限频率"
+    },
+    {
         "origin": "弹性绳",
         "replace": "弹力绳"
     },
@@ -915,6 +919,10 @@
         "replace": "热敏感电阻、热敏感电阻器"
     },
     {
+        "origin": "光敏电阻",
+        "replace": "光电阻、光导体、光导管、光敏电阻器"        
+    },
+    {
         "origin": "塌缩",
         "replace": "坍缩"
     },
@@ -975,215 +983,281 @@
         "replace": "悬浮颗粒"
     },
     {
-        "origin": "",
-        "replace": ""
+        "origin": "尚未衰变",
+        "replace": "还没衰变、还未衰变"
     },
     {
-        "origin": "",
-        "replace": ""
+        "origin": "分子动理论",
+        "replace": "分子运动论、气体动理论"
     },
     {
-        "origin": "",
-        "replace": ""
+        "origin": "热中子",
+        "replace": "慢中子"
     },
     {
-        "origin": "",
-        "replace": ""
+        "origin": "宇宙微波背景辐射",
+        "replace": "微波背景辐射、3K背景辐射、背景辐射"
     },
     {
-        "origin": "",
-        "replace": ""
+        "origin": "能量子假说",
+        "replace": "量子假说"
     },
     {
-        "origin": "",
-        "replace": ""
+        "origin": "结合能",
+        "replace": "核结合能、原子能",
+        "no_before": "比"
     },
     {
-        "origin": "",
-        "replace": ""
+        "origin": "中央亮条纹",
+        "replace": "中央亮纹"
     },
     {
-        "origin": "",
-        "replace": ""
+        "origin": "铍核",
+        "replace": "铍原子核"
     },
     {
-        "origin": "",
-        "replace": ""
+        "origin": "锂核",
+        "replace": "锂原子核"
     },
     {
-        "origin": "",
-        "replace": ""
+        "origin": "中微子",
+        "replace": "微中子、微笑电中性粒子、幽灵粒子、鬼粒子"
     },
     {
-        "origin": "",
-        "replace": ""
+        "origin": "放射性",
+        "replace": "辐射性",
+        "no_before": "人工"
     },
     {
-        "origin": "",
-        "replace": ""
+        "origin": "变轨",
+        "replace": "变换轨道"
     },
     {
-        "origin": "",
-        "replace": ""
+        "origin": "正电子",
+        "replace": "阳电子、反电子、正子"
     },
     {
-        "origin": "",
-        "replace": ""
+        "origin": "光电管",
+        "replace": "电眼、光敏管"
     },
     {
-        "origin": "",
-        "replace": ""
+        "origin": "试探电荷",
+        "replace": "检验电荷"
     },
     {
-        "origin": "",
-        "replace": ""
+        "origin": "轿车",
+        "replace": "汽车、小汽车"
     },
     {
-        "origin": "",
-        "replace": ""
+        "origin": "共点力",
+        "replace": "作用在同一个点上的力"
     },
     {
-        "origin": "",
-        "replace": ""
+        "origin": "复色光",
+        "replace": "复合光"
     },
     {
-        "origin": "",
-        "replace": ""
+        "origin": "明暗相间",
+        "replace": "暗明相间"
     },
     {
-        "origin": "",
-        "replace": ""
+        "origin": "升压变压器",
+        "replace": "boost变压器、升压斩波器"
     },
     {
-        "origin": "",
-        "replace": ""
+        "origin": "降压变压器",
+        "replace": "Buck变压器、降压斩波器"
     },
     {
-        "origin": "",
-        "replace": ""
+        "origin": "示踪原子",
+        "replace": "标记原子"
     },
     {
-        "origin": "",
-        "replace": ""
+        "origin": "摇动",
+        "replace": "摇晃"
     },
     {
-        "origin": "",
-        "replace": ""
+        "origin": "接缝处",
+        "replace": "连接处"
     },
     {
-        "origin": "",
-        "replace": ""
+        "origin": "受迫振动",
+        "replace": "强迫振动"
     },
     {
-        "origin": "",
-        "replace": ""
+        "origin": "固有振动周期",
+        "replace": "固有周期"
     },
     {
-        "origin": "",
-        "replace": ""
+        "origin": "支持力",
+        "replace": "正压力"
     },
     {
-        "origin": "",
-        "replace": ""
+        "origin": "读卡机",
+        "replace": "读卡器"
     },
     {
-        "origin": "",
-        "replace": ""
+        "origin": "核人工转变",
+        "replace": "核转变"
     },
     {
-        "origin": "",
-        "replace": ""
+        "origin": "磁传感器",
+        "replace": "磁性传感器"
     },
     {
-        "origin": "",
-        "replace": ""
+        "origin": "张紧",
+        "replace": "拉紧"
     },
     {
-        "origin": "",
-        "replace": ""
+        "origin": "弹性限度",
+        "replace": "弹性极限"
     },
     {
-        "origin": "",
-        "replace": ""
+        "origin": "劲度系数",
+        "replace": "弹性系数、刚性系数"
     },
     {
-        "origin": "",
-        "replace": ""
+        "origin": "原子弹",
+        "replace": "裂变弹、分裂弹"
     },
     {
-        "origin": "",
-        "replace": ""
+        "origin": "氢弹",
+        "replace": "聚变弹、热核弹"
     },
     {
-        "origin": "",
-        "replace": ""
+        "origin": "反冲力",
+        "replace": "反撞力、后座力"
     },
     {
-        "origin": "",
-        "replace": ""
+        "origin": "比结合能",
+        "replace": "平均结合能"
     },
     {
-        "origin": "",
-        "replace": ""
+        "origin": "月地距离",
+        "replace": "地月距离"
     },
     {
-        "origin": "",
-        "replace": ""
+        "origin": "起始体积",
+        "replace": "初始体积"
     },
     {
-        "origin": "",
-        "replace": ""
+        "origin": "起始温度",
+        "replace": "初始温度"
     },
     {
-        "origin": "",
-        "replace": ""
+        "origin": "起始内能",
+        "replace": "初始内能"
     },
     {
-        "origin": "",
-        "replace": ""
+        "origin": "氯核",
+        "replace": "氯原子核"
     },
     {
-        "origin": "",
-        "replace": ""
+        "origin": "氩核",
+        "replace": "氩原子核"
     },
     {
-        "origin": "",
-        "replace": ""
+        "origin": "地磁场",
+        "replace": "地球磁场"
     },
     {
-        "origin": "",
-        "replace": ""
+        "origin": "等离子体",
+        "replace": "电浆、电离浆、等离体"
     },
     {
-        "origin": "",
-        "replace": ""
+        "origin": "电热器",
+        "replace": "电加热器"
     },
     {
-        "origin": "",
-        "replace": ""
+        "origin": "超导体",
+        "replace": "超导材料"
     },
     {
-        "origin": "",
-        "replace": ""
+        "origin": "倾斜角",
+        "replace": "倾角"
     },
     {
-        "origin": "",
-        "replace": ""
+        "origin": "推动力",
+        "replace": "推力"
     },
     {
-        "origin": "",
-        "replace": ""
+        "origin": "离解",
+        "replace": "解离"
     },
     {
-        "origin": "",
-        "replace": ""
+        "origin": "LC振荡电路",
+        "replace": "谐振电路、槽路、调谐电路"
     },
     {
-        "origin": "",
-        "replace": ""
+        "origin": "惯性系",
+        "replace": "惯性参考系"
     },
     {
-        "origin": "",
-        "replace": ""
+        "origin": "爱因斯坦质能方程",
+        "replace": "质能等价、质能守恒、质能互换、质能转换公式、质能方程"
     },
+    {
+        "origin": "落地点",
+        "replace": "落点"
+    },
+    {
+        "origin": "逸出功",
+        "replace": "功函、功函数"
+    },
+    {
+        "origin": "遥感摄影",
+        "replace": "航空遥感摄影"
+    },
+    {
+        "origin": "光纤",
+        "replace": "光导纤维、光学纤维"
+    },
+    {
+        "origin": "预定轨道",
+        "replace": "预设轨道"
+    },
+    {
+        "origin": "探空气球",
+        "replace": "气象气球"
+    },
+    {
+        "origin": "速度接近",
+        "replace": "速度相近"
+    },
+    {
+        "origin": "垫起",
+        "replace": "抛起"
+    },
+    {
+        "origin": "质量亏捐",
+        "replace": "质量损耗、质量损失、质量盈余、质量欠缺、质量亏损"
+    },
+    {
+        "origin": "开普勒行星运动定律",
+        "replace": "开普勒定律"
+    },
+    {
+        "origin": "半长轴",
+        "replace": "长半轴"
+    },
+    {
+        "origin": "相向而行",
+        "replace": "相对而行"
+    },
+    {
+        "origin": "基本电荷",
+        "replace": "基元电荷、元电荷"
+    },
+    {
+        "origin": "基元电荷",
+        "replace": "元电荷、基本电荷"
+    },
+    {
+        "origin": "弹簧的伸长",
+        "replace": "弹簧的伸长量"
+    },
+    {
+        "origin": "自发进行",
+        "replace": "自动进行"
+    }
 ]
