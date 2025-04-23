@@ -8,10 +8,6 @@
         "replace": "总量、和"
     },
     {
-        "origin": "仅",
-        "replace": "仅仅"
-    },
-    {
         "origin": "有关",
         "replace": "相关",
         "certainty": false

@@ -360,8 +360,8 @@ pip install jieba
 调用大模型的api接口，测试做原题的正确率以及是否能识别同义词替换后的题的逻辑错误
 调用deepseek api接口（all_new代表只测试新题）：
 ```bash
-python get_deepseek_answer.py
-python get_deepseek_answer.py --all_new 
+python get_deepseek_judgement.py
+python get_deepseek_judgement.py --all_new 
 ```
 随机选择100题，做同义词替换，然后从原题和该题中随机选题目测试：
 下面指令中100代表采样的题目数，all_new代表是否全使用新题，random代表随机选出来100题还是取某文件的前100题
@@ -381,14 +381,24 @@ export https_proxy=http://127.0.0.1:7890
 ```
 ```bash
 export OPENAI_API_KEY=sk......
-python get_gpt_answer.py 
-python get_gpt_answer.py --all_new
+python get_gpt_judgement.py 
+python get_gpt_judgement.py --all_new
 ```
 
 调用 kimi api接口
 ```bash
-python get_kimi_answer.py 
-python get_kimi_answer.py --all_new
+python get_kimi_judgement.py 
+python get_kimi_judgement.py --all_new
+```
+
+包含数字的题如何扩展？  
+首先提取包含数字且数字间有倍数关系的题目：
+```bash
+python find_multiple_relationship.py
+```
+放弃上面的方法，因为提取到的数字可能是年份等，也可能是幂次，不具备参考价值；改为使用下面的指令，提取有数字的题目，然后人工分析哪些题目可以做扩展：
+```bash
+python find_number.py
 ```
 
 # 已解决的问题
