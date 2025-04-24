@@ -245,7 +245,7 @@ def replace_with_similar(sentence):
     #         sentence = sentence.replace(obj, obj_similar, 1)
     # return sentence  
 
-    nouns = extract_verbs(sentence)  # 提取句子中的名词
+    nouns = extract_nouns(sentence)  # 提取句子中的名词
     print("Original sentence:", sentence)
     if not nouns:
         return sentence  # 如果没有名词，直接返回原句

@@ -32,24 +32,27 @@ def add_new_item(new_question):
         json.dump(data, f, ensure_ascii=False, indent=4)
 
 
-def generate_question_with_random_period():
+def generate_question_with_dynamic_exponent():
     """
     生成新的题目
     """
-    # 随机生成周期 t，范围为 5 到 5.99，两位小数
-    t = round(random.uniform(5.00, 5.99), 2)  # 周期 t，单位为 ms
-    t=5.19
-    # 计算正确答案
-    correct_density = (1.41 * 10**17) / (t**2)  # 计算密度
-    correct_mantissa = round(correct_density / (10 ** int(math.log10(correct_density))), 1)  # 小数部分
-    correct_exponent = int(math.log10(correct_density))  # 指数部分
-    correct_answer = f"{correct_mantissa}\\times10^{{{correct_exponent}}}\\:\\mathrm{{kg}}/\\mathrm{{m}}^3"
+    # 随机生成波长 l（150 到 450 之间的整数）
+    l = random.randint(150, 450)
+
+    # 随机生成初动能 e（1.00 到 3.00 之间的两位小数）
+    e = round(random.uniform(1.00, 3.00), 2)
+
+    # 计算正确答案的频率（科学计数法）
+    raw_frequency = ((1989 / l) - e) / 6.63 * 10**15  # 计算频率
+    correct_exponent = int(math.floor(math.log10(raw_frequency)))  # 动态确定指数
+    correct_mantissa = round(raw_frequency / (10**correct_exponent), 1)  # 确保有效数字在 1-10 之间
+    correct_answer = f"{correct_mantissa}\\text{{X}}10^{correct_exponent} Hz"
 
     # 错误答案生成
     incorrect_answers = [
-        f"{correct_mantissa}\\times10^{{{correct_exponent - 1}}}\\:\\mathrm{{kg}}/\\mathrm{{m}}^3",
-        f"{correct_mantissa}\\times10^{{{correct_exponent + 1}}}\\:\\mathrm{{kg}}/\\mathrm{{m}}^3",
-        f"{correct_mantissa}\\times10^{{{correct_exponent + 2}}}\\:\\mathrm{{kg}}/\\mathrm{{m}}^3"
+        f"{correct_mantissa - 2 if correct_mantissa - 2 > 0 else correct_mantissa + 2}\\text{{X}}10^{correct_exponent} Hz",
+        f"{correct_mantissa + 2}\\text{{X}}10^{correct_exponent} Hz",
+        f"{correct_mantissa + 4}\\text{{X}}10^{correct_exponent + 1} Hz"
     ]
 
     # 生成选项并随机化
@@ -62,7 +65,7 @@ def generate_question_with_random_period():
 
     # 生成题目
     new_question = {
-        "question": f"3．2018年2月，我国500 m口径射电望远镜（天眼）发现毫秒脉冲星“J0318+0253”，其自转周期T={t} ms，假设星体为质量均匀分布的球体，已知万有引力常量为 6.67\\times10^{{-11}}\\text{{N m}}^2/\\mathrm{{kg}}^2 。以周期T稳定自转的星体的密度最小值约为\n",
+        "question": f"4．用波长为{l} nm的光照射锌板，电子逸出锌板表面的最大初动能为{e} \\text{{X}} 10^-19 J。已知普朗克常量为6.63 \\text{{X}} 10^-34 J·s，真空中的光速为3.00 \\text{{X}} 10^8 m·s^-1，能使锌产生光电效应的单色光的最低频率约为\n",
         "A": options[0],
         "B": options[1],
         "C": options[2],
@@ -75,7 +78,7 @@ def generate_question_with_random_period():
 
 
 # 生成新的题目
-new_question = generate_question_with_random_period()
+new_question = generate_question_with_dynamic_exponent()
 
 # 将题目写入 JSON 文件
 add_new_item(new_question)
