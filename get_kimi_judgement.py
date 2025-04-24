@@ -65,7 +65,7 @@ def process_questions(input_file_1, input_file_2, output_file, all_new=False):
 
         # 遍历数据并处理
         for i, item in tqdm(enumerate(data_source), desc="Kimi 处理问题进度", total=len(data2), dynamic_ncols=True, mininterval=0.1):
-            if all_new or (not all_new and random.choice([True, False])):
+            if all_new or (not all_new and i<len(data2)/2):
                 if not all_new:
                     item = item[1]  # 如果不是 all_new，从 data2 中取题目
                 question = item.get("question", "").strip()
@@ -184,7 +184,6 @@ def process_questions(input_file_1, input_file_2, output_file, all_new=False):
                     "Kimi_answer": answer,
                     "true_answer": correct_answer,
                     "回复是否包含“没问题”": "没问题" in answer,
-                    "大模型回复是否正确": response_answer_set == correct_answer_set,
                 })
 
         # 计算比例
@@ -197,6 +196,10 @@ def process_questions(input_file_1, input_file_2, output_file, all_new=False):
         file2_you_ratio = (
             file2_you_count / file2_count if file2_count > 0 else 0
         )
+        
+        file_correct_ratio = (
+            (file1_meiyou_count + file2_you_count) / (file1_count + file2_count) if (file1_count + file2_count) > 0 else 0
+        )
 
         # 输出统计结果
         print(f"选择{file1_count}道原题，{file2_count}道新的题目，统计结果：")
@@ -205,17 +208,18 @@ def process_questions(input_file_1, input_file_2, output_file, all_new=False):
         print(f"从 原题 中选择的题目里，Kimi 回复“没问题”且确实是正确答案的有 {file1_correct_count} 个，比例为: {file1_correct_answer_ratio:.2f}")
         print(f"从 改题 中选择的题目里，Kimi 回复中包含“有问题”的有 {file2_you_count} 个，比例为: {file2_you_ratio:.2f}")
         print(f"从 改题 中选择的题目里，Kimi 回复中包含“没问题”的有 {file2_count - file2_you_count} 个，比例为: {(1-file2_you_ratio):.2f}")
+        print(f"对所有题目的正误判断，正确的有：{file1_meiyou_count + file2_you_count}，比例为: {file_correct_ratio:.2f}")
 
         # 将结果保存到输出文件
         with open(output_file, "w", encoding="utf-8") as f:
             json.dump(results, f, ensure_ascii=False, indent=4)
-        with open("json/wrong_results.json", "w", encoding="utf-8") as f:
+        with open("json/kimi_wrong_results.json", "w", encoding="utf-8") as f:
             json.dump(wrong_results, f, ensure_ascii=False, indent=4)
-        with open("json/right_results.json", "w", encoding="utf-8") as f:
+        with open("json/kimi_right_results.json", "w", encoding="utf-8") as f:
             json.dump(right_results, f, ensure_ascii=False, indent=4)
-        with open("json/new_but_meiyou.json", "w", encoding="utf-8") as f:
+        with open("json/kimi_new_but_meiyou.json", "w", encoding="utf-8") as f:
             json.dump(new_but_meiyou, f, ensure_ascii=False, indent=4)
-        with open("json/new_and_you.json", "w", encoding="utf-8") as f:
+        with open("json/kimi_new_and_you.json", "w", encoding="utf-8") as f:
             json.dump(new_and_you, f, ensure_ascii=False, indent=4)            
         print(f"处理完成，结果已保存到文件: {output_file}")
 
@@ -227,8 +231,8 @@ def process_questions(input_file_1, input_file_2, output_file, all_new=False):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="获得 Kimi 的答案并验证结果")
     parser.add_argument("--input_file1", type=str, default="json/selected_questions.json", help="输入的 JSON 文件路径")
-    parser.add_argument("--input_file2", type=str, default="json/paraphrased_labeled_questions.json", help="输入的 JSON 文件路径")
-    parser.add_argument("--output_file", type=str, default="json/answers_with_validation.json", help="输出的 JSON 文件路径")
+    parser.add_argument("--input_file2", type=str, default="json/bert_paraphrased_questions.json", help="输入的 JSON 文件路径")
+    parser.add_argument("--output_file", type=str, default="json/kimi_answers_with_validation.json", help="输出的 JSON 文件路径")
     parser.add_argument("--all_new", action="store_true", help="是否全部从 input_file2 中选择题目")
     args = parser.parse_args()
     process_questions(args.input_file1, args.input_file2, args.output_file, args.all_new)

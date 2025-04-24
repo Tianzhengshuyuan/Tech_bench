@@ -352,7 +352,7 @@ if __name__ == "__main__":
     # 解析命令行参数
     parser = argparse.ArgumentParser(description="将题目中的关键词进行同义词替换")
     parser.add_argument("--input_file", type=str, default="json/labeled_questions.json", help="原始 JSON 文件")
-    parser.add_argument("--output_file", type=str, default="json/paraphrased_labeled_questions.json", help="进行同义词替换后的 JSON 文件")
+    parser.add_argument("--output_file", type=str, default="json/bert_paraphrased_questions.json", help="进行同义词替换后的 JSON 文件")
     parser.add_argument("--cache_file", type=str, default="vocab_embeddings.pkl", help="词汇表嵌入的缓存文件")
     parser.add_argument("--fine_tune", action="store_true", help="是否对 BERT 模型进行微调")
     parser.add_argument("--physbert", action="store_true", help="是否使用针对物理领域的 bert 模型")
