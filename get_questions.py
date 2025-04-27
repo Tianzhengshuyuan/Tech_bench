@@ -60,7 +60,7 @@ def main(input_file, output_file, use_random, num_questions):
 
     # 筛选符合条件的问题
     valid_questions = filter_questions(data)
-    
+    print(len(valid_questions))
     if use_random:
         # 从筛选结果中随机选取 num_questions 条
         selected_questions = random.sample(valid_questions, min(num_questions, len(valid_questions)))

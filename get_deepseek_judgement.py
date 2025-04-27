@@ -64,7 +64,7 @@ def process_questions(input_file_1, input_file_2, output_file, all_new=False):
 
         # 遍历数据并处理
         for i, item in tqdm(enumerate(data_source), desc="Deepseek 处理问题进度", total=len(data2), dynamic_ncols=True, mininterval=0.1):
-            if all_new or (not all_new and (i%2 == 0)):
+            if all_new or (not all_new and (i%2 == 1)):
                 # 从更改后的题目中选择
                 if not all_new:
                     item = item[1]  # 如果不是 all_new，从 data2 中取题目

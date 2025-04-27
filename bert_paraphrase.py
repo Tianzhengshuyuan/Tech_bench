@@ -244,7 +244,6 @@ def replace_with_similar(sentence):
     #         print("object_similar is: "+obj_similar)
     #         sentence = sentence.replace(obj, obj_similar, 1)
     # return sentence  
-
     nouns = extract_nouns(sentence)  # 提取句子中的名词
     print("Original sentence:", sentence)
     if not nouns:
@@ -331,6 +330,32 @@ def fine_tune_bert(data_file, output_dir, num_train_epochs=3, batch_size=8):
     bert_model.save_pretrained(output_dir)
     tokenizer.save_pretrained(output_dir)
 
+import difflib
+
+def filter_out_minor_changes(data):
+    """
+    过滤出变化小于等于2的item（即新旧拼接字符串的差异不大于2的item会被删除）
+    """
+    filtered_data = []
+    for item in data:
+        # 拼接新老问题及选项
+        new_text = item["question"] + item["A"] + item["B"] + item["C"] + item["D"]
+        old_text = item["origin_question"] + item["origin_A"] + item["origin_B"] + item["origin_C"] + item["origin_D"]
+
+        # 计算编辑距离
+        seqmatcher = difflib.SequenceMatcher(None, new_text, old_text)
+        opcodes = seqmatcher.get_opcodes()
+        diff_count = 0
+        for tag, i1, i2, j1, j2 in opcodes:
+            if tag != 'equal':
+                diff_count += max(i2 - i1, j2 - j1)
+        
+        if diff_count > 2:
+            filtered_data.append(item)
+    print(f"过滤后剩余 {len(filtered_data)} 条，过滤掉 {len(data) - len(filtered_data)} 条。")
+    data.clear()
+    data.extend(filtered_data)
+    
 def do_paraphrase():
     # 读取 JSON 文件
     with open(args.input_file, "r", encoding="utf-8") as f:
@@ -339,10 +364,14 @@ def do_paraphrase():
     # 遍历数据并替换内容
     count=0
     for item in tqdm(data, desc="使用 BERT 进行同义词替换进度"):
+        item["origin_question"] = item["question"]
         item["question"] = replace_with_similar(item["question"])
         for option in ["A", "B", "C", "D"]:
+            item[f"origin_{option}"] = item[option]
             item[option] = replace_with_similar(item[option])
 
+    filter_out_minor_changes(data)
+    
     # 将修改后的数据写入新的 JSON 文件
     with open(args.output_file, "w", encoding="utf-8") as f:
         json.dump(data, f, ensure_ascii=False, indent=4)
@@ -392,6 +421,6 @@ if __name__ == "__main__":
 
     # 加载词汇表
     vocab = list(tokenizer.vocab.keys())
-
+    bert_model.eval()
     # 使用 BERT 进行近义词替换
     do_paraphrase()
